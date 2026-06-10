@@ -1,17 +1,16 @@
-//
-//  NDC_EliteApp.swift
-//  NDC-Elite
-//
-//  Created by Alumno Tecsup on 10/06/26.
-//
-
 import SwiftUI
 
 @main
 struct NDC_EliteApp: App {
+    @State private var session = SessionStore()
+
     var body: some Scene {
         WindowGroup {
             ContentView()
+                .environment(session)
+                .task {
+                    await session.start()
+                }
         }
     }
 }

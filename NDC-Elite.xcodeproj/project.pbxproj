@@ -6,6 +6,10 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		887609162FDA060000000003 /* Supabase in Frameworks */ = {isa = PBXBuildFile; productRef = 887609152FDA060000000002 /* Supabase */; };
+/* End PBXBuildFile section */
+
 /* Begin PBXFileReference section */
 		887609062FDA054A00375E15 /* NDC-Elite.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "NDC-Elite.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
@@ -23,6 +27,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				887609162FDA060000000003 /* Supabase in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -65,6 +70,7 @@
 			);
 			name = "NDC-Elite";
 			packageProductDependencies = (
+				887609152FDA060000000002 /* Supabase */,
 			);
 			productName = "NDC-Elite";
 			productReference = 887609062FDA054A00375E15 /* NDC-Elite.app */;
@@ -94,6 +100,9 @@
 			);
 			mainGroup = 887608FD2FDA054A00375E15;
 			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+				887609142FDA060000000001 /* XCRemoteSwiftPackageReference "supabase-swift" */,
+			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 887609072FDA054A00375E15 /* Products */;
 			projectDirPath = "";
@@ -328,6 +337,25 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		887609142FDA060000000001 /* XCRemoteSwiftPackageReference "supabase-swift" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/supabase/supabase-swift";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 2.0.0;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		887609152FDA060000000002 /* Supabase */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 887609142FDA060000000001 /* XCRemoteSwiftPackageReference "supabase-swift" */;
+			productName = Supabase;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = 887608FE2FDA054A00375E15 /* Project object */;
 }
