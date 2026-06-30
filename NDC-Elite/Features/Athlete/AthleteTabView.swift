@@ -28,36 +28,7 @@ struct AthleteTabView: View {
 }
 
 // MARK: - Placeholders (se reemplazan al construir cada feature)
-
-struct AthleteDashboardView: View {
-    let profile: Profile
-
-    var body: some View {
-        NavigationStack {
-            ScrollView {
-                VStack(alignment: .leading, spacing: NDCSpacing.stackLG) {
-                    Text("¡Hola, \(profile.firstName)!")
-                        .font(NDCFont.displayLG)
-                        .foregroundStyle(NDCColor.onSurface)
-                    Text("¿Listo para tu sesión NDC?")
-                        .font(NDCFont.bodyMD)
-                        .foregroundStyle(NDCColor.onSurfaceVariant)
-
-                    NDCCard {
-                        VStack(alignment: .leading, spacing: NDCSpacing.stackSM) {
-                            NDCChip(text: "WOD del día")
-                            Text("Próximamente: WOD, asistencia y récords en vivo")
-                                .font(NDCFont.bodyMD)
-                                .foregroundStyle(NDCColor.onSurfaceVariant)
-                        }
-                    }
-                }
-                .padding(.horizontal, NDCSpacing.marginMain)
-            }
-            .background(NDCColor.background)
-        }
-    }
-}
+// AthleteDashboardView vive ahora en AthleteDashboardView.swift
 
 struct WodDetailPlaceholderView: View {
     var body: some View {

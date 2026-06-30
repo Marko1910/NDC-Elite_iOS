@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+
+<html class="light" lang="es"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0, viewport-fit=cover" name="viewport"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;600;700;800&amp;family=Inter:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "on-error-container": "#93000a",
+                        "tertiary": "#003271",
+                        "on-primary-fixed-variant": "#0e4b6b",
+                        "surface-container-low": "#f3f3f8",
+                        "on-secondary": "#ffffff",
+                        "primary-container": "#165070",
+                        "on-surface-variant": "#41484d",
+                        "outline-variant": "#c1c7ce",
+                        "surface-container": "#ededf2",
+                        "secondary": "#705d00",
+                        "on-secondary-fixed-variant": "#544600",
+                        "inverse-surface": "#2e3034",
+                        "primary-fixed": "#c8e6ff",
+                        "on-tertiary": "#ffffff",
+                        "on-primary-container": "#90c2e7",
+                        "surface": "#f9f9fe",
+                        "on-tertiary-fixed": "#001a41",
+                        "surface-container-lowest": "#ffffff",
+                        "surface-dim": "#d9dade",
+                        "surface-container-highest": "#e2e2e7",
+                        "secondary-fixed": "#ffe16e",
+                        "inverse-primary": "#9accf2",
+                        "tertiary-container": "#00489c",
+                        "on-surface": "#1a1c1f",
+                        "surface-tint": "#2f6384",
+                        "tertiary-fixed": "#d8e2ff",
+                        "surface-variant": "#e2e2e7",
+                        "on-background": "#1a1c1f",
+                        "secondary-container": "#ffde59",
+                        "on-tertiary-fixed-variant": "#004493",
+                        "primary": "#003953",
+                        "primary-fixed-dim": "#9accf2",
+                        "on-primary-fixed": "#001e2f",
+                        "secondary-fixed-dim": "#e4c542",
+                        "surface-container-high": "#e8e8ed",
+                        "inverse-on-surface": "#f0f0f5",
+                        "on-error": "#ffffff",
+                        "error": "#ba1a1a",
+                        "error-container": "#ffdad6",
+                        "background": "#f9f9fe",
+                        "on-tertiary-container": "#9bbbff",
+                        "on-primary": "#ffffff",
+                        "tertiary-fixed-dim": "#adc6ff",
+                        "on-secondary-fixed": "#221b00",
+                        "surface-bright": "#f9f9fe",
+                        "outline": "#71787e",
+                        "on-secondary-container": "#756100"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "safe-area-bottom": "2.125rem",
+                        "gutter": "1rem",
+                        "stack-lg": "1.5rem",
+                        "margin-main": "1.25rem",
+                        "stack-sm": "0.5rem",
+                        "stack-md": "1rem"
+                    },
+                    "fontFamily": {
+                        "body-lg": ["Inter"],
+                        "display-lg": ["Hanken Grotesk"],
+                        "body-md": ["Inter"],
+                        "stats-xl": ["Hanken Grotesk"],
+                        "label-bold": ["Inter"],
+                        "headline-md": ["Hanken Grotesk"],
+                        "headline-sm": ["Hanken Grotesk"],
+                        "label-sm": ["Inter"]
+                    },
+                    "fontSize": {
+                        "body-lg": ["17px", {"lineHeight": "24px", "fontWeight": "400"}],
+                        "display-lg": ["34px", {"lineHeight": "41px", "letterSpacing": "-0.5px", "fontWeight": "800"}],
+                        "body-md": ["15px", {"lineHeight": "20px", "fontWeight": "400"}],
+                        "stats-xl": ["48px", {"lineHeight": "48px", "letterSpacing": "-1px", "fontWeight": "800"}],
+                        "label-bold": ["13px", {"lineHeight": "18px", "fontWeight": "600"}],
+                        "headline-md": ["24px", {"lineHeight": "30px", "letterSpacing": "0px", "fontWeight": "700"}],
+                        "headline-sm": ["20px", {"lineHeight": "25px", "fontWeight": "600"}],
+                        "label-sm": ["12px", {"lineHeight": "16px", "fontWeight": "500"}]
+                    }
+                },
+            },
+        }
+    </script>
+<style>
+        body { -webkit-tap-highlight-color: transparent; }
+        .glass-card {
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+        }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+            vertical-align: middle;
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background text-on-surface font-body-md selection:bg-secondary-container">
+<!-- Top Navigation Anchor -->
+<header class="bg-surface/80 backdrop-blur-md sticky top-0 z-50 flex justify-between items-center px-margin-main py-4 w-full">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-full overflow-hidden border-2 border-primary-container">
+<img alt="Athlete Profile" class="w-full h-full object-cover" data-alt="A professional close-up portrait of a determined CrossFit athlete in a modern gym setting. The lighting is dramatic and high-contrast, emphasizing their athletic features. The background is a sophisticated gym with premium equipment in soft focus. The overall aesthetic is clean, professional, and high-performance, using a palette of whites and deep blues." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCiTTiaPAl1luOfKaQH4hUZ7CHB0F4lo9Lpohk8g4cjXq8WrmbW-zKjs307bI3nK14Yqrd9zD5XZjYpCdtL5tU2rcN1mXtyxuSSgN7pwy4jT961p1h0hexFub6g-8TTUODG5A_PcBWoIWSc57_2LbCbaogI2W_8fbcjxtmpcv245mggSgVbqytOVZgX3aN0GQloKSN-Kn85Aegc5taI4lQDnRiFYYs-BAlzYUkFdySLVyHmaRcggaUzKQqa39Yzhd_v1LedrlrbsoOg"/>
+</div>
+<h1 class="font-headline-md text-headline-md font-bold text-primary">NDC HQ</h1>
+</div>
+<button class="text-primary hover:opacity-80 transition-opacity active:scale-95 duration-150">
+<span class="material-symbols-outlined" data-icon="notifications">notifications</span>
+</button>
+</header>
+<main class="px-margin-main pb-32 pt-4 max-w-2xl mx-auto">
+<!-- Search Section -->
+<section class="mb-stack-lg">
+<div class="relative group">
+<span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-outline group-focus-within:text-primary transition-colors">search</span>
+<input class="w-full pl-12 pr-4 py-4 bg-surface-container rounded-xl border-none focus:ring-2 focus:ring-primary text-body-lg font-body-lg placeholder:text-outline transition-all" placeholder="Buscar técnica (ej. Snatch, Cleans...)" type="text"/>
+</div>
+</section>
+<!-- Featured / Active Exercise Section -->
+<section class="mb-stack-lg">
+<div class="glass-card rounded-xl overflow-hidden shadow-sm border border-outline-variant/30">
+<!-- Video Container -->
+<div class="relative aspect-video bg-inverse-surface group cursor-pointer overflow-hidden">
+<img alt="Back Squat Technique" class="w-full h-full object-cover opacity-80 group-hover:scale-105 transition-transform duration-700" data-alt="A high-definition wide shot of an athlete performing a perfect back squat in a premium CrossFit box. The lighting is bright and airy with natural sunlight streaming in, creating a clean light-mode feel. The athlete is wearing high-end performance gear. The scene captures the moment of peak tension at the bottom of the movement, highlighting precision and strength." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDOih2w0sgY9X-ZJUR973XYBUcgjCo4cjuPGwXAHwfM5TDQ9F8bqnzubf1NjNanMFeGKeDFJ8bNZ_kLkNix8Y4EAbMpEi4hIrqY6Zhaah75jDrlszqh74CCDg7-E51V_eJy010z_CD5XMYI-9N0dBVGnaYXYBbky38vfxvjRIRO3yCeY_iCaMuz7L5j86D52jpCWStqdUTGhEeh8rWdCm7jLtzlqOkli1u2LTGzitA7P6GiUp68qjpM2QzbnVeiKfRZHQozMA0SU1l5"/>
+<div class="absolute inset-0 flex items-center justify-center bg-black/20 group-hover:bg-black/10 transition-colors">
+<div class="w-16 h-16 rounded-full bg-secondary-container flex items-center justify-center shadow-lg transform group-hover:scale-110 transition-transform">
+<span class="material-symbols-outlined text-on-secondary-container text-4xl" style="font-variation-settings: 'FILL' 1;">play_arrow</span>
+</div>
+</div>
+<div class="absolute bottom-4 left-4 flex gap-2">
+<span class="px-3 py-1 bg-primary/80 backdrop-blur-sm text-white text-label-sm font-label-sm rounded-full">Fuerza</span>
+<span class="px-3 py-1 bg-secondary/80 backdrop-blur-sm text-on-secondary text-label-sm font-label-sm rounded-full">Básico</span>
+</div>
+</div>
+<!-- Exercise Content -->
+<div class="p-6">
+<div class="flex justify-between items-start mb-4">
+<div>
+<h2 class="font-display-lg text-display-lg text-primary leading-tight">Back Squat</h2>
+<p class="text-outline font-label-sm uppercase tracking-wider">Sentadilla por detrás</p>
+</div>
+<button class="w-10 h-10 rounded-full border border-outline-variant flex items-center justify-center text-primary active:scale-90 transition-transform">
+<span class="material-symbols-outlined">bookmark</span>
+</button>
+</div>
+<div class="space-y-4">
+<div class="flex items-start gap-4">
+<div class="w-8 h-8 rounded-full bg-primary-container/20 flex items-center justify-center flex-shrink-0 text-primary">
+<span class="font-bold">1</span>
+</div>
+<p class="text-on-surface-variant text-body-md font-body-md pt-1">
+<span class="font-bold text-on-surface">Setup:</span> Pies a la anchura de los hombros, barra apoyada firmemente sobre los trapecios.
+                            </p>
+</div>
+<div class="flex items-start gap-4">
+<div class="w-8 h-8 rounded-full bg-primary-container/20 flex items-center justify-center flex-shrink-0 text-primary">
+<span class="font-bold">2</span>
+</div>
+<p class="text-on-surface-variant text-body-md font-body-md pt-1">
+<span class="font-bold text-on-surface">Descenso:</span> Iniciamos rompiendo la cadera, manteniendo el pecho erguido y las rodillas alineadas con los pies.
+                            </p>
+</div>
+<div class="flex items-start gap-4">
+<div class="w-8 h-8 rounded-full bg-primary-container/20 flex items-center justify-center flex-shrink-0 text-primary">
+<span class="font-bold">3</span>
+</div>
+<p class="text-on-surface-variant text-body-md font-body-md pt-1">
+<span class="font-bold text-on-surface">Profundidad:</span> El pliegue de la cadera debe bajar más que el tope de la rodilla.
+                            </p>
+</div>
+</div>
+<button class="w-full mt-6 py-4 bg-primary text-white rounded-xl font-bold active:scale-95 transition-transform flex items-center justify-center gap-2">
+<span class="material-symbols-outlined">analytics</span>
+                        Registrar PR Actual
+                    </button>
+</div>
+</div>
+</section>
+<!-- Horizontal Scroll Section: Recent / Popular -->
+<section class="mb-stack-lg">
+<div class="flex justify-between items-center mb-4">
+<h3 class="font-headline-sm text-headline-sm text-primary">Explorar Movimientos</h3>
+<button class="text-primary font-label-bold text-label-bold flex items-center">
+                    Ver todo <span class="material-symbols-outlined text-sm ml-1">arrow_forward_ios</span>
+</button>
+</div>
+<div class="flex gap-4 overflow-x-auto pb-4 -mx-margin-main px-margin-main no-scrollbar">
+<!-- Exercise Card 1 -->
+<div class="flex-shrink-0 w-48 group cursor-pointer">
+<div class="relative h-32 rounded-xl overflow-hidden mb-3">
+<img alt="Snatch Technique" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" data-alt="A focused close-up of a professional weightlifter catching a barbell in a deep snatch position. The image is captured in a minimalist gym setting with high-key lighting. The color palette is composed of pristine whites and deep blues, emphasizing a clean, professional executive look. The scene conveys intense concentration and technical mastery." src="https://lh3.googleusercontent.com/aida-public/AB6AXuApcrkcNyKd3k9QccFG_LvDYZMTl5xR-osQo5gDJ-FaAfdjOYHgcLGfC3mihxjZnqPF0sGJnYOVfM1qQvgIReYAGF32SZIBR4iz10b00fBF0BaU6tmedj6tohh8vl1vnKXYyWVwKK3n6sDPuCnxUAjh6PiEfZMhzBMFgK1rkhMdnUz8EE_DEf7OqCvxJHHQm6PkqGbb46FIc-UrImrTZlxagO1P3cVbV7Fd_uJlDgNEFEWfMalW3LgtRqoiQOKG5Rx89WTwZsVDwzkG"/>
+<div class="absolute top-2 left-2 px-2 py-0.5 bg-secondary-container text-on-secondary-container text-[10px] font-bold rounded-full uppercase">Olimpico</div>
+</div>
+<h4 class="font-headline-sm text-[16px] text-on-surface">Snatch</h4>
+<p class="text-outline text-label-sm">Halterofilia</p>
+</div>
+<!-- Exercise Card 2 -->
+<div class="flex-shrink-0 w-48 group cursor-pointer">
+<div class="relative h-32 rounded-xl overflow-hidden mb-3">
+<img alt="Clean &amp; Jerk" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" data-alt="A cinematic medium shot of a barbell loaded with bumper plates resting on a professional lifting platform. The background features a blurred modern gym with cool-toned lighting. The atmosphere is professional, quiet, and high-performance, emphasizing the discipline and premium nature of Olympic lifting in a clean light-mode design." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCItf2c63ulck8Yl53cCf82x4j4eyokuRoxF7bAnFvFseSqzuHmGDueEce-sEhkn1ROzZjx2shwH6n35ccBQyDxdW5s6IbVzn_3yp8CHV5A0CyY2xEslrgP5_OnJGPSS7EPpyGcOn30a07OKcTXK4evYBi2pT7an1intHVxiXPVCL-6wvrJswMIXSVS9GHbR4HE1CUVcaYrDdrn6KzZ_RqMUqS5G2SGuqwaHTKHSB-xczXOXvc0QvrMvS0rZqp3KHFt0kUtjKMcefCc"/>
+<div class="absolute top-2 left-2 px-2 py-0.5 bg-secondary-container text-on-secondary-container text-[10px] font-bold rounded-full uppercase">Olimpico</div>
+</div>
+<h4 class="font-headline-sm text-[16px] text-on-surface">Clean &amp; Jerk</h4>
+<p class="text-outline text-label-sm">Halterofilia</p>
+</div>
+<!-- Exercise Card 3 -->
+<div class="flex-shrink-0 w-48 group cursor-pointer">
+<div class="relative h-32 rounded-xl overflow-hidden mb-3">
+<img alt="Ring Muscle Up" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" data-alt="A professional shot of gymnastic rings hanging from a high-quality rig in a spacious, light-filled CrossFit facility. The aesthetic is extremely clean and modern with soft shadows. The lighting is bright and welcoming, focusing on the high-quality equipment. The scene represents technical gymnastics excellence in a premium athletic environment." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDV50azkH5k7O2yYKNPknpsYvXMB-LE-sMOi4aEeyLiqz22dQs_D1VWMbBfRvKy7Mn6b3G2RhZSvOdW-FUZlHScF2w_Vmp0kXV3Walin56Xt7Ip6x5MRKYkD8s8NYgvql7_oeoxgcv_Peo1z5roLVh-6wm6H_3copmw5cmW3ZAsS8aICooK1R3H6IEkD5XGn--YcX056SgxA6phkmprnaZmepAAl_u2AMxPhccRbg4GvbFzI_5fMHFq3-FzYLxlxiKeQ7toYvDOBrzE"/>
+<div class="absolute top-2 left-2 px-2 py-0.5 bg-secondary-container text-on-secondary-container text-[10px] font-bold rounded-full uppercase">Gimnasia</div>
+</div>
+<h4 class="font-headline-sm text-[16px] text-on-surface">Ring Muscle Up</h4>
+<p class="text-outline text-label-sm">Gimnasia Técnica</p>
+</div>
+</div>
+</section>
+<!-- Category Bento Grid -->
+<section>
+<h3 class="font-headline-sm text-headline-sm text-primary mb-4">Categorías</h3>
+<div class="grid grid-cols-2 gap-4">
+<div class="bg-surface-container rounded-2xl p-5 flex flex-col items-center justify-center text-center group cursor-pointer hover:bg-primary transition-colors">
+<span class="material-symbols-outlined text-4xl text-primary group-hover:text-white mb-2">fitness_center</span>
+<span class="font-label-bold text-primary group-hover:text-white">Fuerza</span>
+</div>
+<div class="bg-surface-container rounded-2xl p-5 flex flex-col items-center justify-center text-center group cursor-pointer hover:bg-primary transition-colors">
+<span class="material-symbols-outlined text-4xl text-primary group-hover:text-white mb-2">sports_gymnastics</span>
+<span class="font-label-bold text-primary group-hover:text-white">Gimnasia</span>
+</div>
+<div class="bg-surface-container rounded-2xl p-5 flex flex-col items-center justify-center text-center group cursor-pointer hover:bg-primary transition-colors">
+<span class="material-symbols-outlined text-4xl text-primary group-hover:text-white mb-2">rowing</span>
+<span class="font-label-bold text-primary group-hover:text-white">Endurance</span>
+</div>
+<div class="bg-surface-container rounded-2xl p-5 flex flex-col items-center justify-center text-center group cursor-pointer hover:bg-primary transition-colors">
+<span class="material-symbols-outlined text-4xl text-primary group-hover:text-white mb-2">health_and_safety</span>
+<span class="font-label-bold text-primary group-hover:text-white">Movilidad</span>
+</div>
+</div>
+</section>
+</main>
+<!-- Bottom Navigation Shell -->
+<nav class="fixed bottom-0 left-0 w-full flex justify-around items-center px-4 py-2 bg-surface/80 backdrop-blur-md pb-safe-area-bottom z-50">
+<button class="flex flex-col items-center justify-center text-outline dark:text-outline-variant hover:bg-surface-variant/20 rounded-full py-1 px-4 transition-transform active:scale-90 duration-200">
+<span class="material-symbols-outlined">fitness_center</span>
+<span class="font-label-sm text-label-sm">NDC HQ</span>
+</button>
+<button class="flex flex-col items-center justify-center text-outline dark:text-outline-variant hover:bg-surface-variant/20 rounded-full py-1 px-4 transition-transform active:scale-90 duration-200">
+<span class="material-symbols-outlined">timer</span>
+<span class="font-label-sm text-label-sm">WOD</span>
+</button>
+<button class="flex flex-col items-center justify-center text-secondary font-bold hover:bg-surface-variant/20 rounded-full py-1 px-4 transition-transform active:scale-90 duration-200">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">trending_up</span>
+<span class="font-label-sm text-label-sm">PR Lab</span>
+</button>
+<button class="flex flex-col items-center justify-center text-outline dark:text-outline-variant hover:bg-surface-variant/20 rounded-full py-1 px-4 transition-transform active:scale-90 duration-200">
+<span class="material-symbols-outlined">leaderboard</span>
+<span class="font-label-sm text-label-sm">Leaderboard</span>
+</button>
+<button class="flex flex-col items-center justify-center text-outline dark:text-outline-variant hover:bg-surface-variant/20 rounded-full py-1 px-4 transition-transform active:scale-90 duration-200">
+<span class="material-symbols-outlined">person</span>
+<span class="font-label-sm text-label-sm">Perfil</span>
+</button>
+</nav>
+<!-- Simple Hover & Interaction Script -->
+<script>
+        // Custom micro-interactions can go here
+        const cards = document.querySelectorAll('.glass-card, .bg-surface-container');
+        cards.forEach(card => {
+            card.addEventListener('mousedown', () => {
+                card.style.transform = 'scale(0.98)';
+            });
+            card.addEventListener('mouseup', () => {
+                card.style.transform = 'scale(1)';
+            });
+            card.addEventListener('mouseleave', () => {
+                card.style.transform = 'scale(1)';
+            });
+        });
+    </script>
+</body></html>
