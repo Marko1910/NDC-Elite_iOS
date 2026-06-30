@@ -14,7 +14,7 @@ struct CoachTabView: View {
                 WodManagementView(profile: profile)
             }
             Tab("Atletas", systemImage: "person.3.fill") {
-                AthleteManagementPlaceholderView()
+                AthleteManagementView(profile: profile)
             }
             Tab("Alertas", systemImage: "bell.fill") {
                 CoachAlertsPlaceholderView()
@@ -32,15 +32,7 @@ struct CoachTabView: View {
 
 // WodManagementView vive en WodManagementView.swift
 
-struct AthleteManagementPlaceholderView: View {
-    var body: some View {
-        ContentUnavailableView(
-            "Gestión de Atletas",
-            systemImage: "person.3.fill",
-            description: Text("Atletas, asistencia y perfiles (FLOWS.md: AthleteManagementView)")
-        )
-    }
-}
+// AthleteManagementView vive en AthleteManagementView.swift
 
 struct CoachAlertsPlaceholderView: View {
     var body: some View {
