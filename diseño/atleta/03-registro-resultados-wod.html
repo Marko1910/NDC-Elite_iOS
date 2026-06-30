@@ -133,7 +133,7 @@
 <!-- WOD Info Card -->
 <div class="bg-primary-container rounded-xl p-5 text-on-primary-container shadow-lg">
 <div class="flex justify-between items-start mb-2">
-<h2 class="font-display-lg text-headline-md leading-tight">El Desafío Híbrido</h2>
+<h2 class="font-display-lg text-headline-md leading-tight text-white">El Desafío Híbrido</h2>
 <span class="px-3 py-1 rounded-full text-label-sm font-label-sm bg-white/20 text-white">RX</span>
 </div>
 <p class="text-label-sm opacity-90">Hoy, Sábado 30 de Mayo • Fuerza &amp; Metcon</p>
@@ -150,7 +150,7 @@
 <input class="w-6 h-6 rounded border-outline-variant text-primary focus:ring-primary" type="checkbox"/>
 <span class="text-body-md">Back Squat (5 Sets de 3 Reps)</span>
 </label>
-</div>
+<label class="flex items-center gap-3 p-4"><input class="w-6 h-6 rounded border-outline-variant text-primary focus:ring-primary" type="checkbox"/><span class="text-body-md">Metcon: El Desafío Híbrido</span></label></div>
 </section>
 <!-- Section: Metcon Result -->
 <section class="space-y-stack-sm">
@@ -166,21 +166,11 @@
 <input class="w-full bg-surface-container rounded-lg border-none p-3 text-center text-headline-md focus:ring-2 focus:ring-primary" placeholder="00" type="number"/>
 </div>
 </div>
-<div class="mt-4 space-y-1">
-<label class="text-label-sm text-outline">Peso Utilizado (lbs)</label>
-<input class="w-full bg-surface-container rounded-lg border-none p-3 text-body-lg focus:ring-2 focus:ring-primary" placeholder="Ej: 135" type="number"/>
-</div>
+<div class="mt-4 space-y-1"><div class="flex justify-between items-end mb-1"><label class="text-label-sm text-outline">Peso Utilizado</label><div class="flex bg-surface-container rounded-lg p-1 gap-1"><button class="px-3 py-0.5 rounded-md text-label-sm font-label-bold bg-white shadow-sm">Lbs</button><button class="px-3 py-0.5 rounded-md text-label-sm font-label-bold text-outline">Kg</button></div></div><input class="w-full bg-surface-container rounded-lg border-none p-3 text-body-lg focus:ring-2 focus:ring-primary" placeholder="Ej: 135" type="number"/></div>
 </div>
 </section>
 <!-- Section: Intensity -->
-<section class="space-y-stack-sm">
-<h3 class="font-label-bold text-outline uppercase">Nivel de Intensidad</h3>
-<div class="grid grid-cols-3 gap-2">
-<button class="py-3 rounded-lg border border-outline-variant text-label-sm font-label-bold bg-surface">Principiante</button>
-<button class="py-3 rounded-lg bg-primary text-on-primary text-label-sm font-label-bold">Intermedio</button>
-<button class="py-3 rounded-lg border border-outline-variant text-label-sm font-label-bold bg-surface">Avanzado</button>
-</div>
-</section>
+<section class="space-y-stack-sm"><h3 class="font-label-bold text-outline uppercase">Esfuerzo Percibido (RPE)</h3><div class="flex flex-col gap-4"><div class="flex justify-between items-center px-1"><span class="text-label-sm text-outline">Suave (1)</span><span class="text-label-sm text-outline">Máximo (10)</span></div><div class="grid grid-cols-10 gap-1"> <button class="h-10 rounded bg-surface border border-outline-variant text-label-sm font-bold hover:bg-primary-container">1</button> <button class="h-10 rounded bg-surface border border-outline-variant text-label-sm font-bold hover:bg-primary-container">2</button> <button class="h-10 rounded bg-surface border border-outline-variant text-label-sm font-bold hover:bg-primary-container">3</button> <button class="h-10 rounded bg-surface border border-outline-variant text-label-sm font-bold hover:bg-primary-container">4</button> <button class="h-10 rounded bg-surface border border-outline-variant text-label-sm font-bold hover:bg-primary-container">5</button> <button class="h-10 rounded bg-surface border border-outline-variant text-label-sm font-bold hover:bg-primary-container">6</button> <button class="h-10 rounded bg-primary text-on-primary text-label-sm font-bold">7</button> <button class="h-10 rounded bg-surface border border-outline-variant text-label-sm font-bold hover:bg-primary-container">8</button> <button class="h-10 rounded bg-surface border border-outline-variant text-label-sm font-bold hover:bg-primary-container">9</button> <button class="h-10 rounded bg-surface border border-outline-variant text-label-sm font-bold hover:bg-primary-container">10</button> </div><p class="text-label-sm text-center text-outline italic">7: Esfuerzo vigoroso, respiración pesada.</p></div></section>
 <!-- Section: Notes -->
 <section class="space-y-stack-sm">
 <h3 class="font-label-bold text-outline uppercase">Notas del Atleta</h3>
@@ -188,7 +178,7 @@
 </section>
 <!-- Confirm Button -->
 <div class="pt-4 mb-8">
-<button class="w-full bg-primary text-on-primary font-headline-sm py-4 rounded-xl shadow-lg flex items-center justify-center gap-2 btn-active">
+<button class="w-full bg-primary text-on-primary font-headline-sm py-4 rounded-xl shadow-lg flex items-center justify-center gap-2 btn-active uppercase">
 <span class="material-symbols-outlined">check_circle</span>
       Confirmar Resultado
     </button>

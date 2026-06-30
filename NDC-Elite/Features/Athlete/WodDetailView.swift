@@ -12,6 +12,7 @@ struct WodDetailView: View {
     private let data = WodDetailData.sample
 
     @State private var search = ""
+    @State private var showLogResult = false
 
     var body: some View {
         NavigationStack {
@@ -33,6 +34,9 @@ struct WodDetailView: View {
             }
             .background(NDCColor.background)
             .scrollIndicators(.hidden)
+            .navigationDestination(isPresented: $showLogResult) {
+                LogWodResultView()
+            }
             .ndcBrandToolbar(profile: profile, unreadCount: data.unreadCount) {
                 // TODO: → AthleteNotificationsView
             }
@@ -93,7 +97,7 @@ struct WodDetailView: View {
         VStack(spacing: NDCSpacing.stackMD) {
             Button {
                 Haptics.impact()
-                // TODO: → LogWodResultSheet
+                showLogResult = true
             } label: {
                 Label("Registrar mi Resultado", systemImage: "square.and.pencil")
                     .font(NDCFont.headlineSM)
