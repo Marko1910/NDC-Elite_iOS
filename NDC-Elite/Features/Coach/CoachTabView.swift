@@ -20,7 +20,7 @@ struct CoachTabView: View {
                 CoachAlertsView(profile: profile)
             }
             Tab("Progreso", systemImage: "chart.bar.fill") {
-                CommunityProgressPlaceholderView()
+                CommunityProgressView(profile: profile)
             }
         }
         .tint(NDCColor.primary)
@@ -36,12 +36,4 @@ struct CoachTabView: View {
 
 // CoachAlertsView vive en CoachAlertsView.swift
 
-struct CommunityProgressPlaceholderView: View {
-    var body: some View {
-        ContentUnavailableView(
-            "Progreso Comunitario",
-            systemImage: "chart.bar.fill",
-            description: Text("PRs globales y adherencia (FLOWS.md: CommunityProgressView)")
-        )
-    }
-}
+// CommunityProgressView vive en CommunityProgressView.swift
