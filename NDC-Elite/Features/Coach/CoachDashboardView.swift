@@ -12,6 +12,7 @@ import Charts
 struct CoachDashboardView: View {
     let profile: Profile
     private let data = CoachDashboardData.sample
+    @State private var showValidation = false
 
     var body: some View {
         NavigationStack {
@@ -19,7 +20,7 @@ struct CoachDashboardView: View {
                 VStack(alignment: .leading, spacing: NDCSpacing.stackLG) {
                     greeting
                     AttendanceTodayCard(data: data)
-                    PendingValidationsCard(count: data.pendingValidations, onReview: {})
+                    PendingValidationsCard(count: data.pendingValidations, onReview: { showValidation = true })
                     WeeklyPerformanceCard(data: data)
                     NextWodCard(wod: data.nextWod)
                     attendanceAlerts
@@ -30,6 +31,7 @@ struct CoachDashboardView: View {
             }
             .background(NDCColor.background)
             .scrollIndicators(.hidden)
+            .navigationDestination(isPresented: $showValidation) { ValidationView() }
             .toolbar {
                 ToolbarItem(placement: .topBarLeading) { brandLabel }
                 ToolbarItem(placement: .topBarTrailing) {

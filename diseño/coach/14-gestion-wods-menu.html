@@ -1,0 +1,259 @@
+<!DOCTYPE html><html class="light" lang="es"><head>
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0, viewport-fit=cover" name="viewport">
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;600;700;800&amp;family=Inter:wght@400;500;600&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "primary": "#003953",
+                    "on-secondary-fixed-variant": "#544600",
+                    "primary-fixed": "#c8e6ff",
+                    "surface-tint": "#2f6384",
+                    "surface-container-lowest": "#ffffff",
+                    "on-secondary": "#ffffff",
+                    "surface-container-low": "#f3f3f8",
+                    "on-tertiary-container": "#9bbbff",
+                    "on-error": "#ffffff",
+                    "inverse-on-surface": "#f0f0f5",
+                    "outline": "#71787e",
+                    "on-tertiary": "#ffffff",
+                    "on-secondary-container": "#756100",
+                    "on-surface-variant": "#41484d",
+                    "on-error-container": "#93000a",
+                    "tertiary-container": "#00489c",
+                    "on-surface": "#1a1c1f",
+                    "on-primary-container": "#90c2e7",
+                    "on-secondary-fixed": "#221b00",
+                    "tertiary-fixed": "#d8e2ff",
+                    "on-tertiary-fixed": "#001a41",
+                    "on-background": "#1a1c1f",
+                    "surface-container": "#ededf2",
+                    "secondary": "#705d00",
+                    "surface-variant": "#e2e2e7",
+                    "on-primary": "#ffffff",
+                    "surface-container-high": "#e8e8ed",
+                    "outline-variant": "#c1c7ce",
+                    "error-container": "#ffdad6",
+                    "surface-container-highest": "#e2e2e7",
+                    "surface": "#f9f9fe",
+                    "error": "#ba1a1a",
+                    "on-primary-fixed-variant": "#0e4b6b",
+                    "secondary-fixed": "#ffe16e",
+                    "on-primary-fixed": "#001e2f",
+                    "tertiary-fixed-dim": "#adc6ff",
+                    "surface-bright": "#f9f9fe",
+                    "inverse-primary": "#9accf2",
+                    "secondary-fixed-dim": "#e4c542",
+                    "primary-container": "#165070",
+                    "inverse-surface": "#2e3034",
+                    "surface-dim": "#d9dade",
+                    "primary-fixed-dim": "#9accf2",
+                    "on-tertiary-fixed-variant": "#004493",
+                    "tertiary": "#003271",
+                    "background": "#f9f9fe",
+                    "secondary-container": "#ffde59"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.25rem",
+                    "lg": "0.5rem",
+                    "xl": "0.75rem",
+                    "full": "9999px"
+            },
+            "spacing": {
+                    "stack-md": "1rem",
+                    "stack-sm": "0.5rem",
+                    "gutter": "1rem",
+                    "stack-lg": "1.5rem",
+                    "safe-area-bottom": "2.125rem",
+                    "margin-main": "1.25rem"
+            },
+            "fontFamily": {
+                    "display-lg": ["Hanken Grotesk"],
+                    "label-bold": ["Inter"],
+                    "headline-sm": ["Hanken Grotesk"],
+                    "body-lg": ["Inter"],
+                    "stats-xl": ["Hanken Grotesk"],
+                    "label-sm": ["Inter"],
+                    "headline-md": ["Hanken Grotesk"],
+                    "body-md": ["Inter"]
+            },
+            "fontSize": {
+                    "display-lg": ["34px", {"lineHeight": "41px", "letterSpacing": "-0.5px", "fontWeight": "800"}],
+                    "label-bold": ["13px", {"lineHeight": "18px", "fontWeight": "600"}],
+                    "headline-sm": ["20px", {"lineHeight": "25px", "fontWeight": "600"}],
+                    "body-lg": ["17px", {"lineHeight": "24px", "fontWeight": "400"}],
+                    "stats-xl": ["48px", {"lineHeight": "48px", "letterSpacing": "-1px", "fontWeight": "800"}],
+                    "label-sm": ["12px", {"lineHeight": "16px", "fontWeight": "500"}],
+                    "headline-md": ["24px", {"lineHeight": "30px", "letterSpacing": "0px", "fontWeight": "700"}],
+                    "body-md": ["15px", {"lineHeight": "20px", "fontWeight": "400"}]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        body { font-family: 'Inter', sans-serif; -webkit-tap-highlight-color: transparent; }
+        .hanken { font-family: 'Hanken Grotesk', sans-serif; }
+        .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
+        .blur-overlay { transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
+        .fab-menu-item { transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1); }
+    </style>
+</head>
+<body class="bg-background text-on-background min-h-screen">
+<!-- Top App Bar -->
+<header class="fixed top-0 w-full z-50 bg-surface/80 dark:bg-surface-dim/80 backdrop-blur-md flex justify-between items-center px-margin-main h-16 w-full">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-full overflow-hidden border-2 border-primary-container">
+<img alt="Coach Avatar" class="w-full h-full object-cover" data-alt="A professional athletic headshot of a fit coach in a high-performance training facility. The coach is wearing premium athletic apparel. The background is a blurred high-end CrossFit gym with modern equipment, bathed in soft, bright light that creates a clean, executive fitness atmosphere." src="https://lh3.googleusercontent.com/aida-public/AB6AXuD0OpBztcRkkxkIwRah3GXvoBGfvvAYA0VKWwINbfgoVBFXGSO4_YZ0ma5WzLdxagvaKVVTbwIJBO4BfsZ3Ahi5aNYa8hOk5k7tQxVbpob7LI6V6vY_U7Gen1uU2WF7ZQgcVFzuZNIbHQ5tDEp6__boIcX_kkORQbV3jRCuyr_QPjIVvqcWEp0gZkiO5VFrPWWPq2pe8uDId1JaG9bQ5yHEEJifcGBDe97u6JuZmyYDOvvry4OBIM9dWBs-2qUyD9as25kpFeXHQ2Pr">
+</div>
+<h1 class="font-headline-md text-headline-md font-bold text-primary dark:text-primary-fixed">Gestión de WODs</h1>
+</div>
+<button class="text-primary dark:text-primary-fixed active:scale-95 transition-transform duration-200">
+<span class="material-symbols-outlined" style="font-size: 28px;">add_circle</span>
+</button>
+</header>
+<!-- Main Content Canvas -->
+<main class="pt-20 pb-32 px-margin-main">
+<!-- Dashboard Header -->
+<div class="mb-stack-lg">
+<h2 class="font-headline-sm text-headline-sm text-on-surface mb-2">Programación Semanal</h2>
+<p class="font-body-md text-body-md text-on-surface-variant">4 de Noviembre - 10 de Noviembre</p>
+</div>
+<!-- Bento Grid for WODs -->
+<div class="grid grid-cols-1 md:grid-cols-2 gap-stack-md">
+<!-- WOD Card 1: Today -->
+<div class="bg-surface-container-low rounded-xl p-stack-md relative overflow-hidden group border border-outline-variant/20">
+<div class="flex justify-between items-start mb-stack-md">
+<span class="bg-primary/10 text-primary px-3 py-1 rounded-full font-label-bold text-label-bold">LUNES</span>
+<span class="bg-secondary-container text-on-secondary-container px-2 py-0.5 rounded text-[10px] font-bold">EMOM 20'</span>
+</div>
+<h3 class="font-headline-sm text-headline-sm text-primary mb-1">Power Cleans &amp; Burpees</h3>
+<p class="font-body-md text-body-md text-on-surface-variant mb-stack-md">Focus: Explosividad y resistencia cardiovascular bajo fatiga.</p>
+<div class="flex gap-2">
+<span class="bg-surface-variant/50 px-2 py-1 rounded font-label-sm text-label-sm text-on-surface-variant">RX 60/40kg</span>
+<span class="bg-surface-variant/50 px-2 py-1 rounded font-label-sm text-label-sm text-on-surface-variant">Escalado 40/25kg</span>
+</div>
+</div>
+<!-- WOD Card 2 -->
+<div class="bg-surface-container-low rounded-xl p-stack-md relative overflow-hidden group border border-outline-variant/20">
+<div class="flex justify-between items-start mb-stack-md">
+<span class="bg-primary/10 text-primary px-3 py-1 rounded-full font-label-bold text-label-bold">MARTES</span>
+<span class="bg-primary-container text-on-primary-container px-2 py-0.5 rounded text-[10px] font-bold">AMRAP 15'</span>
+</div>
+<h3 class="font-headline-sm text-headline-sm text-primary mb-1">Cisne Negro</h3>
+<p class="font-body-md text-body-md text-on-surface-variant mb-stack-md">Skill: Handstand Walk progressions before Metcon.</p>
+<div class="flex gap-2">
+<span class="bg-surface-variant/50 px-2 py-1 rounded font-label-sm text-label-sm text-on-surface-variant">Gymnastics</span>
+<span class="bg-surface-variant/50 px-2 py-1 rounded font-label-sm text-label-sm text-on-surface-variant">Skill Focus</span>
+</div>
+</div>
+<!-- WOD Card 3 -->
+<div class="bg-surface-container-low rounded-xl p-stack-md relative overflow-hidden group border border-outline-variant/20">
+<div class="flex justify-between items-start mb-stack-md">
+<span class="bg-primary/10 text-primary px-3 py-1 rounded-full font-label-bold text-label-bold">MIÉRCOLES</span>
+<span class="bg-error-container text-on-error-container px-2 py-0.5 rounded text-[10px] font-bold">HIIT RUN</span>
+</div>
+<h3 class="font-headline-sm text-headline-sm text-primary mb-1">Intervalos de Pista</h3>
+<p class="font-body-md text-body-md text-on-surface-variant mb-stack-md">8 x 400m con 1:30 de descanso activo.</p>
+<div class="flex gap-2">
+<span class="bg-surface-variant/50 px-2 py-1 rounded font-label-sm text-label-sm text-on-surface-variant">Outdoor</span>
+<span class="bg-surface-variant/50 px-2 py-1 rounded font-label-sm text-label-sm text-on-surface-variant">Endurance</span>
+</div>
+</div>
+</div>
+</main>
+<!-- Modal Backdrop (Active state simulation) -->
+<div class="fixed inset-0 bg-inverse-surface/40 backdrop-blur-sm z-[60] opacity-100 transition-opacity flex flex-col justify-end items-end p-margin-main pointer-events-auto" id="fabOverlay">
+<!-- Quick Action Menu -->
+<div class="flex flex-col items-end gap-stack-md mb-24 pr-2">
+<!-- Option 2: Running -->
+<div class="flex items-center gap-4 fab-menu-item translate-y-0 opacity-100 scale-100">
+<span class="bg-surface-container-highest/90 backdrop-blur-md px-4 py-2 rounded-xl text-primary font-headline-sm text-[16px] shadow-lg">Programar Running</span>
+<button class="w-14 h-14 rounded-full bg-primary text-white flex items-center justify-center shadow-lg active:scale-90 transition-transform">
+<span class="material-symbols-outlined">directions_run</span>
+</button>
+</div>
+<!-- Option 1: Create WOD -->
+<div class="flex items-center gap-4 fab-menu-item translate-y-0 opacity-100 scale-100">
+<span class="bg-surface-container-highest/90 backdrop-blur-md px-4 py-2 rounded-xl text-primary font-headline-sm text-[16px] shadow-lg">Crear WOD</span>
+<button class="w-14 h-14 rounded-full bg-primary text-white flex items-center justify-center shadow-lg active:scale-90 transition-transform">
+<span class="material-symbols-outlined">fitness_center</span>
+</button>
+</div>
+</div>
+<!-- Primary FAB (The X Button when open) -->
+<button class="w-16 h-16 rounded-full bg-secondary-container text-on-secondary-container shadow-xl flex items-center justify-center active:scale-90 transition-all duration-300 transform rotate-45" id="mainFab">
+<span class="material-symbols-outlined" style="font-size: 32px;">add</span>
+</button>
+</div>
+<!-- Bottom Navigation Bar -->
+<nav class="fixed bottom-0 w-full z-50 bg-surface/80 dark:bg-surface-dim/80 backdrop-blur-md pb-safe-area-bottom flex justify-around items-center w-full px-gutter py-2">
+<a class="flex flex-col items-center justify-center text-on-surface-variant dark:text-outline-variant px-4 py-1 hover:bg-surface-variant/50 rounded-xl transition-all" href="#">
+<span class="material-symbols-outlined">group</span>
+<span class="font-label-sm text-label-sm">Atletas</span>
+</a>
+<a class="flex flex-col items-center justify-center bg-secondary-container dark:bg-on-secondary-fixed-variant text-on-secondary-container dark:text-secondary-fixed rounded-xl px-4 py-1" href="#">
+<span class="material-symbols-outlined" data-weight="fill">fitness_center</span>
+<span class="font-label-sm text-label-sm">WODs</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant dark:text-outline-variant px-4 py-1 hover:bg-surface-variant/50 rounded-xl transition-all" href="#">
+<span class="material-symbols-outlined">notifications</span>
+<span class="font-label-sm text-label-sm">Alertas</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant dark:text-outline-variant px-4 py-1 hover:bg-surface-variant/50 rounded-xl transition-all" href="#">
+<span class="material-symbols-outlined">trending_up</span>
+<span class="font-label-sm text-label-sm">Progreso</span>
+</a>
+</nav>
+<script>
+        const fab = document.getElementById('mainFab');
+        const overlay = document.getElementById('fabOverlay');
+        const menuItems = document.querySelectorAll('.fab-menu-item');
+        let isOpen = true; // Set to true by default for this view as per prompt
+
+        function toggleMenu() {
+            isOpen = !isOpen;
+            if (isOpen) {
+                overlay.classList.remove('opacity-0', 'pointer-events-none');
+                overlay.classList.add('opacity-100', 'pointer-events-auto');
+                fab.classList.add('rotate-45');
+                menuItems.forEach((item, index) => {
+                    setTimeout(() => {
+                        item.classList.remove('translate-y-10', 'opacity-0', 'scale-90');
+                        item.classList.add('translate-y-0', 'opacity-100', 'scale-100');
+                    }, index * 50);
+                });
+            } else {
+                overlay.classList.add('opacity-0', 'pointer-events-none');
+                overlay.classList.remove('opacity-100', 'pointer-events-auto');
+                fab.classList.remove('rotate-45');
+                menuItems.forEach((item) => {
+                    item.classList.add('translate-y-10', 'opacity-0', 'scale-90');
+                    item.classList.remove('translate-y-0', 'opacity-100', 'scale-100');
+                });
+            }
+        }
+
+        fab.addEventListener('click', (e) => {
+            e.stopPropagation();
+            toggleMenu();
+        });
+
+        overlay.addEventListener('click', (e) => {
+            if (e.target === overlay) {
+                toggleMenu();
+            }
+        });
+
+        // Add hanken font class to necessary elements for branding
+        document.querySelectorAll('h1, h2, h3, .font-headline-sm, .font-headline-md').forEach(el => {
+            el.classList.add('hanken');
+        });
+    </script>
+</body></html>

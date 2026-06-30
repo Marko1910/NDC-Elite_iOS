@@ -1,0 +1,297 @@
+<!DOCTYPE html><html lang="es"><head>
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0, viewport-fit=cover" name="viewport">
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;500;600;700;800&amp;family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "on-background": "#1a1c1f",
+                        "background": "#f9f9fe",
+                        "surface-container": "#ededf2",
+                        "on-secondary-fixed": "#221b00",
+                        "primary-fixed": "#c8e6ff",
+                        "on-tertiary-fixed": "#001a41",
+                        "outline": "#71787e",
+                        "error-container": "#ffdad6",
+                        "surface-dim": "#d9dade",
+                        "on-primary": "#ffffff",
+                        "tertiary-container": "#00489c",
+                        "surface-bright": "#f9f9fe",
+                        "on-surface-variant": "#41484d",
+                        "primary-container": "#165070",
+                        "on-tertiary-container": "#9bbbff",
+                        "error": "#ba1a1a",
+                        "on-tertiary-fixed-variant": "#004493",
+                        "primary-fixed-dim": "#9accf2",
+                        "on-error-container": "#93000a",
+                        "surface-tint": "#2f6384",
+                        "inverse-surface": "#2e3034",
+                        "surface-variant": "#e2e2e7",
+                        "on-secondary-container": "#756100",
+                        "on-surface": "#1a1c1f",
+                        "on-secondary-fixed-variant": "#544600",
+                        "on-primary-container": "#90c2e7",
+                        "surface-container-low": "#f3f3f8",
+                        "surface-container-high": "#e8e8ed",
+                        "tertiary-fixed": "#d8e2ff",
+                        "inverse-primary": "#9accf2",
+                        "tertiary": "#003271",
+                        "on-error": "#ffffff",
+                        "tertiary-fixed-dim": "#adc6ff",
+                        "secondary": "#705d00",
+                        "on-secondary": "#ffffff",
+                        "surface-container-highest": "#e2e2e7",
+                        "on-primary-fixed-variant": "#0e4b6b",
+                        "surface": "#f9f9fe",
+                        "secondary-container": "#ffde59",
+                        "on-tertiary": "#ffffff",
+                        "surface-container-lowest": "#ffffff",
+                        "on-primary-fixed": "#001e2f",
+                        "inverse-on-surface": "#f0f0f5",
+                        "secondary-fixed": "#ffe16e",
+                        "outline-variant": "#c1c7ce",
+                        "primary": "#003953",
+                        "secondary-fixed-dim": "#e4c542"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "stack-sm": "0.5rem",
+                        "stack-md": "1rem",
+                        "safe-area-bottom": "2.125rem",
+                        "stack-lg": "1.5rem",
+                        "gutter": "1rem",
+                        "margin-main": "1.25rem"
+                    },
+                    "fontFamily": {
+                        "label-bold": ["Inter"],
+                        "display-lg": ["Hanken Grotesk"],
+                        "headline-md": ["Hanken Grotesk"],
+                        "stats-xl": ["Hanken Grotesk"],
+                        "label-sm": ["Inter"],
+                        "body-lg": ["Inter"],
+                        "body-md": ["Inter"],
+                        "headline-sm": ["Hanken Grotesk"]
+                    },
+                    "fontSize": {
+                        "label-bold": ["13px", {"lineHeight": "18px", "fontWeight": "600"}],
+                        "display-lg": ["34px", {"lineHeight": "41px", "letterSpacing": "-0.5px", "fontWeight": "800"}],
+                        "headline-md": ["24px", {"lineHeight": "30px", "letterSpacing": "0px", "fontWeight": "700"}],
+                        "stats-xl": ["48px", {"lineHeight": "48px", "letterSpacing": "-1px", "fontWeight": "800"}],
+                        "label-sm": ["12px", {"lineHeight": "16px", "fontWeight": "500"}],
+                        "body-lg": ["17px", {"lineHeight": "24px", "fontWeight": "400"}],
+                        "body-md": ["15px", {"lineHeight": "20px", "fontWeight": "400"}],
+                        "headline-sm": ["20px", {"lineHeight": "25px", "fontWeight": "600"}]
+                    }
+                },
+            },
+        }
+    </script>
+<style>
+        .glass-card {
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+        }
+        .sparkline-svg {
+            stroke: #165070;
+            stroke-width: 2;
+            fill: none;
+            stroke-linecap: round;
+        }
+    </style>
+</head>
+<body class="bg-background text-on-background font-body-md antialiased min-h-screen pb-32">
+<!-- Top App Bar -->
+<header class="fixed top-0 w-full z-50 bg-surface/80 backdrop-blur-md flex justify-between items-center px-margin-main h-14 border-b border-surface-variant">
+<button class="material-symbols-outlined text-primary active:scale-95 transition-transform" data-icon="arrow_back">arrow_back</button>
+<h1 class="font-headline-sm text-headline-sm text-primary">Perfil de Atleta</h1>
+<button class="material-symbols-outlined text-primary active:scale-95 transition-transform" data-icon="more_vert">more_vert</button>
+</header>
+<main class="mt-14 px-margin-main space-y-stack-lg pt-stack-md">
+<!-- Hero Section / Athlete Summary -->
+<section class="flex flex-col items-center text-center space-y-stack-sm">
+<div class="relative w-28 h-28 rounded-full p-1 bg-gradient-to-tr from-secondary-container to-primary">
+<img alt="Mariana Ortiz" class="w-full h-full rounded-full object-cover border-4 border-background" data-alt="A professional portrait of a fit female athlete with her hair tied back, looking confidently into the camera. She is in a high-end CrossFit gym setting with soft, warm overhead lighting. The color palette is clean and professional, emphasizing a modern athletic vibe with high contrast and sharp focus on her determined expression." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCuGSmbzyP7iLwh2YXwb-Xwgifzz-ZKoRwf5pPg6tSIu-MINtdxG_HpOKUFP_IVWAHe9bJy032ExJOaz53CkRmbZqVB16Ficjwjon6JIw_mtXx2i8RM7fnVzDIrdyrYzRmQdnWKQkKRnanIsF2UMjluE36WoaMpRsDFpuE1FmO7jBtshfajGzCB4WA7xHhY2cWlN5xLYuRSssxrTSaLwopXUrkfAhylHBuPkUCyW0C50G5p-P4GuXvqdOybSB3pMxcs_iwz-433X811">
+</div>
+<div>
+<h2 class="font-headline-md text-headline-md text-on-surface">Mariana Ortiz</h2>
+<div class="flex items-center justify-center gap-2 mt-1">
+<span class="bg-primary/10 text-primary px-3 py-0.5 rounded-full font-label-sm text-label-sm">Avanzado</span>
+<span class="bg-secondary-container/20 text-secondary px-3 py-0.5 rounded-full font-label-sm text-label-sm">RX 85% Compliance</span>
+</div>
+</div>
+</section>
+<!-- Injury Alert Section -->
+<section class="bg-error-container/30 border border-error/10 p-4 rounded-xl flex items-center gap-4">
+<div class="bg-error/10 p-2 rounded-full">
+<span class="material-symbols-outlined text-error" data-icon="medical_services">medical_services</span>
+</div>
+<div class="flex-1">
+<p class="font-label-bold text-label-bold text-error">Sobrecarga en lumbar</p>
+<p class="text-on-surface-variant text-label-sm">Severidad: Moderada</p>
+</div>
+<span class="material-symbols-outlined text-outline" data-icon="chevron_right">chevron_right</span>
+</section>
+<!-- WOD de Hoy Section (New) -->
+<section class="space-y-stack-sm">
+<h3 class="font-headline-sm text-headline-sm text-primary">WOD de Hoy</h3>
+<div class="bg-primary-container text-on-primary-container p-5 rounded-xl flex items-center justify-between shadow-md">
+<div>
+<p class="font-label-bold opacity-80">Fran</p>
+<p class="font-stats-xl text-white">03:45 <span class="text-headline-sm opacity-60">min</span></p>
+<div class="mt-1 flex items-center gap-2">
+<span class="bg-white/20 px-2 py-0.5 rounded text-label-sm font-label-bold">Nivel: Avanzado</span>
+<span class="bg-secondary-container text-on-secondary-container px-2 py-0.5 rounded text-label-sm font-label-bold">PR!</span>
+</div>
+</div>
+<div class="bg-white/10 p-3 rounded-full">
+<span class="material-symbols-outlined text-white text-[32px]" data-icon="timer">timer</span>
+</div>
+</div>
+</section>
+<!-- PRs Personales (Updated Title) -->
+<section class="space-y-stack-sm">
+<div class="flex justify-between items-center">
+<h3 class="font-headline-sm text-headline-sm text-primary">PRs Personales</h3>
+<button class="text-primary font-label-bold flex items-center gap-1 hover:opacity-70 transition-opacity">Ver todos <span class="material-symbols-outlined text-[18px]" data-icon="keyboard_double_arrow_right">keyboard_double_arrow_right</span></button>
+</div>
+<div class="space-y-3">
+<!-- PR Item 1 -->
+<div class="bg-white p-4 rounded-xl flex items-center justify-between border border-surface-container shadow-sm hover:shadow-md transition-shadow">
+<div class="flex-1">
+<p class="font-label-bold text-on-surface">Back Squat</p>
+<p class="font-stats-xl text-headline-md text-primary leading-none mt-1">145<span class="text-label-sm opacity-40 ml-1">kg</span></p>
+</div>
+<div class="w-24 h-12 overflow-hidden">
+<svg class="w-full h-full" viewBox="0 0 100 40">
+<path class="sparkline-svg" d="M0,35 Q10,30 20,32 T40,20 T60,25 T80,10 T100,5"></path>
+<circle cx="100" cy="5" fill="#003953" r="3"></circle>
+</svg>
+</div>
+</div>
+<!-- PR Item 2 -->
+<div class="bg-white p-4 rounded-xl flex items-center justify-between border border-surface-container shadow-sm hover:shadow-md transition-shadow">
+<div class="flex-1">
+<p class="font-label-bold text-on-surface">Clean</p>
+<p class="font-stats-xl text-headline-md text-primary leading-none mt-1">110<span class="text-label-sm opacity-40 ml-1">kg</span></p>
+</div>
+<div class="w-24 h-12 overflow-hidden">
+<svg class="w-full h-full" viewBox="0 0 100 40">
+<path class="sparkline-svg" d="M0,38 Q15,35 30,30 T50,28 T70,18 T90,20 T100,15"></path>
+<circle cx="100" cy="15" fill="#003953" r="3"></circle>
+</svg>
+</div>
+</div>
+<!-- PR Item 3 -->
+<div class="bg-white p-4 rounded-xl flex items-center justify-between border border-surface-container shadow-sm hover:shadow-md transition-shadow">
+<div class="flex-1">
+<p class="font-label-bold text-on-surface">Snatch</p>
+<p class="font-stats-xl text-headline-md text-primary leading-none mt-1">85<span class="text-label-sm opacity-40 ml-1">kg</span></p>
+</div>
+<div class="w-24 h-12 overflow-hidden">
+<svg class="w-full h-full" viewBox="0 0 100 40">
+<path class="sparkline-svg" d="M0,30 Q20,35 40,25 T60,22 T80,12 T100,8"></path>
+<circle cx="100" cy="8" fill="#003953" r="3"></circle>
+</svg>
+</div>
+</div>
+</div>
+</section>
+<!-- Historial de WODs (New) -->
+<section class="space-y-stack-sm">
+<div class="flex justify-between items-center">
+<h3 class="font-headline-sm text-headline-sm text-primary">Historial de WODs</h3>
+</div>
+<div class="bg-surface-container-lowest border border-surface-variant rounded-xl divide-y divide-surface-variant overflow-hidden">
+<div class="p-4 flex items-center justify-between hover:bg-surface-container-low transition-colors">
+<div>
+<p class="font-label-bold text-on-surface">The Ghost</p>
+<p class="text-label-sm text-on-surface-variant">12 Oct • 142 reps</p>
+</div>
+<div class="text-right">
+<p class="font-label-bold text-primary">RX</p>
+</div>
+</div>
+<div class="p-4 flex items-center justify-between hover:bg-surface-container-low transition-colors">
+<div>
+<p class="font-label-bold text-on-surface">Murph</p>
+<p class="text-label-sm text-on-surface-variant">08 Oct • 38:22 min</p>
+</div>
+<div class="text-right">
+<p class="font-label-bold text-primary">Escalado</p>
+</div>
+</div>
+<div class="p-4 flex items-center justify-between hover:bg-surface-container-low transition-colors">
+<div>
+<p class="font-label-bold text-on-surface">Havana</p>
+<p class="text-label-sm text-on-surface-variant">05 Oct • 15 rondas</p>
+</div>
+<div class="text-right">
+<p class="font-label-bold text-primary">RX</p>
+</div>
+</div>
+</div>
+</section>
+<!-- Coach Notes -->
+<section class="space-y-stack-sm">
+<h3 class="font-headline-sm text-headline-sm text-primary">Coach Notes</h3>
+<div class="bg-surface-container-low p-5 rounded-xl border border-surface-variant relative overflow-hidden group">
+<div class="absolute top-0 right-0 p-3">
+<span class="material-symbols-outlined text-outline/40 group-hover:text-primary transition-colors cursor-pointer" data-icon="edit_note">edit_note</span>
+</div>
+<p class="text-on-surface font-body-md italic leading-relaxed">
+                    "Mariana está mostrando una técnica excepcional en el snatch, pero debemos cuidar la progresión del peso muerto debido a la molestia lumbar reportada el lunes. Mantener enfoque en movilidad de cadera."
+                </p>
+<div class="mt-4 flex items-center gap-2">
+<img alt="Coach Profile" class="w-6 h-6 rounded-full" data-alt="A small profile thumbnail of a professional male fitness coach with a short beard and athletic build. He is smiling warmly, conveying trust and experience. The lighting is natural and bright." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDuShMbVRSW-gNqI3tr2T0c_OdvMAcyoxWW1QqJaFpWvpw9ZI8SDV2xRM8EU72mdA2HqQgFAVNQeiuciw6y5f7a_tMLinylKZhZ_PoodMquMBZU-P-I3To_pDSSgbu0yo5MhHGFqGYqxDe3IynORv5O3K2eRFz4iD11GSRGyxFnxJ92M_QJa7jKO7YeR6zlccj3VBBDWpAdxt-bmqmSrYB75W1x4k0ZCYp0LB9rqi1ZBUrb9kPihIMVKsm0zEPnnuYuAWueMP1djzlq">
+<span class="text-label-sm text-on-surface-variant">Coach Daniel — Hace 2 días</span>
+</div>
+</div>
+</section>
+</main>
+<!-- Floating Action Button for Coach -->
+<button class="fixed bottom-24 right-6 w-14 h-14 rounded-full flex items-center justify-center shadow-lg active:scale-90 transition-all z-40 bg-primary-container text-on-primary-container"><span class="material-symbols-outlined text-[28px]" data-icon="edit" style="font-variation-settings: &quot;FILL&quot; 1;">edit</span></button>
+<!-- Bottom Navigation Bar (Updated Coach Labels) -->
+<nav class="fixed bottom-0 left-0 w-full flex justify-around items-center px-gutter pb-safe-area-bottom pt-stack-sm bg-surface/80 backdrop-blur-md z-50 border-t border-surface-variant">
+<div class="flex flex-col items-center justify-center text-on-surface-variant hover:bg-surface-variant/20 transition-all px-4 py-2 rounded-xl active:scale-95">
+<span class="material-symbols-outlined" data-icon="home">home</span>
+<span class="font-label-sm text-label-sm">Inicio</span>
+</div>
+<div class="flex flex-col items-center justify-center text-on-surface-variant hover:bg-surface-variant/20 transition-all px-4 py-2 rounded-xl active:scale-95">
+<span class="material-symbols-outlined" data-icon="fitness_center">fitness_center</span>
+<span class="font-label-sm text-label-sm">WODs</span>
+</div>
+<!-- Active Item: Atletas -->
+<div class="flex flex-col items-center justify-center text-primary font-label-bold bg-primary/10 px-4 py-2 rounded-xl active:scale-95">
+<span class="material-symbols-outlined" data-icon="groups" style="font-variation-settings: 'FILL' 1;">groups</span>
+<span class="font-label-sm text-label-sm">Atletas</span>
+</div>
+<div class="flex flex-col items-center justify-center text-on-surface-variant hover:bg-surface-variant/20 transition-all px-4 py-2 rounded-xl active:scale-95">
+<span class="material-symbols-outlined" data-icon="notifications">notifications</span>
+<span class="font-label-sm text-label-sm">Alertas</span>
+</div>
+<div class="flex flex-col items-center justify-center text-on-surface-variant hover:bg-surface-variant/20 transition-all px-4 py-2 rounded-xl active:scale-95">
+<span class="material-symbols-outlined" data-icon="trending_up">trending_up</span>
+<span class="font-label-sm text-label-sm">Progreso</span>
+</div>
+</nav>
+<script>
+        // Simple micro-interaction for cards
+        document.querySelectorAll('.bg-white, .bg-surface-container-lowest').forEach(card => {
+            card.addEventListener('click', () => {
+                card.classList.add('scale-[0.98]');
+                setTimeout(() => card.classList.remove('scale-[0.98]'), 100);
+            });
+        });
+    </script>
+</body></html>

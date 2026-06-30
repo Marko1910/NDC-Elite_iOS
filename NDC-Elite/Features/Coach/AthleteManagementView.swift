@@ -11,6 +11,9 @@ struct AthleteManagementView: View {
     private let all = AthleteListData.sample
     @State private var query = ""
     @State private var filter: AthleteFilter = .todos
+    @State private var showAttendance = false
+    @State private var selectedAthlete: String?
+    @State private var showInvite = false
 
     enum AthleteFilter: String, CaseIterable {
         case todos = "Todos", basico = "Básico", intermedio = "Intermedio"
@@ -47,7 +50,7 @@ struct AthleteManagementView: View {
                             .padding(.top, NDCSpacing.stackLG)
                     } else {
                         ForEach(filtered) { member in
-                            MemberRow(member: member)
+                            MemberRow(member: member) { selectedAthlete = member.name }
                         }
                     }
                 }
@@ -60,6 +63,19 @@ struct AthleteManagementView: View {
             .navigationTitle("Atletas")
             .navigationBarTitleDisplayMode(.large)
             .searchable(text: $query, prompt: "Buscar atletas por nombre...")
+            .sheet(isPresented: $showAttendance) { AttendanceControlView() }
+            .sheet(isPresented: $showInvite) { InviteAthleteView() }
+            .navigationDestination(item: $selectedAthlete) { name in
+                CoachAthleteProfileView(athleteName: name)
+            }
+            .toolbar {
+                ToolbarItem(placement: .topBarTrailing) {
+                    Button { Haptics.impact(); showInvite = true } label: {
+                        Image(systemName: "person.badge.plus")
+                    }
+                    .accessibilityLabel("Invitar atleta")
+                }
+            }
         }
         .tint(NDCColor.primary)
     }
@@ -67,7 +83,7 @@ struct AthleteManagementView: View {
     private var takeAttendanceCTA: some View {
         Button {
             Haptics.impact()
-            // TODO: → AttendanceView / Generar QR de asistencia
+            showAttendance = true
         } label: {
             HStack(spacing: NDCSpacing.gutter) {
                 Image(systemName: "person.badge.clock.fill")
@@ -113,6 +129,7 @@ struct AthleteManagementView: View {
 
 private struct MemberRow: View {
     let member: AthleteListData.Member
+    let onProfile: () -> Void
 
     var body: some View {
         HStack(spacing: NDCSpacing.gutter) {
@@ -136,7 +153,7 @@ private struct MemberRow: View {
             Spacer()
             Button {
                 Haptics.impact(.light)
-                // TODO: → CoachAthleteProfileView
+                onProfile()
             } label: {
                 Text("Ver Perfil")
                     .font(NDCFont.labelBold).foregroundStyle(NDCColor.primary)

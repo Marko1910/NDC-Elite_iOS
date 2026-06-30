@@ -11,7 +11,8 @@ struct WodManagementView: View {
     let profile: Profile
     private let data = WodManagementData.sample
     @State private var selectedDay = 0
-    @State private var showCreateMenu = false
+    @State private var showWodEditor = false
+    @State private var showRunningEditor = false
 
     var body: some View {
         NavigationStack {
@@ -33,6 +34,8 @@ struct WodManagementView: View {
             .navigationTitle("Gestión de WODs")
             .navigationBarTitleDisplayMode(.large)
             .overlay(alignment: .bottomTrailing) { createFAB }
+            .navigationDestination(isPresented: $showWodEditor) { WodEditorView() }
+            .sheet(isPresented: $showRunningEditor) { RunningEditorView() }
         }
         .tint(NDCColor.primary)
     }
@@ -89,10 +92,10 @@ struct WodManagementView: View {
 
     private var createFAB: some View {
         Menu {
-            Button { Haptics.impact() /* TODO: → WodEditorView */ } label: {
+            Button { Haptics.impact(); showWodEditor = true } label: {
                 Label("Nuevo WOD", systemImage: "plus.square.on.square")
             }
-            Button { Haptics.impact() /* TODO: → RunningEditorSheet */ } label: {
+            Button { Haptics.impact(); showRunningEditor = true } label: {
                 Label("Nueva Sesión de Running", systemImage: "figure.run")
             }
         } label: {

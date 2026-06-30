@@ -1,0 +1,349 @@
+<!DOCTYPE html><html class="light" lang="es"><head>
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0, viewport-fit=cover" name="viewport">
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;600;700;800&amp;family=Inter:wght@400;500;600&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "surface-container-highest": "#e2e2e7",
+                        "on-secondary-fixed-variant": "#544600",
+                        "on-secondary": "#ffffff",
+                        "primary-container": "#165070",
+                        "outline": "#71787e",
+                        "on-primary-fixed-variant": "#0e4b6b",
+                        "tertiary-container": "#00489c",
+                        "surface-bright": "#f9f9fe",
+                        "primary-fixed-dim": "#9accf2",
+                        "on-tertiary": "#ffffff",
+                        "secondary-fixed": "#ffe16e",
+                        "surface-container": "#ededf2",
+                        "surface-container-high": "#e8e8ed",
+                        "on-tertiary-fixed-variant": "#004493",
+                        "surface-container-low": "#f3f3f8",
+                        "secondary-fixed-dim": "#e4c542",
+                        "primary": "#003953",
+                        "tertiary-fixed-dim": "#adc6ff",
+                        "surface-container-lowest": "#ffffff",
+                        "secondary-container": "#ffde59",
+                        "on-surface-variant": "#41484d",
+                        "surface": "#f9f9fe",
+                        "outline-variant": "#c1c7ce",
+                        "inverse-on-surface": "#f0f0f5",
+                        "on-tertiary-fixed": "#001a41",
+                        "on-primary-container": "#90c2e7",
+                        "background": "#f9f9fe",
+                        "on-tertiary-container": "#9bbbff",
+                        "on-error-container": "#93000a",
+                        "on-primary-fixed": "#001e2f",
+                        "on-background": "#1a1c1f",
+                        "primary-fixed": "#c8e6ff",
+                        "secondary": "#705d00",
+                        "tertiary": "#003271",
+                        "on-primary": "#ffffff",
+                        "tertiary-fixed": "#d8e2ff",
+                        "inverse-primary": "#9accf2",
+                        "surface-tint": "#2f6384",
+                        "on-secondary-fixed": "#221b00",
+                        "on-error": "#ffffff",
+                        "error": "#ba1a1a",
+                        "inverse-surface": "#2e3034",
+                        "error-container": "#ffdad6",
+                        "on-surface": "#1a1c1f",
+                        "surface-variant": "#e2e2e7",
+                        "surface-dim": "#d9dade",
+                        "on-secondary-container": "#756100"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "stack-md": "1rem",
+                        "stack-lg": "1.5rem",
+                        "margin-main": "1.25rem",
+                        "gutter": "1rem",
+                        "safe-area-bottom": "2.125rem",
+                        "stack-sm": "0.5rem"
+                    },
+                    "fontFamily": {
+                        "stats-xl": ["Hanken Grotesk"],
+                        "label-sm": ["Inter"],
+                        "headline-md": ["Hanken Grotesk"],
+                        "label-bold": ["Inter"],
+                        "display-lg": ["Hanken Grotesk"],
+                        "headline-sm": ["Hanken Grotesk"],
+                        "body-lg": ["Inter"],
+                        "body-md": ["Inter"]
+                    },
+                    "fontSize": {
+                        "stats-xl": ["48px", {"lineHeight": "48px", "letterSpacing": "-1px", "fontWeight": "800"}],
+                        "label-sm": ["12px", {"lineHeight": "16px", "fontWeight": "500"}],
+                        "headline-md": ["24px", {"lineHeight": "30px", "letterSpacing": "0px", "fontWeight": "700"}],
+                        "label-bold": ["13px", {"lineHeight": "18px", "fontWeight": "600"}],
+                        "display-lg": ["34px", {"lineHeight": "41px", "letterSpacing": "-0.5px", "fontWeight": "800"}],
+                        "headline-sm": ["20px", {"lineHeight": "25px", "fontWeight": "600"}],
+                        "body-lg": ["17px", {"lineHeight": "24px", "fontWeight": "400"}],
+                        "body-md": ["15px", {"lineHeight": "20px", "fontWeight": "400"}]
+                    }
+                },
+            },
+        }
+    </script>
+<style>
+        body {
+            background-color: #f9f9fe;
+            color: #1a1c1f;
+            -webkit-tap-highlight-color: transparent;
+        }
+        .glass-effect {
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+        }
+        .hide-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .hide-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+    </style>
+</head>
+<body class="font-body-md bg-background">
+<!-- TopAppBar -->
+<header class="fixed top-0 w-full z-50 bg-surface/80 dark:bg-surface-dim/80 backdrop-blur-md flex justify-between items-center px-margin-main h-16 w-full">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-full overflow-hidden border-2 border-primary-container">
+<img alt="Coach Profile" class="w-full h-full object-cover" data-alt="A professional athletic coach with a focused expression, wearing premium sportswear in a high-end CrossFit facility. The lighting is crisp and natural, highlighting a modern and disciplined fitness environment. The background shows blurred gym equipment in a clean, sophisticated gray and blue color palette." src="https://lh3.googleusercontent.com/aida-public/AB6AXuByYM6qH_I6JaSutaWdLPmUQXYmV-iPZM2XkNq-MjLRcmcN5WpQ19Vfj5GAYa0weRsvyNXB736EKJBhDmNb9njah_ekZBwbDLo7cigg_AlKW9igWg8JCqTzcMFWU6jbLpDixMenes8zuI8JNQQYVF5gX_T7Vj-JWLcFRrmgmO71b8VzbH_tfS1pWsToEJSM_5vtjQOiwmFE1kSQT-zclYwp6NI39MxaxZfCb_qy4lWkPSIAhvDP8pkuHato7cM96zslsRAYaonLuGf6">
+</div>
+<h1 class="font-headline-md text-headline-md font-bold text-primary dark:text-primary-fixed">Asistencia</h1>
+</div>
+<button class="text-primary dark:text-primary-fixed active:scale-95 transition-transform duration-200">
+
+</button>
+</header>
+<main class="pt-20 pb-32 px-margin-main">
+<!-- Date Selector -->
+<section class="mb-stack-lg">
+<div class="flex items-center justify-between mb-stack-sm">
+<span class="font-label-bold text-label-bold text-on-surface-variant uppercase tracking-wider">Octubre 2023</span>
+<span class="material-symbols-outlined text-primary cursor-pointer" data-icon="calendar_today">calendar_today</span>
+</div>
+<div class="flex gap-3 overflow-x-auto hide-scrollbar py-2">
+<!-- Days generator -->
+<div class="flex flex-col items-center justify-center min-w-[56px] h-20 rounded-xl bg-surface-container-low text-on-surface-variant transition-all cursor-pointer active:scale-95">
+<span class="font-label-sm text-[11px]">LUN</span>
+<span class="font-headline-sm text-headline-sm">23</span>
+</div>
+<div class="flex flex-col items-center justify-center min-w-[56px] h-20 rounded-xl bg-surface-container-low text-on-surface-variant transition-all cursor-pointer active:scale-95">
+<span class="font-label-sm text-[11px]">MAR</span>
+<span class="font-headline-sm text-headline-sm">24</span>
+</div>
+<div class="flex flex-col items-center justify-center min-w-[56px] h-20 rounded-xl bg-primary-container text-on-primary border-none shadow-lg active:scale-95">
+<span class="font-label-sm text-[11px] opacity-80">MIÉ</span>
+<span class="font-headline-sm text-headline-sm">25</span>
+</div>
+<div class="flex flex-col items-center justify-center min-w-[56px] h-20 rounded-xl bg-surface-container-low text-on-surface-variant transition-all cursor-pointer active:scale-95">
+<span class="font-label-sm text-[11px]">JUE</span>
+<span class="font-headline-sm text-headline-sm">26</span>
+</div>
+<div class="flex flex-col items-center justify-center min-w-[56px] h-20 rounded-xl bg-surface-container-low text-on-surface-variant transition-all cursor-pointer active:scale-95">
+<span class="font-label-sm text-[11px]">VIE</span>
+<span class="font-headline-sm text-headline-sm">27</span>
+</div>
+<div class="flex flex-col items-center justify-center min-w-[56px] h-20 rounded-xl bg-surface-container-low text-on-surface-variant transition-all cursor-pointer active:scale-95">
+<span class="font-label-sm text-[11px]">SÁB</span>
+<span class="font-headline-sm text-headline-sm">28</span>
+</div>
+</div>
+</section>
+<!-- Summary Card -->
+<section class="mb-stack-lg">
+<div class="bg-primary-container rounded-3xl p-6 text-on-primary flex items-center justify-between relative overflow-hidden">
+<!-- Abstract energy pattern -->
+<div class="absolute right-0 top-0 w-32 h-32 bg-secondary-container/10 rounded-full -mr-16 -mt-16 blur-3xl"></div>
+<div>
+<p class="font-label-sm text-on-primary-container mb-1">Resumen del Día</p>
+<h2 class="font-display-lg text-display-lg">32<span class="text-secondary-container">/</span>50</h2>
+<p class="font-label-bold text-label-bold text-on-primary-container">ATLETAS REGISTRADOS</p>
+</div>
+<div class="flex flex-col items-end">
+<div class="relative w-16 h-16 mb-2">
+<svg class="w-full h-full transform -rotate-90">
+<circle class="text-primary-fixed-dim/20" cx="32" cy="32" fill="transparent" r="28" stroke="currentColor" stroke-width="6"></circle>
+<circle class="text-secondary-container" cx="32" cy="32" fill="transparent" r="28" stroke="currentColor" stroke-dasharray="175.9" stroke-dashoffset="63.3" stroke-width="6"></circle>
+</svg>
+<div class="absolute inset-0 flex items-center justify-center">
+<span class="font-label-bold text-label-bold">64%</span>
+</div>
+</div>
+<span class="font-label-sm opacity-80">Asistencia</span>
+</div>
+</div>
+</section>
+<!-- Search Bar -->
+<section class="mb-stack-md">
+<div class="relative group">
+<span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-outline group-focus-within:text-primary transition-colors" data-icon="search">search</span>
+<input class="w-full bg-surface-container border-none rounded-2xl py-4 pl-12 pr-4 font-body-md focus:ring-2 focus:ring-primary-container/20 transition-all outline-none" placeholder="Buscar atleta por nombre..." type="text">
+</div>
+</section>
+<!-- Athlete List -->
+<section class="space-y-stack-md">
+<div class="flex items-center justify-between mb-2">
+<h3 class="font-headline-sm text-headline-sm text-primary">Próxima Clase <span class="font-normal opacity-60 text-body-md">07:00 AM</span></h3>
+<span class="text-primary font-label-bold">Filtrar</span>
+</div>
+<!-- Athlete Item 1 -->
+<div class="bg-surface-container-lowest rounded-2xl p-4 flex items-center justify-between shadow-sm border border-surface-container transition-all active:scale-[0.98]">
+<div class="flex items-center gap-4">
+<div class="w-12 h-12 rounded-xl bg-surface-container-high overflow-hidden">
+<img alt="Athlete 1" class="w-full h-full object-cover" data-alt="Close-up portrait of a fit woman with athletic gear, smiling naturally in a professional fitness studio. High-end lighting captures the energy and determination of a dedicated athlete. The color palette is clean, with soft whites and professional blues." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBw2xplRBiwCnwlqdazdFUI3G6LgI-7DlEaeFzD2LS8JOzuYBo9tGr3hRYq0ErtlGUsrKTF9_oxMnReW6DUmOTtbm3d5uxipKphwDhf7mVRhlUuYCQiZ3Rz5CnrQ4iK2AGM_b1iBFPS6lxiicLDmkpxPKWUZu7Sg4WNvLxxLDbrx3yxn7L0f7X3kVbS3Xi-Lnr0ZbGZIwwYKtHMB1taSl9n-zrJ5YXua9928oqqjgaDaLC8nL6DK_ami4Grh9t1tVvlD65847RNTZxi">
+</div>
+<div>
+<h4 class="font-label-bold text-label-bold text-on-surface">Valeria S.</h4>
+<div class="flex gap-2 mt-1">
+<span class="px-2 py-0.5 rounded-full bg-primary/10 text-primary font-label-sm text-[10px] uppercase">RX</span>
+<span class="text-on-surface-variant font-label-sm text-[10px]">07:00 AM</span>
+</div>
+</div>
+</div>
+<button class="px-4 py-2 rounded-xl bg-secondary-container text-on-secondary-container font-label-bold transition-all flex items-center gap-2" onclick="toggleAttendance(this)">
+<span class="material-symbols-outlined text-[18px]" data-icon="check_circle" style="font-variation-settings: &quot;FILL&quot; 1;">check_circle</span>
+<span class="">Presente</span>
+</button>
+</div>
+<!-- Athlete Item 2 -->
+<div class="bg-surface-container-lowest rounded-2xl p-4 flex items-center justify-between shadow-sm border border-surface-container transition-all active:scale-[0.98]">
+<div class="flex items-center gap-4">
+<div class="w-12 h-12 rounded-xl bg-surface-container-high overflow-hidden">
+<img alt="Athlete 2" class="w-full h-full object-cover" data-alt="Portrait of a muscular man in a gym setting, showing a professional and serious commitment to fitness. The environment is a premium athletic center with natural window light highlighting the textures of his training gear. Minimalist and elite atmosphere." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDwRzRuE0JlJIi8hSnbjPODsTbKy6DlOjC_F_d013n_-EtQCJJESN4tlAqRRVgiBiQ9v03Fzldmi6LIfzqDGFQTAvjgk_DtR4J_SzK9TQptcm6BTAe3mOnvhoyHX4tWgXhPJclcP5DqzC1bgAA_9XRobbfC86IWdBGfs6KQ5UKwWqdxvmh1Deqo7HY0pqdb9jtjzw-9w9lYIihmDpHHXXTnskXTc1ek-k0FT_DvYXYpiQS2TrR6kyOcFCEeav2Q-75MxrQtvy9GOYnW">
+</div>
+<div>
+<h4 class="font-label-bold text-label-bold text-on-surface">Carlos M.</h4>
+<div class="flex gap-2 mt-1">
+<span class="px-2 py-0.5 rounded-full bg-outline-variant/30 text-on-surface-variant font-label-sm text-[10px] uppercase">Escalado</span>
+<span class="text-on-surface-variant font-label-sm text-[10px]">07:00 AM</span>
+</div>
+</div>
+</div>
+<button class="px-4 py-2 rounded-xl font-label-bold transition-all flex items-center gap-2 bg-surface-container text-on-surface-variant" onclick="toggleAttendance(this)">
+<span class="material-symbols-outlined text-[18px]" data-icon="circle" style="font-variation-settings: &quot;FILL&quot; 0;">circle</span>
+<span class="">Ausente</span>
+</button>
+</div>
+<!-- Athlete Item 3 -->
+<div class="bg-surface-container-lowest rounded-2xl p-4 flex items-center justify-between shadow-sm border border-surface-container transition-all active:scale-[0.98]">
+<div class="flex items-center gap-4">
+<div class="w-12 h-12 rounded-xl bg-surface-container-high overflow-hidden">
+<img alt="Athlete 3" class="w-full h-full object-cover" data-alt="A fit male athlete looking ready for training in a modern Crossfit box. High intensity studio lighting creates a professional sports portrait with high contrast and focus. The background is a clean athletic space with blue and yellow accents." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBJhoens8UKoy_u16W3rAXvwZJFjyH9_Iq4wl53e7VzmnB_YEPJqIIFe20_jTaYdpwotnRVt3HzUIkego47t1tYWFy9cQnpTnnsl5xh8UsEJQRBhqNNFlFFI0j2VBrNs4bnpgmQgFh6_B0v7IEDbFVXrrOSw50B9Z6l17i6zyEuXvIY7ooIURCAZlBmpaY9tT0MWOCrA28tUi17SEvEXaSM5Op3deHzaJ-l3d3DdHXpop3llJWEVbc808LaiTQ5w5Tp8vx2exhhM5zY">
+</div>
+<div>
+<h4 class="font-label-bold text-label-bold text-on-surface">Mateo G.</h4>
+<div class="flex gap-2 mt-1">
+<span class="px-2 py-0.5 rounded-full bg-primary/10 text-primary font-label-sm text-[10px] uppercase">RX</span>
+<span class="text-on-surface-variant font-label-sm text-[10px]">07:00 AM</span>
+</div>
+</div>
+</div>
+<button class="px-4 py-2 rounded-xl font-label-bold transition-all flex items-center gap-2 bg-surface-container text-on-surface-variant" onclick="toggleAttendance(this)">
+<span class="material-symbols-outlined text-[18px]" data-icon="circle" style="font-variation-settings: &quot;FILL&quot; 0;">circle</span>
+<span class="">Ausente</span>
+</button>
+</div>
+<!-- Athlete Item 4 -->
+<div class="bg-surface-container-lowest rounded-2xl p-4 flex items-center justify-between shadow-sm border border-surface-container transition-all active:scale-[0.98]">
+<div class="flex items-center gap-4">
+<div class="w-12 h-12 rounded-xl bg-surface-container-high overflow-hidden">
+<img alt="Athlete 4" class="w-full h-full object-cover" data-alt="Woman athlete in a gym, professional and high-end aesthetic. She is wearing modern fitness clothing in a clean gym environment with soft lighting that conveys strength and health. Modern professional photography style." src="https://lh3.googleusercontent.com/aida-public/AB6AXuD_z99MNwQU0Ah3RWTsjSlLWLauJVEBWPoRkJEP7HCBvXN0Di4NQO3QbBQncMQ3UnUht6sDoSeLxZDFhdn84z5qE9r5z24MI--C_sG3edPcnSHCURVUKLRew1VdjDnkbPaa7POXmImhEHvCTfLl3pGmP8Y9tykVsbMYpE2r0xy_hZS4KBgQjxz6WrSguHxUatsO3SkTOcSG8G2dDZ5taE5TxWD2PrHf11Xh-ORzVRtAWW0Id9I5OQ4hrjg22Xqgt8JZjU7Y__5i5LWf">
+</div>
+<div>
+<h4 class="font-label-bold text-label-bold text-on-surface">Elena R.</h4>
+<div class="flex gap-2 mt-1">
+<span class="px-2 py-0.5 rounded-full bg-outline-variant/30 text-on-surface-variant font-label-sm text-[10px] uppercase">Escalado</span>
+<span class="text-on-surface-variant font-label-sm text-[10px]">07:00 AM</span>
+</div>
+</div>
+</div>
+<button class="px-4 py-2 rounded-xl bg-secondary-container text-on-secondary-container font-label-bold transition-all flex items-center gap-2" onclick="toggleAttendance(this)">
+<span class="material-symbols-outlined text-[18px]" data-icon="check_circle" style="font-variation-settings: &quot;FILL&quot; 1;">check_circle</span>
+<span class="">Presente</span>
+</button>
+</div>
+</section>
+</main>
+<!-- BottomNavBar -->
+<nav class="fixed bottom-0 w-full z-50 pb-safe-area-bottom bg-surface/80 dark:bg-surface-dim/80 backdrop-blur-md flex justify-around items-center w-full px-gutter py-2">
+<div class="flex flex-col items-center justify-center text-on-surface-variant dark:text-outline-variant px-4 py-1 hover:bg-surface-variant/50 dark:hover:bg-surface-variant/20 rounded-xl transition-all cursor-pointer">
+<span class="material-symbols-outlined" data-icon="home">home</span>
+<span class="font-label-sm text-label-sm">Inicio</span>
+</div>
+<div class="flex flex-col items-center justify-center text-on-surface-variant dark:text-outline-variant px-4 py-1 hover:bg-surface-variant/50 dark:hover:bg-surface-variant/20 rounded-xl transition-all cursor-pointer">
+<span class="material-symbols-outlined" data-icon="fitness_center">fitness_center</span>
+<span class="font-label-sm text-label-sm">WODs</span>
+</div>
+<div class="flex flex-col items-center justify-center bg-secondary-container dark:bg-on-secondary-fixed-variant text-on-secondary-container dark:text-secondary-fixed rounded-xl px-4 py-1 active:scale-90 transition-transform duration-150">
+<span class="material-symbols-outlined" data-icon="group" style="font-variation-settings: &quot;FILL&quot; 1;">group</span>
+<span class="font-label-sm text-label-sm">Atletas</span>
+</div>
+<div class="flex flex-col items-center justify-center text-on-surface-variant dark:text-outline-variant px-4 py-1 hover:bg-surface-variant/50 dark:hover:bg-surface-variant/20 rounded-xl transition-all cursor-pointer">
+<span class="material-symbols-outlined" data-icon="notifications">notifications</span>
+<span class="font-label-sm text-label-sm">Alertas</span>
+</div>
+<div class="flex flex-col items-center justify-center text-on-surface-variant dark:text-outline-variant px-4 py-1 hover:bg-surface-variant/50 dark:hover:bg-surface-variant/20 rounded-xl transition-all cursor-pointer">
+<span class="material-symbols-outlined" data-icon="trending_up">trending_up</span>
+<span class="font-label-sm text-label-sm">Progreso</span>
+</div>
+</nav>
+<!-- FAB for quick action -->
+<button class="fixed right-6 bottom-28 w-14 h-14 rounded-full bg-primary-container text-white shadow-[0_4px_12px_rgba(22,80,112,0.3)] flex items-center justify-center active:scale-90 transition-transform z-40">
+<span class="material-symbols-outlined text-3xl" data-icon="qr_code_scanner">qr_code</span>
+</button>
+<script>
+        function toggleAttendance(btn) {
+            const isPresent = btn.innerText.includes('Presente');
+            const icon = btn.querySelector('.material-symbols-outlined');
+            const text = btn.querySelector('span:last-child');
+
+            if (isPresent) {
+                btn.classList.remove('bg-secondary-container', 'text-on-secondary-container');
+                btn.classList.add('bg-surface-container', 'text-on-surface-variant');
+                icon.innerText = 'circle';
+                icon.style.fontVariationSettings = "'FILL' 0";
+                text.innerText = 'Ausente';
+            } else {
+                btn.classList.remove('bg-surface-container', 'text-on-surface-variant');
+                btn.classList.add('bg-secondary-container', 'text-on-secondary-container');
+                icon.innerText = 'check_circle';
+                icon.style.fontVariationSettings = "'FILL' 1";
+                text.innerText = 'Presente';
+            }
+        }
+
+        // Add visual micro-interaction for date chips
+        document.querySelectorAll('.min-w-\\[56px\\]').forEach(chip => {
+            chip.addEventListener('click', function() {
+                document.querySelectorAll('.min-w-\\[56px\\]').forEach(c => {
+                    c.classList.remove('bg-primary-container', 'text-on-primary', 'shadow-lg');
+                    c.classList.add('bg-surface-container-low', 'text-on-surface-variant');
+                });
+                this.classList.remove('bg-surface-container-low', 'text-on-surface-variant');
+                this.classList.add('bg-primary-container', 'text-on-primary', 'shadow-lg');
+            });
+        });
+    </script>
+
+
+
+
+</body></html>
