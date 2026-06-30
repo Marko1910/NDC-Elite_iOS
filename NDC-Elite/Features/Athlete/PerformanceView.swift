@@ -16,6 +16,8 @@ struct PerformanceView: View {
     let profile: Profile
     private let data = PerformanceData.sample
 
+    @State private var showLogPr = false
+
     var body: some View {
         NavigationStack {
             ScrollView {
@@ -35,6 +37,7 @@ struct PerformanceView: View {
             .background(NDCColor.background)
             .scrollIndicators(.hidden)
             .overlay(alignment: .bottomTrailing) { logPrFAB }
+            .sheet(isPresented: $showLogPr) { LogPrSheet() }
             .toolbar(.hidden, for: .navigationBar)
         }
         .tint(NDCColor.primary)
@@ -143,7 +146,7 @@ struct PerformanceView: View {
     private var logPrFAB: some View {
         Button {
             Haptics.impact()
-            // TODO: → LogPrSheet (Registrar Nueva Marca)
+            showLogPr = true
         } label: {
             Image(systemName: "plus")
                 .font(.system(size: 22, weight: .semibold))
