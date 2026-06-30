@@ -426,6 +426,11 @@ final class AthleteDashboardStore {
     private let repo = AthleteRepository()
 
     func load(profile: Profile) async {
+        // BASE DE DATOS COMENTADA (se conectará después). Mientras, datos de muestra.
+        state = .loaded(.sample)
+        return
+        // swiftlint:disable:next unreachable_code
+        #if NDC_SUPABASE_WIRED
         state = .loading
         do {
             async let attendanceTask = repo.monthlyAttendance(athleteId: profile.id)
@@ -474,6 +479,7 @@ final class AthleteDashboardStore {
         } catch {
             state = .failed("No pudimos cargar tu inicio. Revisa tu conexión e inténtalo de nuevo.")
         }
+        #endif
     }
 }
 
