@@ -5,6 +5,10 @@ import SwiftUI
 /// Mientras no se agreguen las fuentes custom al bundle, usamos el sistema
 /// (SF Pro) con los mismos tamaños y pesos — se ve nativo y correcto.
 /// Para usar las fuentes reales: añadir los .ttf al target y cambiar `custom`.
+///
+/// Dynamic Type: `Font.system(size:)` de SwiftUI **sí escala** con el tamaño de
+/// letra del usuario (a diferencia de UIKit), así que estos tokens respetan
+/// accesibilidad automáticamente. Al pasar a `Font.custom`, usar `relativeTo:`.
 enum NDCFont {
     /// display-lg: 34pt / 800 — grandes titulares
     static let displayLG = Font.system(size: 34, weight: .heavy)

@@ -1,0 +1,343 @@
+<!DOCTYPE html><html class="light" lang="es"><head>
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0, viewport-fit=cover" name="viewport">
+<title>Comunidad - NDC HQ</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;500;600;700;800&amp;family=Inter:wght@400;500;600&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "secondary-fixed": "#ffe16e",
+                        "background": "#f9f9fe",
+                        "primary-fixed-dim": "#9accf2",
+                        "tertiary-container": "#00489c",
+                        "surface-tint": "#2f6384",
+                        "on-tertiary-fixed": "#001a41",
+                        "tertiary-fixed": "#d8e2ff",
+                        "surface-container": "#ededf2",
+                        "primary-container": "#165070",
+                        "surface": "#f9f9fe",
+                        "on-background": "#1a1c1f",
+                        "on-tertiary": "#ffffff",
+                        "on-surface-variant": "#41484d",
+                        "inverse-on-surface": "#f0f0f5",
+                        "outline-variant": "#c1c7ce",
+                        "surface-container-low": "#f3f3f8",
+                        "surface-container-highest": "#e2e2e7",
+                        "on-tertiary-container": "#9bbbff",
+                        "tertiary": "#003271",
+                        "tertiary-fixed-dim": "#adc6ff",
+                        "on-surface": "#1a1c1f",
+                        "inverse-surface": "#2e3034",
+                        "on-secondary-fixed-variant": "#544600",
+                        "on-secondary": "#ffffff",
+                        "on-primary-fixed-variant": "#0e4b6b",
+                        "on-primary-fixed": "#001e2f",
+                        "primary-fixed": "#c8e6ff",
+                        "primary": "#003953",
+                        "surface-variant": "#e2e2e7",
+                        "on-error": "#ffffff",
+                        "on-primary-container": "#90c2e7",
+                        "on-primary": "#ffffff",
+                        "surface-dim": "#d9dade",
+                        "error": "#ba1a1a",
+                        "surface-container-high": "#e8e8ed",
+                        "on-secondary-fixed": "#221b00",
+                        "surface-bright": "#f9f9fe",
+                        "secondary": "#705d00",
+                        "surface-container-lowest": "#ffffff",
+                        "secondary-fixed-dim": "#e4c542",
+                        "outline": "#71787e",
+                        "on-tertiary-fixed-variant": "#004493",
+                        "on-error-container": "#93000a",
+                        "on-secondary-container": "#756100",
+                        "inverse-primary": "#9accf2",
+                        "error-container": "#ffdad6",
+                        "secondary-container": "#ffde59"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "safe-area-bottom": "2.125rem",
+                        "margin-main": "1.25rem",
+                        "gutter": "1rem",
+                        "stack-sm": "0.5rem",
+                        "stack-md": "1rem",
+                        "stack-lg": "1.5rem"
+                    },
+                    "fontFamily": {
+                        "stats-xl": ["Hanken Grotesk"],
+                        "headline-md": ["Hanken Grotesk"],
+                        "display-lg": ["Hanken Grotesk"],
+                        "headline-sm": ["Hanken Grotesk"],
+                        "label-sm": ["Inter"],
+                        "label-bold": ["Inter"],
+                        "body-md": ["Inter"],
+                        "body-lg": ["Inter"]
+                    },
+                    "fontSize": {
+                        "stats-xl": ["48px", {"lineHeight": "48px", "letterSpacing": "-1px", "fontWeight": "800"}],
+                        "headline-md": ["24px", {"lineHeight": "30px", "letterSpacing": "0px", "fontWeight": "700"}],
+                        "display-lg": ["34px", {"lineHeight": "41px", "letterSpacing": "-0.5px", "fontWeight": "800"}],
+                        "headline-sm": ["20px", {"lineHeight": "25px", "fontWeight": "600"}],
+                        "label-sm": ["12px", {"lineHeight": "16px", "fontWeight": "500"}],
+                        "label-bold": ["13px", {"lineHeight": "18px", "fontWeight": "600"}],
+                        "body-md": ["15px", {"lineHeight": "20px", "fontWeight": "400"}],
+                        "body-lg": ["17px", {"lineHeight": "24px", "fontWeight": "400"}]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        .glass-header {
+            background: rgba(249, 249, 254, 0.8);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+        }
+        .ios-segment-active {
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1), 0 1px 2px rgba(0,0,0,0.06);
+        }
+        .progress-glow {
+            box-shadow: 0 0 12px rgba(255, 222, 89, 0.4);
+        }
+        body {
+            -webkit-tap-highlight-color: transparent;
+        }
+        .custom-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+    </style>
+</head>
+<body class="bg-background text-on-background font-body-md antialiased mb-24">
+<!-- TopAppBar -->
+<header class="sticky top-0 z-50 glass-header flex justify-between items-center px-margin-main py-4 w-full">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-full overflow-hidden bg-surface-container-highest border border-outline-variant">
+<img alt="Athlete Profile" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCoymnhoAscPmhPaBbosxCeb8m3B3_QlslT1On_CS41PFVcFiXl6KgqhXa1PGrhgwjJQH4xjMsdCeSc-dT7u8IWlSlpQvi3IWcRp29vek1r_rCzzBo8JSX4D2p6k5P6KISB10ygUDBFMoMaBHiXHQTn3M4VP8pAsJxftCdzRxw5clahYlHLe0AxD-EMYXQJyttez3RqFM3SqD1gSrm2aDBRjTl_WpbgnbN7gCepJmADKL4Zpz6zS9_Tcs0y_Ht57r5vPamzi1M9ZMqr">
+</div>
+<h1 class="font-headline-md text-headline-md font-bold text-primary">Comunidad</h1>
+</div>
+<button class="w-10 h-10 flex items-center justify-center rounded-full bg-surface-container hover:opacity-80 transition-opacity active:scale-95 duration-150">
+<span class="material-symbols-outlined text-primary" data-icon="notifications">notifications</span>
+</button>
+</header>
+<main class="px-margin-main pb-10">
+<!-- Segmented Control (Tabs) -->
+<section class="mt-4 mb-stack-lg">
+<div class="bg-surface-container-low p-1 rounded-xl flex items-center w-full">
+<button class="flex-1 py-2 text-center font-label-bold text-label-bold bg-white text-primary ios-segment-active rounded-lg transition-all" id="tab-retos">Retos</button>
+<button class="flex-1 py-2 text-center font-label-bold text-label-bold text-on-surface-variant rounded-lg transition-all" id="tab-ranking">Ranking</button>
+</div>
+</section>
+<!-- Retos Section Content -->
+<div class="space-y-stack-lg" id="content-retos">
+<!-- Retos de Comunidad -->
+<section class="space-y-stack-md">
+<div class="flex justify-between items-end">
+<h2 class="font-headline-sm text-headline-sm text-primary">Retos de Comunidad</h2>
+<span class="font-label-sm text-label-sm text-outline">Ver más</span>
+</div>
+<!-- Community Challenge Card -->
+<div class="relative overflow-hidden rounded-xl bg-primary-container text-white p-5 group">
+<div class="absolute top-0 right-0 p-4 opacity-20 transform translate-x-4 -translate-y-4">
+<span class="material-symbols-outlined text-[120px]" data-icon="groups">groups</span>
+</div>
+<div class="relative z-10">
+<div class="flex items-center gap-2 mb-2">
+<span class="material-symbols-outlined text-secondary-container" data-icon="stars" style="font-variation-settings: 'FILL' 1;">stars</span>
+<span class="font-label-bold text-label-bold uppercase tracking-wider text-secondary-container">Meta Global</span>
+</div>
+<h3 class="font-headline-sm text-headline-sm mb-4 leading-tight">Reto de Comunidad:<br>1 Millón de Burpees</h3>
+<div class="mb-2 flex justify-between items-end">
+<span class="font-stats-xl text-display-lg text-secondary-container">742k</span>
+<span class="font-label-sm text-label-sm text-on-primary-container">Meta: 1,000,000</span>
+</div>
+<div class="h-3 w-full bg-primary/40 rounded-full overflow-hidden">
+<div class="h-full bg-secondary-container progress-glow rounded-full" style="width: 74.2%"></div>
+</div>
+<p class="mt-4 font-body-md text-body-md text-on-primary-container">¡Faltan 258,000 burpees para alcanzar la meta colectiva de este mes!</p>
+</div>
+</div>
+</section>
+<!-- Retos Individuales / Desafíos -->
+<section class="space-y-stack-md">
+<div class="flex justify-between items-end">
+<h2 class="font-headline-sm text-headline-sm text-primary">Retos Individuales</h2>
+<span class="font-label-sm text-label-sm text-outline">Mis retos</span>
+</div>
+<!-- Running Sunday Card (New) -->
+<div class="bg-white rounded-xl p-5 shadow-sm border border-surface-container-highest">
+<div class="flex justify-between items-start mb-4">
+<div>
+<div class="flex items-center gap-2 mb-1">
+<span class="material-symbols-outlined text-primary" data-icon="directions_run">directions_run</span>
+<span class="font-label-bold text-label-bold text-primary">Desafío Semanal</span>
+</div>
+<h3 class="font-headline-sm text-headline-sm text-on-surface">Running Sunday - 5 KM</h3>
+</div>
+<div class="bg-secondary-container/20 px-3 py-1 rounded-full">
+<span class="text-secondary font-label-bold text-label-bold">Domingo</span>
+</div>
+</div>
+<div class="flex items-center gap-4 mb-6">
+<div class="w-16 h-16 rounded-full bg-surface-container-low flex items-center justify-center">
+<span class="material-symbols-outlined text-primary text-3xl" data-icon="map">map</span>
+</div>
+<div class="flex-1">
+<p class="font-body-md text-body-md text-on-surface-variant">Completa una carrera de 5km este domingo con la comunidad.</p>
+<p class="font-label-sm text-label-sm text-outline mt-1">45 atletas ya inscritos</p>
+</div>
+</div>
+<button class="w-full py-3 bg-secondary-container text-primary font-label-bold text-body-lg rounded-xl active:scale-95 transition-transform duration-200">
+                    Unirse al Reto
+                </button>
+</div>
+<!-- Double Unders Card (Existing) -->
+<div class="bg-white rounded-xl p-5 shadow-sm border border-surface-container-highest">
+<div class="flex justify-between items-start mb-4">
+<div>
+<div class="flex items-center gap-2 mb-1">
+<span class="material-symbols-outlined text-primary" data-icon="timer">timer</span>
+<span class="font-label-bold text-label-bold text-primary">Habilidad</span>
+</div>
+<h3 class="font-headline-sm text-headline-sm text-on-surface">Double Unders</h3>
+</div>
+<div class="bg-secondary-container/20 px-3 py-1 rounded-full">
+<span class="text-secondary font-label-bold text-label-bold">4 Días rest.</span>
+</div>
+</div>
+<div class="flex items-center gap-4 mb-6">
+<div class="w-16 h-16 rounded-full border-4 border-secondary-container flex items-center justify-center">
+<span class="font-label-bold text-headline-sm text-primary">0%</span>
+</div>
+<div class="flex-1">
+<p class="font-body-md text-body-md text-on-surface-variant">Objetivo: Completar 500 saltos dobles esta semana.</p>
+<p class="font-label-sm text-label-sm text-outline mt-1">Progreso personal: 0 / 500</p>
+</div>
+</div>
+<button class="w-full py-3 bg-secondary-container text-primary font-label-bold text-body-lg rounded-xl active:scale-95 transition-transform duration-200">
+                    Continuar
+                </button>
+</div>
+</section>
+<!-- Mis Logros Section -->
+<section class="mt-stack-lg">
+<h2 class="font-headline-sm text-headline-sm text-primary mb-stack-md">Mis Logros</h2>
+<div class="grid grid-cols-3 gap-gutter">
+<div class="flex flex-col items-center gap-2">
+<div class="w-20 h-20 rounded-full bg-surface-container-high flex items-center justify-center">
+<div class="w-16 h-16 rounded-full bg-primary flex items-center justify-center shadow-lg">
+<span class="material-symbols-outlined text-secondary-container text-3xl" data-icon="wb_sunny" style="font-variation-settings: 'FILL' 1;">wb_sunny</span>
+</div>
+</div>
+<span class="font-label-bold text-label-sm text-center">Early Bird</span>
+</div>
+<div class="flex flex-col items-center gap-2">
+<div class="w-20 h-20 rounded-full bg-surface-container-high flex items-center justify-center">
+<div class="w-16 h-16 rounded-full bg-primary flex items-center justify-center shadow-lg">
+<span class="material-symbols-outlined text-secondary-container text-3xl" data-icon="bolt" style="font-variation-settings: 'FILL' 1;">bolt</span>
+</div>
+</div>
+<span class="font-label-bold text-label-sm text-center">PR Crusher</span>
+</div>
+<div class="flex flex-col items-center gap-2">
+<div class="w-20 h-20 rounded-full bg-surface-container-high flex items-center justify-center">
+<div class="w-16 h-16 rounded-full bg-primary flex items-center justify-center shadow-lg">
+<span class="material-symbols-outlined text-secondary-container text-3xl" data-icon="calendar_month" style="font-variation-settings: 'FILL' 1;">calendar_month</span>
+</div>
+</div>
+<span class="font-label-bold text-label-sm text-center">Consistent</span>
+</div>
+<div class="flex flex-col items-center gap-2 opacity-40">
+<div class="w-20 h-20 rounded-full border-2 border-dashed border-outline flex items-center justify-center">
+<span class="material-symbols-outlined text-outline text-3xl" data-icon="lock">lock</span>
+</div>
+<span class="font-label-bold text-label-sm text-center">Iron Lungs</span>
+</div>
+<div class="flex flex-col items-center gap-2 opacity-40">
+<div class="w-20 h-20 rounded-full border-2 border-dashed border-outline flex items-center justify-center">
+<span class="material-symbols-outlined text-outline text-3xl" data-icon="lock">lock</span>
+</div>
+<span class="font-label-bold text-label-sm text-center">Wall Baller</span>
+</div>
+<div class="flex flex-col items-center gap-2 opacity-40">
+<div class="w-20 h-20 rounded-full border-2 border-dashed border-outline flex items-center justify-center">
+<span class="material-symbols-outlined text-outline text-3xl" data-icon="lock">lock</span>
+</div>
+<span class="font-label-bold text-label-sm text-center">Elite Pro</span>
+</div>
+</div>
+</section>
+<!-- Promotional Image Card -->
+<section class="mt-stack-lg">
+<div class="h-48 w-full rounded-xl overflow-hidden relative">
+<img class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuB-BHRwiAupBU5Sxm-FLYcLguCkA-u2S1fzB-wPG22LDA-UU4YXRowH_iALJ11NEwAVLQqv70pVu6y8dNu2fDK3dqh5khqbKO3ZzNzEYsmBrv4yBOUWQxmce6_Sp_cFJ_-B_z53n4lAzeI3zl8JfIN5LRZZ4qe7XMeHp5RCYU5DpnXk6mjchjVgWDqEmiYis3AWsrHyeB_O4cNXYcfHqb1y2u3eHHXEsMxYIkNdZQHMfrfJZq8xkNzWaF2XDZd6b7RwnT470f2ofztE">
+<div class="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent flex flex-col justify-end p-5">
+<p class="text-white font-label-bold text-label-bold uppercase tracking-widest mb-1">Próximamente</p>
+<h4 class="text-white font-headline-sm text-headline-sm">Campeonato de Invierno 2024</h4>
+</div>
+</div>
+</section>
+</div>
+</main>
+<!-- BottomNavBar -->
+<nav class="fixed bottom-0 left-0 w-full glass-header flex justify-around items-center px-4 py-2 pb-safe-area-bottom z-50">
+<a class="flex flex-col items-center justify-center text-outline transition-opacity hover:opacity-80 active:scale-90 duration-200" href="#">
+<span class="material-symbols-outlined" data-icon="fitness_center">fitness_center</span>
+<span class="font-label-sm text-label-sm">NDC HQ</span>
+</a>
+<a class="flex flex-col items-center justify-center text-outline transition-opacity hover:opacity-80 active:scale-90 duration-200" href="#">
+<span class="material-symbols-outlined" data-icon="timer">timer</span>
+<span class="font-label-sm text-label-sm">WOD</span>
+</a>
+<a class="flex flex-col items-center justify-center text-outline transition-opacity hover:opacity-80 active:scale-90 duration-200" href="#">
+<span class="material-symbols-outlined" data-icon="trending_up">trending_up</span>
+<span class="font-label-sm text-label-sm">PR Lab</span>
+</a>
+<a class="flex flex-col items-center justify-center text-secondary font-bold active:scale-90 transition-transform duration-200" href="#">
+<span class="material-symbols-outlined" data-icon="groups" style="font-variation-settings: 'FILL' 1;">groups</span>
+<span class="font-label-sm text-label-sm">Comunidad</span>
+</a>
+<a class="flex flex-col items-center justify-center text-outline transition-opacity hover:opacity-80 active:scale-90 duration-200" href="#">
+<span class="material-symbols-outlined" data-icon="person">person</span>
+<span class="font-label-sm text-label-sm">Perfil</span>
+</a>
+</nav>
+<script>
+    // Tab switching logic
+    const tabs = document.querySelectorAll('section div.bg-surface-container-low button');
+    tabs.forEach(tab => {
+        tab.addEventListener('click', () => {
+            tabs.forEach(t => {
+                t.classList.remove('bg-white', 'text-primary', 'ios-segment-active');
+                t.classList.add('text-on-surface-variant');
+            });
+            tab.classList.remove('text-on-surface-variant');
+            tab.classList.add('bg-white', 'text-primary', 'ios-segment-active');
+            
+            // Logic for showing different content could go here
+            if (tab.id === 'tab-ranking') {
+                // Potential to load ranking view
+            } else {
+                // Return to retos view
+            }
+        });
+    });
+
+    // Micro-interactions
+    document.querySelectorAll('button, a').forEach(el => {
+        el.addEventListener('click', function(e) {
+            if(this.tagName === 'A' && this.getAttribute('href') === '#') e.preventDefault();
+        });
+    });
+</script>
+</body></html>
