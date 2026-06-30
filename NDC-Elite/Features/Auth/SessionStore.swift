@@ -51,18 +51,28 @@ final class SessionStore {
     }
 
     private func loadProfile(userId: UUID) async {
-        do {
-            let profile: Profile = try await client
-                .from("profiles")
-                .select()
-                .eq("id", value: userId)
-                .single()
-                .execute()
-                .value
-            state = .loggedIn(profile)
-        } catch {
-            errorMessage = "No se pudo cargar tu perfil. Intenta de nuevo."
-            state = .loggedOut
+        // Tras `signIn`, el SDK puede tardar un instante en dejar la sesión lista
+        // para PostgREST; si la primera consulta llega sin token (RLS → 0 filas),
+        // reintentamos brevemente. Cubre login real y restauración de sesión.
+        for attempt in 0..<4 {
+            do {
+                let profile: Profile = try await client
+                    .from("profiles")
+                    .select()
+                    .eq("id", value: userId)
+                    .single()
+                    .execute()
+                    .value
+                state = .loggedIn(profile)
+                return
+            } catch {
+                if attempt < 3 {
+                    try? await Task.sleep(for: .milliseconds(250))
+                    continue
+                }
+                errorMessage = "No se pudo cargar tu perfil. Intenta de nuevo."
+                state = .loggedOut
+            }
         }
     }
 }
