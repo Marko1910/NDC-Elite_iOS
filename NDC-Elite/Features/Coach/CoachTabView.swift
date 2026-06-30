@@ -11,7 +11,7 @@ struct CoachTabView: View {
                 CoachDashboardView(profile: profile)
             }
             Tab("WODs", systemImage: "dumbbell.fill") {
-                WodManagementPlaceholderView()
+                WodManagementView(profile: profile)
             }
             Tab("Atletas", systemImage: "person.3.fill") {
                 AthleteManagementPlaceholderView()
@@ -30,15 +30,7 @@ struct CoachTabView: View {
 // MARK: - Placeholders (se reemplazan al construir cada feature)
 // CoachDashboardView vive en CoachDashboardView.swift
 
-struct WodManagementPlaceholderView: View {
-    var body: some View {
-        ContentUnavailableView(
-            "Gestión de WODs",
-            systemImage: "dumbbell.fill",
-            description: Text("Programación semanal y editor (FLOWS.md: WodManagementView)")
-        )
-    }
-}
+// WodManagementView vive en WodManagementView.swift
 
 struct AthleteManagementPlaceholderView: View {
     var body: some View {
