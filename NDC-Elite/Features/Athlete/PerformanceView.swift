@@ -17,6 +17,7 @@ struct PerformanceView: View {
     private let data = PerformanceData.sample
 
     @State private var showLogPr = false
+    @State private var showPrDetail = false
 
     var body: some View {
         NavigationStack {
@@ -38,6 +39,7 @@ struct PerformanceView: View {
             .scrollIndicators(.hidden)
             .overlay(alignment: .bottomTrailing) { logPrFAB }
             .sheet(isPresented: $showLogPr) { LogPrSheet() }
+            .navigationDestination(isPresented: $showPrDetail) { PrDetailView() }
             .toolbar(.hidden, for: .navigationBar)
         }
         .tint(NDCColor.primary)
@@ -83,7 +85,7 @@ struct PerformanceView: View {
             }
             Button {
                 Haptics.impact(.light)
-                // TODO: → PrDetailView
+                showPrDetail = true
             } label: {
                 HStack(spacing: NDCSpacing.gutter) {
                     Image(systemName: "dumbbell.fill")
@@ -134,7 +136,7 @@ struct PerformanceView: View {
                 ForEach(data.keyMarks) { mark in
                     KeyMarkRow(mark: mark) {
                         Haptics.impact(.light)
-                        // TODO: → PrDetailView del ejercicio
+                        showPrDetail = true
                     }
                 }
             }
