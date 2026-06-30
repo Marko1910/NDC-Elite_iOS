@@ -14,7 +14,7 @@ struct AthleteTabView: View {
                 WodDetailView(profile: profile)
             }
             Tab("Progreso", systemImage: "chart.line.uptrend.xyaxis") {
-                PerformancePlaceholderView()
+                PerformanceView(profile: profile)
             }
             Tab("Comunidad", systemImage: "person.3.fill") {
                 CommunityPlaceholderView()
@@ -30,16 +30,7 @@ struct AthleteTabView: View {
 // MARK: - Placeholders (se reemplazan al construir cada feature)
 // AthleteDashboardView vive en AthleteDashboardView.swift
 // WodDetailView vive en WodDetailView.swift
-
-struct PerformancePlaceholderView: View {
-    var body: some View {
-        ContentUnavailableView(
-            "Progreso",
-            systemImage: "chart.line.uptrend.xyaxis",
-            description: Text("PRs, ranking y evolución (FLOWS.md: PerformanceView)")
-        )
-    }
-}
+// PerformanceView vive en PerformanceView.swift
 
 struct CommunityPlaceholderView: View {
     var body: some View {
