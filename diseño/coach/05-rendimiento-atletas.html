@@ -1,0 +1,342 @@
+<!DOCTYPE html><html class="light" lang="es"><head>
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0, viewport-fit=cover" name="viewport">
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=Hanken+Grotesk:wght@600;700;800&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "primary-fixed-dim": "#9accf2",
+                        "primary-fixed": "#c8e6ff",
+                        "on-surface-variant": "#41484d",
+                        "error": "#ba1a1a",
+                        "surface-dim": "#d9dade",
+                        "tertiary-container": "#00489c",
+                        "surface-variant": "#e2e2e7",
+                        "secondary": "#705d00",
+                        "on-secondary-fixed": "#221b00",
+                        "surface-container-highest": "#e2e2e7",
+                        "surface-container-high": "#e8e8ed",
+                        "inverse-surface": "#2e3034",
+                        "secondary-fixed-dim": "#e4c542",
+                        "secondary-container": "#ffde59",
+                        "on-error": "#ffffff",
+                        "tertiary-fixed": "#d8e2ff",
+                        "background": "#f9f9fe",
+                        "surface-container-low": "#f3f3f8",
+                        "primary-container": "#165070",
+                        "primary": "#003953",
+                        "inverse-primary": "#9accf2",
+                        "on-secondary-container": "#756100",
+                        "secondary-fixed": "#ffe16e",
+                        "surface-container": "#ededf2",
+                        "outline-variant": "#c1c7ce",
+                        "on-tertiary-container": "#9bbbff",
+                        "on-primary-fixed-variant": "#0e4b6b",
+                        "on-primary-container": "#90c2e7",
+                        "tertiary": "#003271",
+                        "on-primary": "#ffffff",
+                        "error-container": "#ffdad6",
+                        "surface-container-lowest": "#ffffff",
+                        "on-tertiary-fixed-variant": "#004493",
+                        "surface-tint": "#2f6384",
+                        "on-surface": "#1a1c1f",
+                        "surface-bright": "#f9f9fe",
+                        "on-secondary-fixed-variant": "#544600",
+                        "on-tertiary": "#ffffff",
+                        "on-tertiary-fixed": "#001a41",
+                        "surface": "#f9f9fe",
+                        "tertiary-fixed-dim": "#adc6ff",
+                        "on-error-container": "#93000a",
+                        "inverse-on-surface": "#f0f0f5",
+                        "on-secondary": "#ffffff",
+                        "outline": "#71787e",
+                        "on-background": "#1a1c1f",
+                        "on-primary-fixed": "#001e2f"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "stack-lg": "1.5rem",
+                        "stack-md": "1rem",
+                        "stack-sm": "0.5rem",
+                        "safe-area-bottom": "2.125rem",
+                        "margin-main": "1.25rem",
+                        "gutter": "1rem"
+                    },
+                    "fontFamily": {
+                        "stats-xl": ["Hanken Grotesk"],
+                        "label-bold": ["Inter"],
+                        "body-md": ["Inter"],
+                        "label-sm": ["Inter"],
+                        "headline-md": ["Hanken Grotesk"],
+                        "headline-sm": ["Hanken Grotesk"],
+                        "display-lg": ["Hanken Grotesk"],
+                        "body-lg": ["Inter"]
+                    },
+                    "fontSize": {
+                        "stats-xl": ["48px", {"lineHeight": "48px", "letterSpacing": "-1px", "fontWeight": "800"}],
+                        "label-bold": ["13px", {"lineHeight": "18px", "fontWeight": "600"}],
+                        "body-md": ["15px", {"lineHeight": "20px", "fontWeight": "400"}],
+                        "label-sm": ["12px", {"lineHeight": "16px", "fontWeight": "500"}],
+                        "headline-md": ["24px", {"lineHeight": "30px", "letterSpacing": "0px", "fontWeight": "700"}],
+                        "headline-sm": ["20px", {"lineHeight": "25px", "fontWeight": "600"}],
+                        "display-lg": ["34px", {"lineHeight": "41px", "letterSpacing": "-0.5px", "fontWeight": "800"}],
+                        "body-lg": ["17px", {"lineHeight": "24px", "fontWeight": "400"}]
+                    }
+                },
+            },
+        }
+    </script>
+<style>
+        .glass-card {
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+        }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .custom-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background text-on-background font-body-md selection:bg-secondary-container antialiased">
+<!-- Top Navigation Anchor -->
+<header class="fixed top-0 w-full z-50 bg-surface/80 dark:bg-surface/80 backdrop-blur-md flex justify-between items-center px-margin-main h-14">
+<div class="flex items-center gap-stack-sm active:scale-95 transition-transform">
+<span class="material-symbols-outlined text-primary" data-icon="arrow_back">arrow_back</span>
+</div>
+<h1 class="font-headline-sm text-headline-sm text-primary">Progreso Comunitario</h1>
+<div class="flex items-center gap-stack-sm active:scale-95 transition-transform">
+<span class="material-symbols-outlined text-primary" data-icon="more_vert">more_vert</span>
+</div>
+</header>
+<main class="pt-20 pb-28 px-margin-main max-w-4xl mx-auto space-y-stack-lg">
+<!-- Hero Overview Section -->
+<section class="space-y-stack-sm">
+<h2 class="font-headline-md text-headline-md text-primary">Resumen Semanal</h2>
+<div class="grid grid-cols-2 gap-stack-md">
+<div class="glass-card p-stack-md rounded-xl border border-white/20 shadow-sm flex flex-col" style="transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);">
+<span class="text-label-sm font-label-sm text-on-surface-variant uppercase tracking-wider">PRs Globales</span>
+<span class="text-stats-xl font-stats-xl text-primary mt-1">128</span>
+<div class="flex items-center text-green-600 gap-1 mt-1">
+<span class="material-symbols-outlined text-[16px]" data-icon="trending_up">trending_up</span>
+<span class="text-label-sm font-label-bold">+12% vs ayer</span>
+</div>
+</div>
+<div class="glass-card p-stack-md rounded-xl border border-white/20 shadow-sm flex flex-col" style="transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);">
+<span class="text-label-sm font-label-sm text-on-surface-variant uppercase tracking-wider">Cumplimiento</span>
+<span class="text-stats-xl font-stats-xl text-secondary mt-1">84%</span>
+<div class="w-full bg-outline-variant h-1.5 rounded-full mt-2 overflow-hidden">
+<div class="bg-secondary h-full rounded-full" style="width: 84%;"></div>
+</div>
+</div>
+</div>
+</section>
+<!-- Compliance Rate Chart -->
+<section class="space-y-stack-sm">
+<div class="flex justify-between items-end">
+<h2 class="font-headline-md text-headline-md text-primary">Tasa de Adherencia</h2>
+<span class="text-label-sm font-label-bold text-on-surface-variant">Últimos 7 días</span>
+</div>
+<div class="glass-card p-stack-md rounded-xl border border-white/20 shadow-sm h-48 flex items-end justify-between gap-2" style="transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);">
+<!-- Simple CSS Chart -->
+<div class="flex flex-col items-center flex-1 group">
+<div class="w-full bg-primary/10 rounded-t-lg relative h-[60%] group-hover:bg-primary/20 transition-colors">
+<div class="absolute -top-6 left-1/2 -translate-x-1/2 text-label-sm font-label-bold opacity-0 group-hover:opacity-100 transition-opacity">60%</div>
+</div>
+<span class="text-label-sm font-label-sm mt-2">L</span>
+</div>
+<div class="flex flex-col items-center flex-1 group">
+<div class="w-full bg-primary/10 rounded-t-lg relative h-[75%] group-hover:bg-primary/20 transition-colors">
+<div class="absolute -top-6 left-1/2 -translate-x-1/2 text-label-sm font-label-bold opacity-0 group-hover:opacity-100 transition-opacity">75%</div>
+</div>
+<span class="text-label-sm font-label-sm mt-2">M</span>
+</div>
+<div class="flex flex-col items-center flex-1 group">
+<div class="w-full bg-secondary rounded-t-lg relative h-[88%] group-hover:opacity-80 transition-opacity">
+<div class="absolute -top-6 left-1/2 -translate-x-1/2 text-label-sm font-label-bold">88%</div>
+</div>
+<span class="text-label-sm font-label-sm mt-2">X</span>
+</div>
+<div class="flex flex-col items-center flex-1 group">
+<div class="w-full bg-primary/10 rounded-t-lg relative h-[82%] group-hover:bg-primary/20 transition-colors">
+<div class="absolute -top-6 left-1/2 -translate-x-1/2 text-label-sm font-label-bold opacity-0 group-hover:opacity-100 transition-opacity">82%</div>
+</div>
+<span class="text-label-sm font-label-sm mt-2">J</span>
+</div>
+<div class="flex flex-col items-center flex-1 group">
+<div class="w-full bg-primary/10 rounded-t-lg relative h-[94%] group-hover:bg-primary/20 transition-colors">
+<div class="absolute -top-6 left-1/2 -translate-x-1/2 text-label-sm font-label-bold opacity-0 group-hover:opacity-100 transition-opacity">94%</div>
+</div>
+<span class="text-label-sm font-label-sm mt-2">V</span>
+</div>
+<div class="flex flex-col items-center flex-1 group">
+<div class="w-full bg-primary/10 rounded-t-lg relative h-[45%] group-hover:bg-primary/20 transition-colors">
+<div class="absolute -top-6 left-1/2 -translate-x-1/2 text-label-sm font-label-bold opacity-0 group-hover:opacity-100 transition-opacity">45%</div>
+</div>
+<span class="text-label-sm font-label-sm mt-2">S</span>
+</div>
+<div class="flex flex-col items-center flex-1 group">
+<div class="w-full bg-primary/10 rounded-t-lg relative h-[20%] group-hover:bg-primary/20 transition-colors">
+<div class="absolute -top-6 left-1/2 -translate-x-1/2 text-label-sm font-label-bold opacity-0 group-hover:opacity-100 transition-opacity">20%</div>
+</div>
+<span class="text-label-sm font-label-sm mt-2">D</span>
+</div>
+</div>
+</section>
+<!-- Global PRs Feed -->
+<section class="space-y-stack-sm">
+<div class="flex justify-between items-center">
+<h2 class="font-headline-md text-headline-md text-primary">PRs Recientes</h2>
+<button class="text-primary font-label-bold text-label-sm flex items-center">Ver todo <span class="material-symbols-outlined text-[18px]" data-icon="chevron_right">chevron_right</span></button>
+</div>
+<div class="flex gap-stack-md overflow-x-auto custom-scrollbar pb-2">
+<!-- PR Card 1 -->
+<div class="min-w-[200px] glass-card p-stack-md rounded-xl border border-white/20 shadow-sm flex flex-col gap-stack-sm" style="transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);">
+<div class="flex items-center gap-stack-sm">
+<img class="w-10 h-10 rounded-full object-cover" data-alt="Close-up portrait of a determined female athlete with dark hair, glowing with sweat in a high-intensity gym environment. The lighting is dramatic and moody, with blue and yellow highlights reflecting the brand colors of a high-end CrossFit facility. She wears professional athletic gear in a pristine, modern gym setting with soft bokeh background." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCXHdJsHrZlUQgNMVhZImEwUGsm4f403YC89lF4s_-HdnrVgKzNqJEsdBWL7DueQ68qU13qNnKc0BU5WSMgY809Gh7vPauIcmngFk5yYPJx--H3Xc5qvyAgIbb7NcIWZR10CHfpuynkD2_qY9qcmorWkcs_uamFxyOd6vBSVb8noLJwoEcH7e87i8cy2_3XTS0W7TFpQxJfrdpN74NmEnzhA7P1X_TGG3pOzQhRqG2QhQ8GAygE-eRYFabuFUN6SWtdadDed9V2_xOH">
+<div>
+<p class="font-label-bold text-primary">Elena Mora</p>
+<p class="text-label-sm text-on-surface-variant">Deadlift</p>
+</div>
+</div>
+<div class="bg-secondary-container/30 rounded-lg p-stack-sm text-center">
+<span class="font-stats-xl text-headline-md text-primary">125kg</span>
+<p class="text-label-sm font-label-bold text-secondary">Nuevo Record!</p>
+</div>
+</div>
+<!-- PR Card 2 -->
+<div class="min-w-[200px] glass-card p-stack-md rounded-xl border border-white/20 shadow-sm flex flex-col gap-stack-sm" style="transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);">
+<div class="flex items-center gap-stack-sm">
+<img class="w-10 h-10 rounded-full object-cover" data-alt="Cinematic shot of a muscular male athlete resting between sets, looking at a digital tablet with training data. The scene is set in a premium, minimalist warehouse-style gym with concrete textures and industrial warm lighting. The athlete is wearing a navy blue performance shirt, embodying the precision and discipline of professional fitness." src="https://lh3.googleusercontent.com/aida-public/AB6AXuB4pOVrMDc6eW-Aga8A6rHqKGpLMerCqgyXMfMOrukdlSKDT2PbGDcAyAl9uOTfy9EwDw_rEJqk8j1cmodyJxbi9QL7vB6_kXpIryur-X-gAhzI9ZkXQdeF2omZE2RE_IgEACGw4riOkEagukA_P-R6DQ4NZiVbFdkLfORy_6gFgHiqwhQ1hx_MQZoE8d1Hd5SLI83K79JHLXwC9zWktvMEk4s5XVZ-e3epfRn1Q0wLlw4Gd5ei5gvfQo919zp898xNT9S_jgUayZRP">
+<div>
+<p class="font-label-bold text-primary">Carlos Ruiz</p>
+<p class="text-label-sm text-on-surface-variant">Fran WOD</p>
+</div>
+</div>
+<div class="bg-secondary-container/30 rounded-lg p-stack-sm text-center">
+<span class="font-stats-xl text-headline-md text-primary">3:42</span>
+<p class="text-label-sm font-label-bold text-secondary">-15 seg</p>
+</div>
+</div>
+<!-- PR Card 3 -->
+<div class="min-w-[200px] glass-card p-stack-md rounded-xl border border-white/20 shadow-sm flex flex-col gap-stack-sm" style="transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);">
+<div class="flex items-center gap-stack-sm">
+<img class="w-10 h-10 rounded-full object-cover" data-alt="Detailed close-up of an athlete's hands being chalked before a heavy lift in a clean, professional fitness studio. The background is softly blurred with tones of navy and soft grey, emphasizing a high-performance, executive sports environment. High-key natural light pours in from large windows, creating a bright and energizing atmosphere." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBVBrW9PIgsH4EfkuoO57N3WeXPusLKyy-fg18P0wWJTBMI_s48WuBXt__PZdws8nQ5MhAT20v8isovQ87ytDEOgCnkBa4mTy9GcVpP2gWKrd9_nG7hCZ9mnoWK5CEpiqHtR0wv_9QVwIuEr_u2FzZhLKAsKxHXd7jdqZtV--UJSWerLn4u4LI_isz48uFu6Hwq_1mPeZIx7RdJc73BjbNhfKNbvbVaGg4dyYVHiPHhKW82hOGPB9DiQJwW0gyf42evd9ZYcmSP4aNI">
+<div>
+<p class="font-label-bold text-primary">Sofia Paz</p>
+<p class="text-label-sm text-on-surface-variant">Snatch</p>
+</div>
+</div>
+<div class="bg-secondary-container/30 rounded-lg p-stack-sm text-center">
+<span class="font-stats-xl text-headline-md text-primary">65kg</span>
+<p class="text-label-sm font-label-bold text-secondary">Nuevo Record!</p>
+</div>
+</div>
+</div>
+</section>
+<!-- Top Improved Athletes -->
+<section class="space-y-stack-sm">
+<h2 class="font-headline-md text-headline-md text-primary">Atletas Más Mejorados</h2>
+<div class="glass-card rounded-xl border border-white/20 shadow-sm divide-y divide-outline-variant/20" style="transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275); transform: scale(1);">
+<div class="p-stack-md flex items-center justify-between hover:bg-surface-variant/10 transition-colors">
+<div class="flex items-center gap-stack-md">
+<span class="font-headline-sm text-outline w-6">01</span>
+<div>
+<p class="font-label-bold text-primary">Marcos Vinicius</p>
+<p class="text-label-sm text-on-surface-variant">Consistencia: 98%</p>
+</div>
+</div>
+<div class="text-right">
+<p class="text-headline-sm font-headline-sm text-secondary">+22%</p>
+<p class="text-label-sm text-on-surface-variant">Progreso mensual</p>
+</div>
+</div>
+<div class="p-stack-md flex items-center justify-between hover:bg-surface-variant/10 transition-colors">
+<div class="flex items-center gap-stack-md">
+<span class="font-headline-sm text-outline w-6">02</span>
+<div>
+<p class="font-label-bold text-primary">Lucía Fernández</p>
+<p class="text-label-sm text-on-surface-variant">Consistencia: 92%</p>
+</div>
+</div>
+<div class="text-right">
+<p class="text-headline-sm font-headline-sm text-secondary">+18%</p>
+<p class="text-label-sm text-on-surface-variant">Progreso mensual</p>
+</div>
+</div>
+<div class="p-stack-md flex items-center justify-between hover:bg-surface-variant/10 transition-colors">
+<div class="flex items-center gap-stack-md">
+<span class="font-headline-sm text-outline w-6">03</span>
+<div>
+<p class="font-label-bold text-primary">Andrés Soler</p>
+<p class="text-label-sm text-on-surface-variant">Consistencia: 89%</p>
+</div>
+</div>
+<div class="text-right">
+<p class="text-headline-sm font-headline-sm text-secondary">+15%</p>
+<p class="text-label-sm text-on-surface-variant">Progreso mensual</p>
+</div>
+</div>
+</div>
+</section>
+</main>
+<!-- Bottom Navigation Anchor -->
+<nav class="fixed bottom-0 left-0 w-full flex justify-around items-center px-gutter pb-safe-area-bottom pt-stack-sm bg-surface/80 dark:bg-surface/80 backdrop-blur-md z-50">
+<a class="flex flex-col items-center justify-center text-on-surface-variant dark:text-outline-variant active:scale-95 transition-transform hover:bg-surface-variant/20 p-2 rounded-lg" href="#">
+<span class="material-symbols-outlined" data-icon="home">home</span>
+<span class="font-label-sm text-label-sm mt-1">Inicio</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant dark:text-outline-variant active:scale-95 transition-transform hover:bg-surface-variant/20 p-2 rounded-lg" href="#">
+<span class="material-symbols-outlined" data-icon="fitness_center">fitness_center</span>
+<span class="font-label-sm text-label-sm mt-1">WODs</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant dark:text-outline-variant active:scale-95 transition-transform hover:bg-surface-variant/20 p-2 rounded-lg" href="#">
+<span class="material-symbols-outlined" data-icon="groups">groups</span>
+<span class="font-label-sm text-label-sm mt-1">Atletas</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant dark:text-outline-variant active:scale-95 transition-transform hover:bg-surface-variant/20 p-2 rounded-lg" href="#">
+<span class="material-symbols-outlined" data-icon="notifications">notifications</span>
+<span class="font-label-sm text-label-sm mt-1">Alertas</span>
+</a>
+<a class="flex flex-col items-center justify-center text-secondary dark:text-secondary-fixed-dim font-label-bold active:scale-95 transition-transform p-2 rounded-lg" href="#">
+<span class="material-symbols-outlined" data-icon="trending_up" style="font-variation-settings: 'FILL' 1;">trending_up</span>
+<span class="font-label-sm text-label-sm mt-1">Progreso</span>
+</a>
+</nav>
+<!-- Floating Action Button: Contextual for Coach -->
+
+<script>
+        // Micro-interaction for cards
+        document.querySelectorAll('.glass-card').forEach(card => {
+            card.addEventListener('mousedown', () => {
+                card.style.transform = 'scale(0.98)';
+            });
+            card.addEventListener('mouseup', () => {
+                card.style.transform = 'scale(1)';
+            });
+            card.style.transition = 'transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275)';
+        });
+    </script>
+
+
+
+
+</body></html>

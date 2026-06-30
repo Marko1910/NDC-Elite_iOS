@@ -28,42 +28,7 @@ struct CoachTabView: View {
 }
 
 // MARK: - Placeholders (se reemplazan al construir cada feature)
-
-struct CoachDashboardView: View {
-    let profile: Profile
-    @Environment(SessionStore.self) private var session
-
-    var body: some View {
-        NavigationStack {
-            ScrollView {
-                VStack(alignment: .leading, spacing: NDCSpacing.stackLG) {
-                    Text("¡Hola, Coach!")
-                        .font(NDCFont.displayLG)
-                        .foregroundStyle(NDCColor.onSurface)
-                    Text("Resumen estratégico de hoy")
-                        .font(NDCFont.bodyMD)
-                        .foregroundStyle(NDCColor.onSurfaceVariant)
-
-                    NDCCard {
-                        VStack(alignment: .leading, spacing: NDCSpacing.stackSM) {
-                            NDCChip(text: "Acción Requerida", color: NDCColor.error)
-                            Text("Próximamente: asistencia de hoy, validaciones pendientes y alertas")
-                                .font(NDCFont.bodyMD)
-                                .foregroundStyle(NDCColor.onSurfaceVariant)
-                        }
-                    }
-
-                    Button("Cerrar Sesión", role: .destructive) {
-                        Task { await session.signOut() }
-                    }
-                    .buttonStyle(.ndcGhost)
-                }
-                .padding(.horizontal, NDCSpacing.marginMain)
-            }
-            .background(NDCColor.background)
-        }
-    }
-}
+// CoachDashboardView vive en CoachDashboardView.swift
 
 struct WodManagementPlaceholderView: View {
     var body: some View {
