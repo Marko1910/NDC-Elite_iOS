@@ -17,7 +17,7 @@ struct CoachTabView: View {
                 AthleteManagementView(profile: profile)
             }
             Tab("Alertas", systemImage: "bell.fill") {
-                CoachAlertsPlaceholderView()
+                CoachAlertsView(profile: profile)
             }
             Tab("Progreso", systemImage: "chart.bar.fill") {
                 CommunityProgressPlaceholderView()
@@ -34,15 +34,7 @@ struct CoachTabView: View {
 
 // AthleteManagementView vive en AthleteManagementView.swift
 
-struct CoachAlertsPlaceholderView: View {
-    var body: some View {
-        ContentUnavailableView(
-            "Alertas",
-            systemImage: "bell.fill",
-            description: Text("Validaciones, lesiones y asistencia (FLOWS.md: CoachAlertsView)")
-        )
-    }
-}
+// CoachAlertsView vive en CoachAlertsView.swift
 
 struct CommunityProgressPlaceholderView: View {
     var body: some View {
