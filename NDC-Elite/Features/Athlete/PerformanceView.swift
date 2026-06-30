@@ -68,10 +68,6 @@ struct PerformanceView: View {
                     .frame(width: 40, height: 40)
             }
             .accessibilityLabel("Biblioteca de técnica")
-
-            NDCBellButton(unreadCount: data.unreadCount) {
-                // TODO: → AthleteNotificationsView
-            }
         }
     }
 
@@ -297,7 +293,6 @@ private struct PerformanceData {
     let state: State
     let recent: Recent
     let keyMarks: [KeyMark]
-    let unreadCount: Int
 
     static let sample = PerformanceData(
         membership: "Elite Member",
@@ -307,8 +302,7 @@ private struct PerformanceData {
             KeyMark(icon: "figure.gymnastics", name: "Muscle Ups", value: "12 Reps", tag: "RX"),
             KeyMark(icon: "timer", name: "Fran", value: "3:12", tag: "Benchmark"),
             KeyMark(icon: "scalemass.fill", name: "Peso Muerto", value: "180kg", tag: "Máximo")
-        ],
-        unreadCount: 2
+        ]
     )
 }
 
