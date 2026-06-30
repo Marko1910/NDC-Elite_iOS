@@ -11,7 +11,7 @@ struct AthleteTabView: View {
                 AthleteDashboardView(profile: profile)
             }
             Tab("WOD", systemImage: "dumbbell.fill") {
-                WodDetailPlaceholderView()
+                WodDetailView(profile: profile)
             }
             Tab("Progreso", systemImage: "chart.line.uptrend.xyaxis") {
                 PerformancePlaceholderView()
@@ -28,17 +28,8 @@ struct AthleteTabView: View {
 }
 
 // MARK: - Placeholders (se reemplazan al construir cada feature)
-// AthleteDashboardView vive ahora en AthleteDashboardView.swift
-
-struct WodDetailPlaceholderView: View {
-    var body: some View {
-        ContentUnavailableView(
-            "WOD del Día",
-            systemImage: "dumbbell.fill",
-            description: Text("Aquí verás el entrenamiento programado (FLOWS.md: WodDetailView)")
-        )
-    }
-}
+// AthleteDashboardView vive en AthleteDashboardView.swift
+// WodDetailView vive en WodDetailView.swift
 
 struct PerformancePlaceholderView: View {
     var body: some View {
