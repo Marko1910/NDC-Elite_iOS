@@ -18,6 +18,7 @@ struct PerformanceView: View {
 
     @State private var showLogPr = false
     @State private var showPrDetail = false
+    @State private var showLibrary = false
 
     var body: some View {
         NavigationStack {
@@ -41,6 +42,9 @@ struct PerformanceView: View {
             .sheet(isPresented: $showLogPr) { LogPrSheet() }
             .navigationDestination(isPresented: $showPrDetail) {
                 PrDetailView(athleteName: profile.fullName)
+            }
+            .navigationDestination(isPresented: $showLibrary) {
+                ExerciseLibraryView()
             }
             .toolbar(.hidden, for: .navigationBar)
         }
@@ -67,7 +71,7 @@ struct PerformanceView: View {
 
             Button {
                 Haptics.impact(.light)
-                // TODO: → ExerciseLibraryView (Biblioteca Técnica)
+                showLibrary = true
             } label: {
                 Image(systemName: "books.vertical")
                     .font(.system(size: 20))
