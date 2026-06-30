@@ -4,8 +4,8 @@
 
 | Entorno | Supabase | Rama git | Uso |
 |---|---|---|---|
-| **Staging** | proyecto `NDC-Elite-staging` (free) | `staging` | Probar TODOS los cambios primero |
-| **Producción** | proyecto `rdbibgwnmrifscisicgv` | `main` | Solo cambios ya probados en staging |
+| **Staging** | proyecto `NDC-Elite-staging` (ref `puhbdynclncciregzxdn`, free) | `staging` | Probar TODOS los cambios primero |
+| **Producción** | proyecto `NDC-Elite_iOS` (ref `rdbibgwnmrifscisicgv`) | `main` | Solo cambios ya probados en staging |
 
 > Supabase Branching nativo requiere plan Pro; usamos dos proyectos free,
 > que logra el mismo aislamiento sin costo.
@@ -52,8 +52,16 @@
 ## MCP de Supabase en Claude Code
 
 - `supabase` → producción (project_ref `rdbibgwnmrifscisicgv`)
-- `supabase-staging` → staging (registrar cuando exista el proyecto):
+- `supabase-staging` → staging (opcional; alternativa: la CLI ya está vinculada):
   ```
-  claude mcp add --transport http supabase-staging "https://mcp.supabase.com/mcp?project_ref=<REF_STAGING>"
+  claude mcp add --transport http supabase-staging "https://mcp.supabase.com/mcp?project_ref=puhbdynclncciregzxdn"
   ```
   (reiniciar Claude Code después de registrarlo)
+
+## Supabase CLI (staging)
+
+- CLI instalada en `~/.local/share/supabase/supabase` (v2.105.0).
+- La carpeta está **vinculada a staging** (`supabase link`): `supabase db push`
+  aplica las migraciones de `supabase/migrations/` directamente a staging.
+- Contraseña de la BD staging: guardada en `~/.ndc-staging-db-pass.txt`
+  (copia personal de Marco en su gestor de contraseñas).
