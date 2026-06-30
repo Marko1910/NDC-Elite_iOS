@@ -10,7 +10,11 @@ import Charts
 /// TODO(datos): hoy usa `PrDetailData.sample`. Conectar a Supabase:
 /// personal_records (registro + historial 6 meses del ejercicio).
 struct PrDetailView: View {
+    var athleteName: String = "Atleta NDC"
     private let data = PrDetailData.sample
+
+    /// Imagen deportiva del logro para compartir en redes (se renderiza al aparecer).
+    @State private var shareImage: Image?
 
     var body: some View {
         ScrollView {
@@ -32,12 +36,43 @@ struct PrDetailView: View {
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
             ToolbarItem(placement: .topBarTrailing) {
-                ShareLink(item: data.shareText) {
+                achievementShareLink {
                     Image(systemName: "square.and.arrow.up")
                         .foregroundStyle(NDCColor.primary)
                 }
-                .simultaneousGesture(TapGesture().onEnded { Haptics.impact(.light) })
             }
+        }
+        .onAppear(perform: renderShareImage)
+    }
+
+    /// ShareLink que comparte la imagen deportiva del logro (con texto de respaldo
+    /// mientras se renderiza). Reutilizado por la barra y por "Compartir Logro".
+    @ViewBuilder
+    private func achievementShareLink<Label: View>(@ViewBuilder label: () -> Label) -> some View {
+        Group {
+            if let shareImage {
+                ShareLink(
+                    item: shareImage,
+                    subject: Text("Nuevo PR en \(data.exercise)"),
+                    message: Text(data.shareText),
+                    preview: SharePreview("\(data.exercise) — \(data.value)", image: shareImage),
+                    label: label
+                )
+            } else {
+                ShareLink(item: data.shareText, label: label)
+            }
+        }
+        .simultaneousGesture(TapGesture().onEnded { Haptics.impact() })
+    }
+
+    @MainActor private func renderShareImage() {
+        guard shareImage == nil else { return }
+        let renderer = ImageRenderer(
+            content: ShareableAchievementCard(data: data, athleteName: athleteName)
+        )
+        renderer.scale = 3
+        if let ui = renderer.uiImage {
+            shareImage = Image(uiImage: ui)
         }
     }
 
@@ -214,7 +249,7 @@ struct PrDetailView: View {
     // MARK: - Compartir logro
 
     private var shareButton: some View {
-        ShareLink(item: data.shareText) {
+        achievementShareLink {
             Label("Compartir Logro", systemImage: "square.and.arrow.up")
                 .font(NDCFont.headlineSM)
                 .foregroundStyle(.white)
@@ -222,7 +257,6 @@ struct PrDetailView: View {
                 .background(NDCColor.primary, in: .rect(cornerRadius: NDCRadius.large))
                 .shadow(color: NDCColor.primaryDark.opacity(0.2), radius: 8, y: 4)
         }
-        .simultaneousGesture(TapGesture().onEnded { Haptics.impact() })
     }
 
     // MARK: - Banner de contexto
@@ -250,6 +284,100 @@ struct PrDetailView: View {
         .frame(height: 160)
         .clipShape(.rect(cornerRadius: NDCRadius.large))
         .accessibilityHidden(true)
+    }
+}
+
+// MARK: - Tarjeta compartible (imagen para redes sociales)
+
+/// Diseño deportivo y elegante que se renderiza a imagen (`ImageRenderer`) para
+/// que el atleta comparta su PR en redes. Formato vertical tipo post (4:5).
+private struct ShareableAchievementCard: View {
+    let data: PrDetailData
+    let athleteName: String
+
+    var body: some View {
+        ZStack {
+            // Fondo deportivo
+            LinearGradient(
+                colors: [NDCColor.primary, NDCColor.primaryDark],
+                startPoint: .topLeading, endPoint: .bottomTrailing
+            )
+            // Marca de agua
+            Image(systemName: "dumbbell.fill")
+                .font(.system(size: 260, weight: .black))
+                .foregroundStyle(.white.opacity(0.05))
+                .rotationEffect(.degrees(-18))
+                .offset(x: 70, y: 90)
+
+            VStack(alignment: .leading, spacing: 0) {
+                // Marca
+                HStack {
+                    Text("NDC HQ")
+                        .font(.system(size: 22, weight: .heavy))
+                        .foregroundStyle(.white)
+                    Spacer()
+                    Text("PERFORMANCE")
+                        .font(.system(size: 11, weight: .bold))
+                        .tracking(2)
+                        .foregroundStyle(NDCColor.accent)
+                }
+
+                Spacer()
+
+                Text("NUEVO RÉCORD")
+                    .font(.system(size: 13, weight: .bold))
+                    .tracking(1.5)
+                    .foregroundStyle(NDCColor.onAccent)
+                    .padding(.horizontal, 12)
+                    .padding(.vertical, 6)
+                    .background(NDCColor.accent, in: .capsule)
+
+                Text(data.exercise)
+                    .font(.system(size: 36, weight: .heavy))
+                    .foregroundStyle(.white)
+                    .lineLimit(2)
+                    .minimumScaleFactor(0.7)
+                    .padding(.top, 12)
+
+                HStack(alignment: .firstTextBaseline, spacing: 10) {
+                    Text(data.value)
+                        .font(.system(size: 72, weight: .black))
+                        .foregroundStyle(NDCColor.accent)
+                    Text(data.delta)
+                        .font(.system(size: 24, weight: .heavy))
+                        .foregroundStyle(NDCColor.accent.opacity(0.9))
+                }
+                .lineLimit(1)
+                .minimumScaleFactor(0.6)
+                Text("vs. su marca anterior")
+                    .font(.system(size: 14))
+                    .foregroundStyle(.white.opacity(0.75))
+
+                Spacer()
+
+                // Pie: atleta + fecha
+                HStack {
+                    VStack(alignment: .leading, spacing: 2) {
+                        Text(athleteName)
+                            .font(.system(size: 17, weight: .bold))
+                            .foregroundStyle(.white)
+                        Text(data.dateLabel)
+                            .font(.system(size: 12))
+                            .foregroundStyle(.white.opacity(0.7))
+                    }
+                    Spacer()
+                }
+                Rectangle().fill(.white.opacity(0.15)).frame(height: 1).padding(.vertical, 14)
+                Text("HIGH STANDARDS ONLY · #NDCHQ")
+                    .font(.system(size: 12, weight: .semibold))
+                    .tracking(1)
+                    .foregroundStyle(NDCColor.accent)
+            }
+            .padding(28)
+            .frame(width: 360, height: 450, alignment: .topLeading)
+        }
+        .frame(width: 360, height: 450)
+        .clipped()
     }
 }
 

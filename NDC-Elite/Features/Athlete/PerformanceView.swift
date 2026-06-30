@@ -39,7 +39,9 @@ struct PerformanceView: View {
             .scrollIndicators(.hidden)
             .overlay(alignment: .bottomTrailing) { logPrFAB }
             .sheet(isPresented: $showLogPr) { LogPrSheet() }
-            .navigationDestination(isPresented: $showPrDetail) { PrDetailView() }
+            .navigationDestination(isPresented: $showPrDetail) {
+                PrDetailView(athleteName: profile.fullName)
+            }
             .toolbar(.hidden, for: .navigationBar)
         }
         .tint(NDCColor.primary)
