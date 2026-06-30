@@ -15,6 +15,7 @@ struct AthleteProfileView: View {
     private let data = ProfileData.sample
 
     @State private var showLogInjury = false
+    @State private var showScanner = false
 
     var body: some View {
         NavigationStack {
@@ -37,8 +38,24 @@ struct AthleteProfileView: View {
             .navigationDestination(isPresented: $showLogInjury) {
                 LogInjuryView()
             }
-            .ndcBrandToolbar(profile: profile, unreadCount: data.unreadCount) {
-                // TODO: → AthleteNotificationsView
+            .fullScreenCover(isPresented: $showScanner) {
+                AttendanceScannerView()
+            }
+            .toolbar {
+                ToolbarItem(placement: .topBarLeading) {
+                    NDCBrandLabel(avatarURL: profile.avatarURL)
+                }
+                // Escáner QR de asistencia (en lugar de la campana).
+                ToolbarItem(placement: .topBarTrailing) {
+                    Button {
+                        Haptics.impact(.light)
+                        showScanner = true
+                    } label: {
+                        Image(systemName: "qrcode.viewfinder")
+                            .foregroundStyle(NDCColor.primary)
+                    }
+                    .accessibilityLabel("Escanear QR de asistencia")
+                }
             }
         }
         .tint(NDCColor.primary)
