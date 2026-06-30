@@ -20,7 +20,7 @@ struct AthleteTabView: View {
                 CommunityPlaceholderView()
             }
             Tab("Perfil", systemImage: "person.fill") {
-                AthleteProfilePlaceholderView(profile: profile)
+                AthleteProfileView(profile: profile)
             }
         }
         .tint(NDCColor.primary)
@@ -31,6 +31,7 @@ struct AthleteTabView: View {
 // AthleteDashboardView vive en AthleteDashboardView.swift
 // WodDetailView vive en WodDetailView.swift
 // PerformanceView vive en PerformanceView.swift
+// AthleteProfileView vive en AthleteProfileView.swift
 
 struct CommunityPlaceholderView: View {
     var body: some View {
@@ -39,28 +40,5 @@ struct CommunityPlaceholderView: View {
             systemImage: "person.3.fill",
             description: Text("Retos y ranking (FLOWS.md: CommunityView)")
         )
-    }
-}
-
-struct AthleteProfilePlaceholderView: View {
-    let profile: Profile
-    @Environment(SessionStore.self) private var session
-
-    var body: some View {
-        NavigationStack {
-            List {
-                Section {
-                    LabeledContent("Nombre", value: profile.fullName)
-                    LabeledContent("Nivel", value: profile.level.displayName)
-                    LabeledContent("Puntos", value: "\(profile.points)")
-                }
-                Section {
-                    Button("Cerrar Sesión", role: .destructive) {
-                        Task { await session.signOut() }
-                    }
-                }
-            }
-            .navigationTitle("Perfil")
-        }
     }
 }
