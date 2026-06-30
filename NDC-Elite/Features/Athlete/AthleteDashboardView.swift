@@ -9,24 +9,36 @@ import SwiftUI
 /// athlete_goals (objetivo principal), coach_tips (último tip).
 struct AthleteDashboardView: View {
     let profile: Profile
-    private let data = DashboardData.sample
+    @State private var store = AthleteDashboardStore()
 
     var body: some View {
         NavigationStack {
             ScrollView {
                 VStack(alignment: .leading, spacing: NDCSpacing.stackLG) {
                     greeting
-                    if let achievement = data.unlockedAchievement {
-                        PRAlertCard(text: achievement)
+                    LoadStateView(state: store.state, retry: { Task { await store.load(profile: profile) } }) { data in
+                        VStack(alignment: .leading, spacing: NDCSpacing.stackLG) {
+                            if let achievement = data.unlockedAchievement {
+                                PRAlertCard(text: achievement)
+                            }
+                            if let wod = data.wod {
+                                WODCard(wod: wod, onOpen: { /* TODO: → WodDetailView */ })
+                            }
+                            StatsRow(
+                                attended: data.attendedSessions,
+                                goal: profile.monthlyAttendanceGoal,
+                                prCount: data.prCount
+                            )
+                            if let goal = data.nextGoal {
+                                NextGoalCard(goal: goal)
+                            }
+                            if let tip = data.coachTip {
+                                CoachTipCard(tip: tip, onPlay: { /* TODO: → ExerciseDetailView */ })
+                            }
+                        }
+                    } skeleton: {
+                        DashboardSkeleton()
                     }
-                    WODCard(wod: data.wod, onOpen: { /* TODO: → WodDetailView */ })
-                    StatsRow(
-                        attended: data.attendedSessions,
-                        goal: profile.monthlyAttendanceGoal,
-                        prCount: data.prCount
-                    )
-                    NextGoalCard(goal: data.nextGoal)
-                    CoachTipCard(tip: data.coachTip, onPlay: { /* TODO: → ExerciseDetailView */ })
                 }
                 .padding(.horizontal, NDCSpacing.marginMain)
                 .padding(.top, NDCSpacing.gutter)
@@ -37,9 +49,11 @@ struct AthleteDashboardView: View {
             .overlay(alignment: .bottomTrailing) {
                 bookClassFAB
             }
-            .ndcBrandToolbar(profile: profile, unreadCount: data.unreadCount) {
+            .ndcBrandToolbar(profile: profile, unreadCount: store.state.value?.unreadCount ?? 0) {
                 // TODO: → AthleteNotificationsView
             }
+            .task { await store.load(profile: profile) }
+            .refreshable { await store.load(profile: profile) }
         }
         .tint(NDCColor.primary)
     }
@@ -354,7 +368,7 @@ private struct CoachTipCard: View {
 
 // MARK: - Datos de muestra (a reemplazar por fetch de Supabase)
 
-private struct DashboardData {
+struct DashboardData {
     struct WOD {
         let name: String
         let timeCap: String
@@ -372,11 +386,11 @@ private struct DashboardData {
     }
 
     let unlockedAchievement: String?
-    let wod: WOD
+    let wod: WOD?
     let attendedSessions: Int
     let prCount: Int
-    let nextGoal: Goal
-    let coachTip: CoachTip
+    let nextGoal: Goal?
+    let coachTip: CoachTip?
     let unreadCount: Int
 
     static let sample = DashboardData(
@@ -402,6 +416,81 @@ private struct DashboardData {
         coachTip: CoachTip(title: "Mejora tu eficiencia en el Clean"),
         unreadCount: 2
     )
+}
+
+// MARK: - Store (carga de datos desde Supabase)
+
+@MainActor @Observable
+final class AthleteDashboardStore {
+    private(set) var state: LoadState<DashboardData> = .loading
+    private let repo = AthleteRepository()
+
+    func load(profile: Profile) async {
+        state = .loading
+        do {
+            async let attendanceTask = repo.monthlyAttendance(athleteId: profile.id)
+            async let prTask = repo.recentPrCount(athleteId: profile.id)
+            async let goalTask = repo.primaryGoal(athleteId: profile.id)
+            async let tipTask = repo.latestTip()
+            async let unreadTask = repo.unreadNotifications(userId: profile.id)
+
+            // WOD del día + su bloque metcon (para el resumen).
+            var wodVM: DashboardData.WOD?
+            if let wod = try await repo.nextWod() {
+                let blocks = try await repo.blocks(for: wod.id)
+                let metcon = blocks.first(where: { $0.blockType == .metcon }) ?? blocks.last
+                var movements: [String] = []
+                var scheme = wod.focus ?? wod.wodType.displayName
+                if let metcon {
+                    movements = (try await repo.blockExercises(for: metcon.id)).map(\.prescription)
+                    if let rounds = metcon.rounds { scheme = "\(rounds) ROUNDS FOR TIME" }
+                }
+                let timeCap = wod.timeCapMinutes.map { "\($0):00 min" } ?? wod.wodType.displayName
+                wodVM = DashboardData.WOD(name: wod.title, timeCap: timeCap, scheme: scheme, movements: movements)
+            }
+
+            var goalVM: DashboardData.Goal?
+            if let goal = try await goalTask {
+                let unit = goal.unit ?? ""
+                goalVM = DashboardData.Goal(
+                    title: goal.title,
+                    progress: goal.progress,
+                    currentLabel: "\(Int(goal.currentValue)) \(unit)".trimmingCharacters(in: .whitespaces),
+                    targetLabel: "\(Int(goal.targetValue ?? 0)) \(unit)".trimmingCharacters(in: .whitespaces)
+                )
+            }
+
+            let tipVM = (try await tipTask).map { DashboardData.CoachTip(title: $0.title) }
+
+            state = .loaded(DashboardData(
+                unlockedAchievement: nil,   // TODO: último athlete_achievement
+                wod: wodVM,
+                attendedSessions: try await attendanceTask,
+                prCount: try await prTask,
+                nextGoal: goalVM,
+                coachTip: tipVM,
+                unreadCount: try await unreadTask
+            ))
+        } catch {
+            state = .failed("No pudimos cargar tu inicio. Revisa tu conexión e inténtalo de nuevo.")
+        }
+    }
+}
+
+// MARK: - Skeleton de carga del dashboard
+
+private struct DashboardSkeleton: View {
+    var body: some View {
+        VStack(alignment: .leading, spacing: NDCSpacing.stackLG) {
+            SkeletonBlock(height: 200, cornerRadius: NDCRadius.large) // WOD card
+            HStack(spacing: NDCSpacing.gutter) {
+                SkeletonBlock(height: 120, cornerRadius: NDCRadius.large)
+                SkeletonBlock(height: 120, cornerRadius: NDCRadius.large)
+            }
+            SkeletonBlock(height: 110, cornerRadius: NDCRadius.large) // goal
+            SkeletonBlock(height: 160, cornerRadius: NDCRadius.large) // tip
+        }
+    }
 }
 
 #Preview {
