@@ -1,0 +1,281 @@
+<!DOCTYPE html><html class="light" lang="es" style=""><head>
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0, viewport-fit=cover" name="viewport">
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;600;700;800&amp;family=Inter:wght@400;500;600&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "inverse-on-surface": "#f0f0f5",
+                    "tertiary": "#003271",
+                    "primary-container": "#165070",
+                    "secondary-container": "#ffde59",
+                    "secondary": "#705d00",
+                    "background": "#f9f9fe",
+                    "tertiary-fixed": "#d8e2ff",
+                    "inverse-surface": "#2e3034",
+                    "surface-bright": "#f9f9fe",
+                    "on-primary": "#ffffff",
+                    "surface-variant": "#e2e2e7",
+                    "error": "#ba1a1a",
+                    "error-container": "#ffdad6",
+                    "outline-variant": "#c1c7ce",
+                    "on-error-container": "#93000a",
+                    "on-primary-container": "#90c2e7",
+                    "surface-container-high": "#e8e8ed",
+                    "primary-fixed-dim": "#9accf2",
+                    "primary-fixed": "#c8e6ff",
+                    "on-tertiary": "#ffffff",
+                    "tertiary-fixed-dim": "#adc6ff",
+                    "surface-container-highest": "#e2e2e7",
+                    "secondary-fixed-dim": "#e4c542",
+                    "surface-container": "#ededf2",
+                    "on-tertiary-container": "#9bbbff",
+                    "on-surface-variant": "#41484d",
+                    "on-background": "#1a1c1f",
+                    "on-secondary": "#ffffff",
+                    "tertiary-container": "#00489c",
+                    "on-primary-fixed": "#001e2f",
+                    "on-secondary-fixed-variant": "#544600",
+                    "surface-container-low": "#f3f3f8",
+                    "surface-tint": "#2f6384",
+                    "primary": "#003953",
+                    "on-secondary-fixed": "#221b00",
+                    "outline": "#71787e",
+                    "surface-container-lowest": "#ffffff",
+                    "on-surface": "#1a1c1f",
+                    "on-secondary-container": "#756100",
+                    "on-primary-fixed-variant": "#0e4b6b",
+                    "surface-dim": "#d9dade",
+                    "secondary-fixed": "#ffe16e",
+                    "inverse-primary": "#9accf2",
+                    "on-error": "#ffffff",
+                    "surface": "#f9f9fe",
+                    "on-tertiary-fixed-variant": "#004493",
+                    "on-tertiary-fixed": "#001a41"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.25rem",
+                    "lg": "0.5rem",
+                    "xl": "0.75rem",
+                    "full": "9999px"
+            },
+            "spacing": {
+                    "gutter": "1rem",
+                    "stack-lg": "1.5rem",
+                    "safe-area-bottom": "2.125rem",
+                    "stack-md": "1rem",
+                    "margin-main": "1.25rem",
+                    "stack-sm": "0.5rem"
+            },
+            "fontFamily": {
+                    "label-bold": ["Inter"],
+                    "body-md": ["Inter"],
+                    "body-lg": ["Inter"],
+                    "stats-xl": ["Hanken Grotesk"],
+                    "headline-sm": ["Hanken Grotesk"],
+                    "label-sm": ["Inter"],
+                    "headline-md": ["Hanken Grotesk"],
+                    "display-lg": ["Hanken Grotesk"]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        body { background-color: #f9f9fe; -webkit-font-smoothing: antialiased; }
+        .glass-nav { backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); }
+        .tab-active { transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
+        .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
+    </style>
+</head>
+<body class="font-body-md text-on-surface">
+<!-- TopAppBar -->
+<header class="fixed top-0 w-full z-50 bg-surface/80 dark:bg-inverse-surface/80 backdrop-blur-md flex justify-between items-center px-margin-main h-16 w-full">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-full bg-primary-container flex items-center justify-center overflow-hidden">
+<img alt="Usuario" class="w-full h-full object-cover" data-alt="A professional close-up portrait of a determined male athlete in his late 20s with short hair, wearing premium athletic gear. The lighting is high-contrast and dramatic, emphasizing muscle definition and a focus on performance. The background is a blurred, high-end CrossFit gym with minimalist equipment and clean white surfaces. The overall aesthetic is energetic yet sophisticated and professional." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAQw6SKJBghdItfnGMzuUbjAB3xrldEjzhjCvbKG7gtPtMXsF6okwDFxMa9_C_hYtp0XEdkSxXQYWVszhMVEesLYY6inIraKvDSJF4A312xQn3Og5BdPz_n5-JlryjppPaPA9uXoq-Vf_g_asOI8dkmZz4xXpabqhGIicxXmBaZFYwnzCV1D2IuvLLJCh2wZpntkSY0OS8ltDKwOiLBg3JKqkIItZsIrRrWDB2su5lqXWbYlqgh_t2yFxBvYbRMu8WRaCAZLmJTiaaH">
+</div>
+<div class="flex flex-col">
+<span class="font-headline-sm text-headline-sm leading-tight text-primary">Alex Rivera</span>
+<span class="font-label-sm text-label-sm text-on-surface-variant">Elite Member</span>
+</div>
+</div>
+<button class="w-10 h-10 flex items-center justify-center rounded-full hover:bg-surface-container transition-colors active:scale-95 duration-200">
+<span class="material-symbols-outlined text-primary">notifications</span>
+</button>
+</header>
+<main class="pt-20 pb-28 px-margin-main space-y-stack-lg">
+<h1 class="font-display-lg text-display-lg font-black tracking-tighter text-primary">Rendimiento y Ranking</h1>
+<!-- Performance Summary Hero Card -->
+<section class="relative overflow-hidden rounded-xl bg-primary-container p-6 text-on-primary shadow-lg transition-transform active:scale-[0.98] duration-300">
+<div class="absolute top-0 right-0 p-4 opacity-10">
+<span class="material-symbols-outlined text-[120px]" style="font-variation-settings: 'FILL' 1;">trending_up</span>
+</div>
+<div class="relative z-10">
+<div class="flex justify-between items-start mb-4">
+<span class="font-label-bold text-label-bold uppercase tracking-widest opacity-80">Estado de Rendimiento</span>
+<div class="bg-secondary-container text-on-secondary-container px-2 py-1 rounded-lg font-label-bold text-[10px] flex items-center gap-1">
+<span class="material-symbols-outlined text-[12px]" style="font-variation-settings: 'FILL' 1;">bolt</span>
+                        ACTIVO
+                    </div>
+</div>
+<div class="space-y-1">
+<h2 class="font-headline-sm text-headline-sm text-on-primary-container opacity-90">Rendimiento Total</h2>
+<div class="flex items-baseline gap-2">
+<span class="font-stats-xl text-stats-xl text-white">24 PRs</span>
+<span class="font-headline-sm text-headline-sm text-secondary-container">+12%</span>
+</div>
+<p class="font-body-md text-body-md opacity-70">este año vs. periodo anterior</p>
+</div>
+<div class="mt-6 h-1 w-full bg-white/20 rounded-full overflow-hidden">
+<div class="h-full bg-secondary-container w-3/4 rounded-full"></div>
+</div>
+</div>
+</section>
+<!-- Tab Switcher -->
+
+<!-- PR Content Section -->
+<div class="space-y-stack-lg" id="content-prs">
+<div class="space-y-stack-md">
+<div class="flex justify-between items-center">
+<h3 class="font-headline-sm text-headline-sm text-primary">Recientes</h3>
+<span class="font-label-bold text-label-bold text-tertiary">Ver todo</span>
+</div>
+<!-- Highlight Card -->
+<div class="bg-white p-4 rounded-xl shadow-sm border border-surface-variant/50 flex items-center gap-4 group active:scale-[0.98] transition-transform">
+<div class="w-14 h-14 rounded-lg bg-secondary-container/20 flex items-center justify-center text-secondary">
+<span class="material-symbols-outlined text-3xl" style="font-variation-settings: 'FILL' 1;">fitness_center</span>
+</div>
+<div class="flex-1">
+<p class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-tighter">Último Logro</p>
+<h4 class="font-headline-sm text-headline-sm text-primary leading-tight">Sentadilla Trasera</h4>
+<p class="font-body-md text-body-md font-bold text-primary">145kg <span class="text-error font-medium text-sm ml-1">+5kg</span></p>
+</div>
+<span class="material-symbols-outlined text-on-surface-variant group-hover:translate-x-1 transition-transform">chevron_right</span>
+</div>
+</div>
+<div class="space-y-stack-md">
+<h3 class="font-headline-sm text-headline-sm text-primary">Marcas Clave</h3>
+<div class="grid grid-cols-1 gap-3">
+<!-- PR Item 1 -->
+<div class="bg-white p-4 rounded-xl flex justify-between items-center border border-surface-variant/30">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-primary-container" data-icon="sports_gymnastics">sports_gymnastics</span>
+<span class="font-body-lg text-body-lg font-semibold">Muscle Ups</span>
+</div>
+<div class="text-right">
+<span class="font-headline-sm text-headline-sm text-primary">12 Reps</span>
+<p class="font-label-sm text-label-sm text-on-surface-variant">RX</p>
+</div>
+</div>
+<!-- PR Item 2 -->
+<div class="bg-white p-4 rounded-xl flex justify-between items-center border border-surface-variant/30">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-primary-container" data-icon="timer">timer</span>
+<span class="font-body-lg text-body-lg font-semibold">Fran</span>
+</div>
+<div class="text-right">
+<span class="font-headline-sm text-headline-sm text-primary">3:12</span>
+<p class="font-label-sm text-label-sm text-on-surface-variant">Benchmark</p>
+</div>
+</div>
+<!-- PR Item 3 -->
+<div class="bg-white p-4 rounded-xl flex justify-between items-center border border-surface-variant/30">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-primary-container" data-icon="weight">weight</span>
+<span class="font-body-lg text-body-lg font-semibold">Peso Muerto</span>
+</div>
+<div class="text-right">
+<span class="font-headline-sm text-headline-sm text-primary">180kg</span>
+<p class="font-label-sm text-label-sm text-on-surface-variant">Máximo</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Leaderboard Content Section (Hidden by default) -->
+
+</main>
+<!-- BottomNavBar -->
+<nav class="fixed bottom-0 w-full pb-safe-area-bottom bg-surface/80 dark:bg-inverse-surface/80 backdrop-blur-md flex justify-around items-center w-full h-20 px-4 z-50"><!-- Inicio -->
+<a class="flex flex-col items-center justify-center text-on-surface-variant dark:text-surface-variant px-3 py-1 hover:bg-surface-container-high rounded-xl active:scale-90 transition-transform duration-150" href="#">
+  <span class="material-symbols-outlined">home</span>
+  <span class="font-label-sm text-label-sm">Inicio</span>
+</a>
+<!-- WOD -->
+<a class="flex flex-col items-center justify-center text-on-surface-variant dark:text-surface-variant px-3 py-1 hover:bg-surface-container-high rounded-xl active:scale-90 transition-transform duration-150" href="#">
+  <span class="material-symbols-outlined">fitness_center</span>
+  <span class="font-label-sm text-label-sm">WOD</span>
+</a>
+<!-- Progreso (Active) -->
+<a class="flex flex-col items-center justify-center bg-secondary-container dark:bg-secondary text-on-secondary-container dark:text-on-secondary rounded-xl px-3 py-1 active:scale-90 transition-transform duration-150" href="#">
+  <span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">show_chart</span>
+  <span class="font-label-sm text-label-sm">Progreso</span>
+</a>
+<!-- Comunidad -->
+<a class="flex flex-col items-center justify-center text-on-surface-variant dark:text-surface-variant px-3 py-1 hover:bg-surface-container-high rounded-xl active:scale-90 transition-transform duration-150" href="#">
+  <span class="material-symbols-outlined">groups</span>
+  <span class="font-label-sm text-label-sm">Comunidad</span>
+</a>
+<!-- Perfil -->
+<a class="flex flex-col items-center justify-center text-on-surface-variant dark:text-surface-variant px-3 py-1 hover:bg-surface-container-high rounded-xl active:scale-90 transition-transform duration-150" href="#">
+  <span class="material-symbols-outlined">person</span>
+  <span class="font-label-sm text-label-sm">Perfil</span>
+</a></nav>
+<!-- Floating Action Button for recording PRs -->
+<button class="fixed right-6 bottom-24 w-14 h-14 bg-secondary-container text-on-secondary-container rounded-full flex items-center justify-center shadow-[0_4px_12px_rgba(0,57,83,0.1)] hover:scale-110 active:scale-95 transition-all z-40">
+<span class="material-symbols-outlined text-3xl">add</span>
+</button>
+<script>
+        function switchTab(tab) {
+            const prsTab = document.getElementById('tab-prs');
+            const leaderboardTab = document.getElementById('tab-leaderboard');
+            const prsContent = document.getElementById('content-prs');
+            const leaderboardContent = document.getElementById('content-leaderboard');
+
+            if (tab === 'prs') {
+                // Style Tabs
+                prsTab.classList.add('bg-white', 'text-primary', 'shadow-sm');
+                prsTab.classList.remove('text-on-surface-variant', 'hover:bg-surface-container-high');
+                
+                leaderboardTab.classList.remove('bg-white', 'text-primary', 'shadow-sm');
+                leaderboardTab.classList.add('text-on-surface-variant', 'hover:bg-surface-container-high');
+
+                // Toggle Content
+                prsContent.classList.remove('hidden');
+                setTimeout(() => {
+                    prsContent.classList.remove('opacity-0', 'scale-95');
+                    prsContent.classList.add('opacity-100', 'scale-100');
+                }, 10);
+                leaderboardContent.classList.add('hidden', 'opacity-0', 'scale-95');
+
+            } else {
+                // Style Tabs
+                leaderboardTab.classList.add('bg-white', 'text-primary', 'shadow-sm');
+                leaderboardTab.classList.remove('text-on-surface-variant', 'hover:bg-surface-container-high');
+                
+                prsTab.classList.remove('bg-white', 'text-primary', 'shadow-sm');
+                prsTab.classList.add('text-on-surface-variant', 'hover:bg-surface-container-high');
+
+                // Toggle Content
+                leaderboardContent.classList.remove('hidden');
+                setTimeout(() => {
+                    leaderboardContent.classList.remove('opacity-0', 'scale-95');
+                    leaderboardContent.classList.add('opacity-100', 'scale-100');
+                }, 10);
+                prsContent.classList.add('hidden', 'opacity-0', 'scale-95');
+            }
+        }
+
+        // Initialize view
+        window.onload = () => {
+            switchTab('prs');
+        };
+    </script>
+</body></html>

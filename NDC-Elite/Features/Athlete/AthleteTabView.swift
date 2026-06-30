@@ -11,10 +11,10 @@ struct AthleteTabView: View {
                 AthleteDashboardView(profile: profile)
             }
             Tab("WOD", systemImage: "dumbbell.fill") {
-                WodDetailPlaceholderView()
+                WodDetailView(profile: profile)
             }
             Tab("Progreso", systemImage: "chart.line.uptrend.xyaxis") {
-                PerformancePlaceholderView()
+                PerformanceView(profile: profile)
             }
             Tab("Comunidad", systemImage: "person.3.fill") {
                 CommunityPlaceholderView()
@@ -28,56 +28,9 @@ struct AthleteTabView: View {
 }
 
 // MARK: - Placeholders (se reemplazan al construir cada feature)
-
-struct AthleteDashboardView: View {
-    let profile: Profile
-
-    var body: some View {
-        NavigationStack {
-            ScrollView {
-                VStack(alignment: .leading, spacing: NDCSpacing.stackLG) {
-                    Text("¡Hola, \(profile.firstName)!")
-                        .font(NDCFont.displayLG)
-                        .foregroundStyle(NDCColor.onSurface)
-                    Text("¿Listo para tu sesión NDC?")
-                        .font(NDCFont.bodyMD)
-                        .foregroundStyle(NDCColor.onSurfaceVariant)
-
-                    NDCCard {
-                        VStack(alignment: .leading, spacing: NDCSpacing.stackSM) {
-                            NDCChip(text: "WOD del día")
-                            Text("Próximamente: WOD, asistencia y récords en vivo")
-                                .font(NDCFont.bodyMD)
-                                .foregroundStyle(NDCColor.onSurfaceVariant)
-                        }
-                    }
-                }
-                .padding(.horizontal, NDCSpacing.marginMain)
-            }
-            .background(NDCColor.background)
-        }
-    }
-}
-
-struct WodDetailPlaceholderView: View {
-    var body: some View {
-        ContentUnavailableView(
-            "WOD del Día",
-            systemImage: "dumbbell.fill",
-            description: Text("Aquí verás el entrenamiento programado (FLOWS.md: WodDetailView)")
-        )
-    }
-}
-
-struct PerformancePlaceholderView: View {
-    var body: some View {
-        ContentUnavailableView(
-            "Progreso",
-            systemImage: "chart.line.uptrend.xyaxis",
-            description: Text("PRs, ranking y evolución (FLOWS.md: PerformanceView)")
-        )
-    }
-}
+// AthleteDashboardView vive en AthleteDashboardView.swift
+// WodDetailView vive en WodDetailView.swift
+// PerformanceView vive en PerformanceView.swift
 
 struct CommunityPlaceholderView: View {
     var body: some View {

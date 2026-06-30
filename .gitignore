@@ -12,6 +12,10 @@ build/
 # macOS
 .DS_Store
 
+# Skills / herramientas de agentes (instalación local, no código de la app)
+.agents/
+skills-lock.json
+
 # Secretos — nunca subir claves de Supabase
 Secrets.plist
 *.env

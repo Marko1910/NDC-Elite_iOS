@@ -1,0 +1,328 @@
+<!DOCTYPE html><html class="light" lang="es"><head>
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0, viewport-fit=cover" name="viewport">
+<title>Detalle de Logro - Personal Record</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;500;600;700;800&amp;family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "primary": "#003953",
+                    "on-tertiary-fixed-variant": "#004493",
+                    "error": "#ba1a1a",
+                    "secondary-fixed": "#ffe16e",
+                    "secondary-fixed-dim": "#e4c542",
+                    "inverse-primary": "#9accf2",
+                    "primary-container": "#165070",
+                    "on-secondary-container": "#756100",
+                    "on-background": "#1a1c1f",
+                    "tertiary-container": "#00489c",
+                    "surface-container-highest": "#e2e2e7",
+                    "on-error": "#ffffff",
+                    "tertiary": "#003271",
+                    "tertiary-fixed": "#d8e2ff",
+                    "primary-fixed": "#c8e6ff",
+                    "secondary-container": "#ffde59",
+                    "on-error-container": "#93000a",
+                    "surface-tint": "#2f6384",
+                    "surface-variant": "#e2e2e7",
+                    "surface-dim": "#d9dade",
+                    "on-secondary-fixed-variant": "#544600",
+                    "error-container": "#ffdad6",
+                    "on-tertiary-container": "#9bbbff",
+                    "surface-bright": "#f9f9fe",
+                    "secondary": "#705d00",
+                    "on-primary-fixed": "#001e2f",
+                    "primary-fixed-dim": "#9accf2",
+                    "on-primary-fixed-variant": "#0e4b6b",
+                    "surface-container-high": "#e8e8ed",
+                    "surface": "#f9f9fe",
+                    "tertiary-fixed-dim": "#adc6ff",
+                    "on-tertiary": "#ffffff",
+                    "on-secondary-fixed": "#221b00",
+                    "on-primary": "#ffffff",
+                    "on-surface-variant": "#41484d",
+                    "inverse-surface": "#2e3034",
+                    "surface-container-low": "#f3f3f8",
+                    "surface-container": "#ededf2",
+                    "on-secondary": "#ffffff",
+                    "on-primary-container": "#90c2e7",
+                    "inverse-on-surface": "#f0f0f5",
+                    "on-tertiary-fixed": "#001a41",
+                    "surface-container-lowest": "#ffffff",
+                    "outline-variant": "#c1c7ce",
+                    "outline": "#71787e",
+                    "on-surface": "#1a1c1f",
+                    "background": "#f9f9fe"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.25rem",
+                    "lg": "0.5rem",
+                    "xl": "0.75rem",
+                    "full": "9999px"
+            },
+            "spacing": {
+                    "gutter": "1rem",
+                    "safe-area-bottom": "2.125rem",
+                    "margin-main": "1.25rem",
+                    "stack-sm": "0.5rem",
+                    "stack-md": "1rem",
+                    "stack-lg": "1.5rem"
+            },
+            "fontFamily": {
+                    "stats-xl": ["Hanken Grotesk"],
+                    "headline-sm": ["Hanken Grotesk"],
+                    "headline-md": ["Hanken Grotesk"],
+                    "label-sm": ["Inter"],
+                    "body-md": ["Inter"],
+                    "body-lg": ["Inter"],
+                    "label-bold": ["Inter"],
+                    "display-lg": ["Hanken Grotesk"]
+            },
+            "fontSize": {
+                    "stats-xl": ["48px", {"lineHeight": "48px", "letterSpacing": "-1px", "fontWeight": "800"}],
+                    "headline-sm": ["20px", {"lineHeight": "25px", "fontWeight": "600"}],
+                    "headline-md": ["24px", {"lineHeight": "30px", "letterSpacing": "0px", "fontWeight": "700"}],
+                    "label-sm": ["12px", {"lineHeight": "16px", "fontWeight": "500"}],
+                    "body-md": ["15px", {"lineHeight": "20px", "fontWeight": "400"}],
+                    "body-lg": ["17px", {"lineHeight": "24px", "fontWeight": "400"}],
+                    "label-bold": ["13px", {"lineHeight": "18px", "fontWeight": "600"}],
+                    "display-lg": ["34px", {"lineHeight": "41px", "letterSpacing": "-0.5px", "fontWeight": "800"}]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        body {
+            background-color: #f9f9fe;
+            -webkit-tap-highlight-color: transparent;
+        }
+        .glass-card {
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+        }
+        .chart-container {
+            height: 180px;
+            width: 100%;
+            position: relative;
+        }
+        .chart-line {
+            stroke: #003953;
+            stroke-width: 3;
+            fill: none;
+            stroke-linecap: round;
+        }
+        .chart-area {
+            fill: url(#chartGradient);
+            opacity: 0.2;
+        }
+        .confetti {
+            position: fixed;
+            pointer-events: none;
+            z-index: 100;
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="font-body-md text-on-surface">
+<!-- Top App Bar -->
+<header class="bg-surface/80 backdrop-blur-md w-full top-0 sticky flex items-center justify-between px-margin-main h-14 z-50">
+<button aria-label="Volver" class="active:scale-95 transition-transform text-primary">
+<span class="material-symbols-outlined">arrow_back</span>
+</button>
+<h1 class="font-headline-sm text-headline-sm text-primary">Detalle de Récord</h1>
+<button aria-label="Compartir" class="active:scale-95 transition-transform text-primary">
+<span class="material-symbols-outlined">share</span>
+</button>
+</header>
+<main class="px-margin-main pb-32 pt-stack-md space-y-stack-lg">
+<!-- Achievement Hero Card -->
+<section class="relative overflow-hidden rounded-xl bg-primary-container p-6 text-white shadow-lg">
+<div class="absolute -right-8 -top-8 opacity-10">
+<span class="material-symbols-outlined text-[160px]" style="font-variation-settings: 'FILL' 1;">fitness_center</span>
+</div>
+<div class="relative z-10">
+<span class="inline-flex items-center px-2.5 py-0.5 rounded-full bg-secondary text-on-secondary text-label-sm font-label-bold mb-stack-sm">
+                    NUEVO RÉCORD
+                </span>
+<h2 class="font-display-lg text-display-lg mt-2">Sentadilla Trasera</h2>
+<div class="mt-6 flex items-baseline gap-2">
+<span class="font-stats-xl text-stats-xl text-secondary-container">145kg</span>
+<span class="font-headline-sm text-headline-sm text-secondary-container opacity-90">+5kg</span>
+</div>
+<p class="font-label-sm text-label-sm mt-1 opacity-80 uppercase tracking-wider text-on-primary-container">Progreso vs Marca Anterior</p>
+</div>
+</section>
+<!-- Stats Grid (Bento Style) -->
+<div class="grid grid-cols-2 gap-4">
+<div class="bg-surface-container-low rounded-xl p-4 flex flex-col justify-between">
+<span class="material-symbols-outlined text-primary mb-2">calendar_today</span>
+<div>
+<p class="font-label-sm text-label-sm text-outline">Fecha</p>
+<p class="font-label-bold text-label-bold text-primary">Hoy, 24 Oct</p>
+</div>
+</div>
+<div class="bg-surface-container-low rounded-xl p-4 flex flex-col justify-between">
+<span class="material-symbols-outlined text-primary mb-2">star</span>
+<div>
+<p class="font-label-sm text-label-sm text-outline">Nivel</p>
+<p class="font-label-bold text-label-bold text-primary">Avanzado</p>
+</div>
+</div>
+<div class="col-span-2 bg-surface-container-low rounded-xl p-4 flex items-center justify-between">
+<div class="flex flex-col">
+<p class="font-label-sm text-label-sm text-outline">Relación % Marca Anterior</p>
+<p class="font-label-bold text-label-bold text-primary">103.5% del PR previo</p>
+</div>
+<div class="h-12 w-12 rounded-full border-4 border-secondary-container flex items-center justify-center">
+<span class="text-[10px] font-bold text-primary">103%</span>
+</div>
+</div>
+</div>
+<!-- Evolution Chart Card -->
+<section class="bg-surface-container-lowest rounded-xl p-6 shadow-sm">
+<div class="flex items-center justify-between mb-6">
+<h3 class="font-headline-sm text-headline-sm text-primary">Evolución Histórica</h3>
+<span class="text-label-sm text-outline">Últimos 6 meses</span>
+</div>
+<div class="chart-container">
+<svg class="w-full h-full" viewBox="0 0 400 180">
+<defs>
+<linearGradient id="chartGradient" x1="0" x2="0" y1="0" y2="1">
+<stop offset="0%" stop-color="#003953"></stop>
+<stop offset="100%" stop-color="#f9f9fe"></stop>
+</linearGradient>
+</defs>
+<!-- Grid Lines -->
+<line stroke="#e2e2e7" stroke-dasharray="4" x1="0" x2="400" y1="160" y2="160"></line>
+<line stroke="#e2e2e7" stroke-dasharray="4" x1="0" x2="400" y1="100" y2="100"></line>
+<line stroke="#e2e2e7" stroke-dasharray="4" x1="0" x2="400" y1="40" y2="40"></line>
+<!-- Path Area -->
+<path class="chart-area" d="M0,160 L50,145 L120,150 L200,120 L300,100 L400,20 L400,160 Z"></path>
+<!-- Path Line -->
+<path class="chart-line" d="M0,160 L50,145 L120,150 L200,120 L300,100 L400,20"></path>
+<!-- Points -->
+<circle cx="400" cy="20" fill="#ffde59" r="6" stroke="#003953" stroke-width="2"></circle>
+</svg>
+</div>
+<div class="flex justify-between mt-4 text-label-sm text-outline px-1">
+<span>Abr</span>
+<span>May</span>
+<span>Jun</span>
+<span>Jul</span>
+<span>Ago</span>
+<span>Hoy</span>
+</div>
+</section>
+<!-- Athlete Notes -->
+<section class="bg-surface-container-low rounded-xl p-5 border-l-4 border-secondary">
+<div class="flex items-center gap-2 mb-2">
+<span class="material-symbols-outlined text-primary text-sm">edit_note</span>
+<h3 class="font-label-bold text-label-bold text-primary uppercase tracking-tight">Notas del Atleta</h3>
+</div>
+<p class="italic text-body-lg text-on-surface-variant leading-relaxed">
+                "Me sentí muy fuerte hoy, la técnica fue sólida en la última repetición."
+            </p>
+</section>
+<!-- Action Button -->
+<button class="w-full bg-primary py-4 rounded-xl flex items-center justify-center gap-2 active:scale-95 transition-all shadow-md group" id="shareButton">
+<span class="material-symbols-outlined text-white group-hover:rotate-12 transition-transform">share</span>
+<span class="font-headline-sm text-white">Compartir Logro</span>
+</button>
+<!-- Visual Context Image (Athlete) -->
+<div class="rounded-xl overflow-hidden aspect-video relative group">
+<img alt="Athlete performing heavy back squat" class="w-full h-full object-cover grayscale-[30%] group-hover:grayscale-0 transition-all duration-700" data-alt="A powerful professional athlete performing a heavy back squat with a loaded barbell in a high-performance CrossFit box. The lighting is dramatic and moody with a cool blue undertone, highlighting the muscle definition and grit of the movement. The surrounding environment is minimalist and industrial, featuring high-end professional equipment. The overall aesthetic is premium, energetic, and clean, matching a sophisticated fitness brand identity." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAlJVBLrqAAbH8Z9QHv708q7m4JvZvb55lD17Zcq_IdHuaWYZCVZrD9HDL2cHSF_1Zzl85I_v_NrZ2Vj2pT6Y_CQfOZCrloXi891hnQC6z8TUIeLthKBWHNtnPLM9pOQhm_o7ycBOXcqpFcM2RUZT8iSSd6OYxII5vTsgzn_fh_1oGpjttjpnE5z_Yc7Oh9t89VrEH-N2g6q5UUl2uBa1wfDMKv8qZYZnBZXZ5g8ge5RZdTr0cqV7R0qE5FsYdFLSwUuac4P3Ni_xMB">
+<div class="absolute inset-0 bg-gradient-to-t from-primary/60 to-transparent"></div>
+<div class="absolute bottom-4 left-4">
+<p class="text-white font-headline-sm">NDC HQ Elite Performance</p>
+<p class="text-secondary-container text-label-sm">High Standards Only</p>
+</div>
+</div>
+</main>
+<!-- Bottom Navigation Bar -->
+<nav class="bg-surface/90 backdrop-blur-lg border-t border-outline-variant/30 fixed bottom-0 w-full z-50 pb-safe-area-bottom flex justify-around items-center h-16 px-gutter">
+<a class="flex flex-col items-center justify-center text-on-surface-variant hover:bg-surface-container-low transition-colors active:scale-90 duration-200" href="#">
+<span class="material-symbols-outlined">home</span>
+<span class="font-label-sm text-label-sm">Inicio</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant hover:bg-surface-container-low transition-colors active:scale-90 duration-200" href="#">
+<span class="material-symbols-outlined">fitness_center</span>
+<span class="font-label-sm text-label-sm">WOD</span>
+</a>
+<a class="flex flex-col items-center justify-center text-primary font-bold hover:bg-surface-container-low transition-colors active:scale-90 duration-200" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">trending_up</span>
+<span class="font-label-sm text-label-sm">Progreso</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant hover:bg-surface-container-low transition-colors active:scale-90 duration-200" href="#">
+<span class="material-symbols-outlined">groups</span>
+<span class="font-label-sm text-label-sm">Comunidad</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant hover:bg-surface-container-low transition-colors active:scale-90 duration-200" href="#">
+<span class="material-symbols-outlined">person</span>
+<span class="font-label-sm text-label-sm">Perfil</span>
+</a>
+</nav>
+<script>
+        // Micro-interaction for share button
+        const shareBtn = document.getElementById('shareButton');
+        shareBtn.addEventListener('click', () => {
+            createConfetti();
+            const originalText = shareBtn.innerHTML;
+            shareBtn.innerHTML = `
+                <span class="material-symbols-outlined text-white">check_circle</span>
+                <span class="font-headline-sm text-white">¡Enlace Copiado!</span>
+            `;
+            shareBtn.classList.replace('bg-primary', 'bg-green-700');
+            
+            setTimeout(() => {
+                shareBtn.innerHTML = originalText;
+                shareBtn.classList.replace('bg-green-700', 'bg-primary');
+            }, 2000);
+        });
+
+        // Simple confetti effect
+        function createConfetti() {
+            for (let i = 0; i < 40; i++) {
+                const confetti = document.createElement('div');
+                confetti.classList.add('confetti');
+                confetti.style.width = '10px';
+                confetti.style.height = '10px';
+                confetti.style.backgroundColor = i % 2 === 0 ? '#ffde59' : '#003953';
+                confetti.style.left = '50%';
+                confetti.style.top = '80%';
+                confetti.style.borderRadius = '2px';
+                document.body.appendChild(confetti);
+
+                const angle = Math.random() * Math.PI * 2;
+                const velocity = 5 + Math.random() * 10;
+                const vx = Math.cos(angle) * velocity;
+                const vy = Math.sin(angle) * velocity - 10;
+                
+                let x = 0;
+                let y = 0;
+                let gravity = 0.5;
+
+                const animation = confetti.animate([
+                    { transform: `translate(0, 0) rotate(0deg)`, opacity: 1 },
+                    { transform: `translate(${vx * 50}px, ${vy * 50 + 200}px) rotate(${Math.random() * 360}deg)`, opacity: 0 }
+                ], {
+                    duration: 1000 + Math.random() * 1000,
+                    easing: 'cubic-bezier(0, .9, .57, 1)'
+                });
+
+                animation.onfinish = () => confetti.remove();
+            }
+        }
+    </script>
+</body></html>

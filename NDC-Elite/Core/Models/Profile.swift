@@ -37,3 +37,25 @@ struct Profile: Codable, Identifiable, Hashable, Sendable {
         fullName.components(separatedBy: " ").first ?? fullName
     }
 }
+
+#if DEBUG
+extension Profile {
+    /// Perfil de ejemplo para previews de SwiftUI.
+    static let preview = Profile(
+        id: UUID(),
+        fullName: "Alex Rivera",
+        avatarURL: nil,
+        role: .atleta,
+        level: .avanzado,
+        weightKg: 82.4,
+        memberSince: Date(),
+        monthlyAttendanceGoal: 22,
+        streakDays: 12,
+        points: 2880,
+        isActive: true,
+        phone: "+51987654321",
+        createdAt: Date(),
+        updatedAt: Date()
+    )
+}
+#endif

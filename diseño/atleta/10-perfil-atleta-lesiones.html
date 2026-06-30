@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+
+<html lang="es" style=""><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0, viewport-fit=cover" name="viewport"/>
+<title>Perfil de Atleta - NDC HQ</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&amp;family=Hanken+Grotesk:wght@600;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .glass-card {
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+        }
+        .sparkline-container svg {
+            filter: drop-shadow(0px 2px 4px rgba(0, 57, 83, 0.1));
+        }
+        body {
+            -webkit-tap-highlight-color: transparent;
+        }
+    </style>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "on-secondary-container": "#756100",
+                        "on-surface": "#1a1c1f",
+                        "error": "#ba1a1a",
+                        "on-primary-fixed-variant": "#0e4b6b",
+                        "on-primary-container": "#90c2e7",
+                        "on-error-container": "#93000a",
+                        "on-background": "#1a1c1f",
+                        "tertiary": "#003271",
+                        "primary-fixed": "#c8e6ff",
+                        "outline": "#71787e",
+                        "on-tertiary": "#ffffff",
+                        "background": "#f9f9fe",
+                        "on-primary-fixed": "#001e2f",
+                        "inverse-surface": "#2e3034",
+                        "secondary": "#705d00",
+                        "error-container": "#ffdad6",
+                        "on-surface-variant": "#41484d",
+                        "secondary-container": "#ffde59",
+                        "on-secondary": "#ffffff",
+                        "surface-dim": "#d9dade",
+                        "tertiary-fixed-dim": "#adc6ff",
+                        "surface-container-highest": "#e2e2e7",
+                        "inverse-primary": "#9accf2",
+                        "surface-bright": "#f9f9fe",
+                        "on-error": "#ffffff",
+                        "on-secondary-fixed": "#221b00",
+                        "on-secondary-fixed-variant": "#544600",
+                        "primary": "#003953",
+                        "surface-tint": "#2f6384",
+                        "inverse-on-surface": "#f0f0f5",
+                        "on-tertiary-container": "#9bbbff",
+                        "tertiary-fixed": "#d8e2ff",
+                        "on-primary": "#ffffff",
+                        "surface-container-high": "#e8e8ed",
+                        "surface-container": "#ededf2",
+                        "primary-container": "#165070",
+                        "tertiary-container": "#00489c",
+                        "primary-fixed-dim": "#9accf2",
+                        "surface": "#f9f9fe",
+                        "surface-container-low": "#f3f3f8",
+                        "outline-variant": "#c1c7ce",
+                        "surface-container-lowest": "#ffffff",
+                        "secondary-fixed": "#ffe16e",
+                        "on-tertiary-fixed": "#001a41",
+                        "on-tertiary-fixed-variant": "#004493",
+                        "secondary-fixed-dim": "#e4c542",
+                        "surface-variant": "#e2e2e7"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "margin-main": "1.25rem",
+                        "gutter": "1rem",
+                        "stack-sm": "0.5rem",
+                        "safe-area-bottom": "2.125rem",
+                        "stack-lg": "1.5rem",
+                        "stack-md": "1rem"
+                    },
+                    "fontFamily": {
+                        "headline-sm": ["Hanken Grotesk"],
+                        "stats-xl": ["Hanken Grotesk"],
+                        "body-lg": ["Inter"],
+                        "body-md": ["Inter"],
+                        "display-lg": ["Hanken Grotesk"],
+                        "label-bold": ["Inter"],
+                        "label-sm": ["Inter"],
+                        "headline-md": ["Hanken Grotesk"]
+                    },
+                    "fontSize": {
+                        "headline-sm": ["20px", {"lineHeight": "25px", "fontWeight": "600"}],
+                        "stats-xl": ["48px", {"lineHeight": "48px", "letterSpacing": "-1px", "fontWeight": "800"}],
+                        "body-lg": ["17px", {"lineHeight": "24px", "fontWeight": "400"}],
+                        "body-md": ["15px", {"lineHeight": "20px", "fontWeight": "400"}],
+                        "display-lg": ["34px", {"lineHeight": "41px", "letterSpacing": "-0.5px", "fontWeight": "800"}],
+                        "label-bold": ["13px", {"lineHeight": "18px", "fontWeight": "600"}],
+                        "label-sm": ["12px", {"lineHeight": "16px", "fontWeight": "500"}],
+                        "headline-md": ["24px", {"lineHeight": "30px", "letterSpacing": "0px", "fontWeight": "700"}]
+                    }
+                },
+            },
+        }
+    </script>
+</head>
+<body class="bg-background text-on-background font-body-md min-h-screen">
+<!-- Top App Bar -->
+<header class="bg-surface/80 dark:bg-surface-dim/80 backdrop-blur-md sticky top-0 z-50 flex justify-between items-center px-margin-main py-4 w-full">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-full overflow-hidden bg-surface-container-high border-2 border-primary/10">
+<img alt="Athlete profile picture" class="w-full h-full object-cover" data-alt="A professional close-up portrait of a high-performance CrossFit athlete with a determined expression. The lighting is dramatic, high-contrast, emphasizing muscle definition and sweat. The background is a clean, modern gym environment with industrial elements and a cool blue and gray color palette. The overall mood is serious and professional, reflecting elite athletic commitment." src="https://lh3.googleusercontent.com/aida-public/AB6AXuClONtZpxJAf5NabNAz9CAAza7DOU8uE3aMJuhj2rlhvyr1J1kD3FQAEjlltlVBTmtibPX662OD5aDB9-p4UoOFyHYnWD4BUTi490Xz8Qt9JCv1XEPZw6587tS7SxMl60FRGdILhGUJD1Y3ULxny59WGeng0DBRMhs8Nuqe0lpNHviiwlbCdztR1HMSHasyP76abgUYYobekMKo4Il3e3o_CR6stQ3AU3chMrX7SissbjlI9foCS7QXyfeOB_mBqa9wSY7SdNdHXqQ"/>
+</div>
+<h1 class="font-headline-md text-headline-md font-bold text-primary">NDC HQ</h1>
+</div>
+<button class="text-primary hover:opacity-80 transition-opacity active:scale-95 duration-150">
+<span class="material-symbols-outlined" data-icon="notifications">notifications</span>
+</button>
+</header>
+<main class="px-margin-main pb-32 pt-stack-lg space-y-stack-lg max-w-2xl mx-auto">
+<!-- Athlete ID Card -->
+<section class="relative overflow-hidden rounded-xl bg-primary-container p-6 text-on-primary-container shadow-lg shadow-primary/5">
+<div class="relative z-10 flex flex-col md:flex-row gap-6 items-center">
+<div class="w-24 h-24 rounded-2xl overflow-hidden border-4 border-white/20 shadow-xl shrink-0">
+<img alt="Athlete Profile" class="w-full h-full object-cover" data-alt="A detailed headshot of a fit male athlete with short hair and a confident smile, wearing premium athletic apparel. The background is a blurred high-end fitness center with vibrant yellow and deep blue lighting accents. The image is crisp, professional, and communicates a high level of athletic achievement and discipline." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBNBB-qz5iUu0ttG64fab-pvnj9rWlxDD5cOwWP3eaLSPvRe0EpEQLQLvg7VANUlThndT0XoKEffkpwMc6rfPUMj9eXniq3bzT7eu0T8dCxmQzvx_VUF040F3j-_XPvdV547mZ1psKJ7L0hltjdwqj7fqXBHm_aF9spq06g0CZddNhoIcdY97TcXGWYnKS32lVZDmgX9hiYs-0ZQSaO2pnFZhBl8XdwSmtCacTqNPi2N2enwqPrz9mbQseNJUkl0Vm1Q9WjlELBGd4"/>
+</div>
+<div class="text-center md:text-left">
+<h2 class="font-display-lg text-display-lg text-white mb-1">Mateo Rivera</h2>
+<div class="flex flex-wrap justify-center md:justify-start gap-2">
+<span class="bg-secondary-container text-on-secondary-container font-label-bold text-label-bold px-3 py-1 rounded-full uppercase tracking-wider">Nivel RX</span>
+<span class="bg-white/10 text-white font-label-bold text-label-bold px-3 py-1 rounded-full">Desde 2021</span>
+</div>
+</div>
+</div>
+<!-- Decorative element -->
+<div class="absolute -right-8 -top-8 w-48 h-48 bg-white/5 rounded-full blur-3xl"></div>
+</section>
+<!-- Biometric Data & Monthly Attendance Bento Row -->
+<section class="grid grid-cols-2 md:grid-cols-3 gap-gutter">
+<!-- Attendance -->
+<div class="col-span-2 md:col-span-1 glass-card p-4 rounded-xl border border-outline-variant/30 flex flex-col justify-between"><span class="text-on-surface-variant font-label-sm text-label-sm uppercase tracking-wide font-medium">Asistencia Mensual</span>
+<div class="flex items-baseline gap-1 my-3">
+<span class="font-stats-xl text-stats-xl text-primary">22</span>
+<span class="text-on-surface-variant text-body-lg font-medium">/ 24</span>
+</div>
+<div class="space-y-1.5">
+<div class="w-full bg-surface-container-highest rounded-full h-1.5 overflow-hidden">
+<div class="bg-primary h-full rounded-full transition-all duration-700" style="width: 91.6%"></div>
+</div>
+<div class="flex justify-between text-[10px] text-on-surface-variant font-medium uppercase tracking-tighter">
+<span>Objetivo: 20</span>
+<span class="text-primary">+2 sobre meta</span>
+</div>
+</div></div>
+<!-- Weight -->
+<div class="glass-card p-4 rounded-xl border border-outline-variant/30 text-center">
+<span class="text-on-surface-variant font-label-sm text-label-sm uppercase">Peso</span>
+<div class="font-headline-md text-headline-md text-primary mt-2">82.4 <span class="text-label-sm">kg</span></div>
+<span class="text-on-secondary-fixed-variant text-label-sm flex items-center justify-center gap-1">
+<span class="material-symbols-outlined text-[14px]" data-icon="trending_down">trending_down</span> -0.8kg
+                </span>
+</div>
+<!-- Body Fat -->
+<div class="glass-card p-4 rounded-xl border border-outline-variant/30 text-center">
+<span class="text-on-surface-variant font-label-sm text-label-sm uppercase">Racha</span>
+<div class="font-headline-md text-headline-md text-primary mt-2">12 <span class="text-label-sm uppercase">Días</span></div>
+<span class="text-on-secondary-fixed-variant text-label-sm flex items-center justify-center gap-1">
+<span class="material-symbols-outlined text-[14px]" style="font-variation-settings: 'FILL' 1;">local_fire_department</span> Personal Best
+    </span>
+</div>
+</section>
+<!-- Objective Tracking -->
+<section class="glass-card p-5 rounded-xl border border-outline-variant/30">
+<div class="flex justify-between items-center mb-4">
+<h3 class="font-headline-sm text-headline-sm text-on-surface flex items-center gap-2">
+<span class="material-symbols-outlined text-secondary" data-icon="flag">flag</span>
+                    Meta Principal
+                </h3>
+<span class="text-primary font-label-bold text-label-bold">85% Completado</span>
+</div>
+<p class="text-on-surface-variant font-body-md mb-3">Ganar masa muscular y mejorar estabilidad en Clean &amp; Jerk.</p>
+<div class="w-full bg-surface-container-highest rounded-full h-4 relative overflow-hidden">
+<div class="bg-gradient-to-r from-primary to-primary-container h-full rounded-full transition-all duration-1000 ease-out" style="width: 85%"></div>
+</div>
+</section>
+<!-- Main Marks History (Sparklines) -->
+<section class="space-y-stack-md">
+<h3 class="font-headline-sm text-headline-sm text-on-surface">Historial de Marcas (PR)</h3>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-gutter">
+<!-- Squat -->
+<div class="bg-white p-4 rounded-xl shadow-sm border border-outline-variant/20 flex flex-col gap-3">
+<div class="flex justify-between items-start"><div class="order-last"><span class="bg-surface-container text-on-surface-variant font-label-sm text-[10px] px-2 py-0.5 rounded-full">Hace 3 días</span></div>
+<div>
+<span class="text-on-surface-variant font-label-sm text-label-sm uppercase">SENTADILLA TRASERA</span>
+<div class="font-headline-md text-headline-md text-primary">145 <span class="text-label-sm">kg</span></div>
+</div>
+<div class="bg-primary/5 p-2 rounded-lg text-primary">
+<span class="material-symbols-outlined" data-icon="fitness_center">fitness_center</span>
+</div>
+</div>
+<div class="h-10 w-full sparkline-container">
+<svg class="w-full h-full" viewbox="0 0 100 30">
+<path d="M0,25 L15,22 L30,28 L45,20 L60,18 L75,12 L90,15 L100,5" fill="none" stroke="#2f6384" stroke-linecap="round" stroke-width="2.5"></path>
+</svg>
+</div>
+</div>
+<!-- Clean -->
+<div class="bg-white p-4 rounded-xl shadow-sm border border-outline-variant/20 flex flex-col gap-3">
+<div class="flex justify-between items-start"><div class="order-last"><span class="bg-surface-container text-on-surface-variant font-label-sm text-[10px] px-2 py-0.5 rounded-full">Hace 12 días</span></div>
+<div>
+<span class="text-on-surface-variant font-label-sm text-label-sm uppercase">CARGADA</span>
+<div class="font-headline-md text-headline-md text-primary">110 <span class="text-label-sm">kg</span></div>
+</div>
+<div class="bg-primary/5 p-2 rounded-lg text-primary">
+<span class="material-symbols-outlined" data-icon="bolt">bolt</span>
+</div>
+</div>
+<div class="h-10 w-full sparkline-container">
+<svg class="w-full h-full" viewbox="0 0 100 30">
+<path d="M0,28 L20,25 L40,24 L60,18 L80,20 L100,10" fill="none" stroke="#2f6384" stroke-linecap="round" stroke-width="2.5"></path>
+</svg>
+</div>
+</div>
+<!-- Snatch -->
+<div class="bg-white p-4 rounded-xl shadow-sm border border-outline-variant/20 flex flex-col gap-3">
+<div class="flex justify-between items-start"><div class="order-last"><span class="bg-surface-container text-on-surface-variant font-label-sm text-[10px] px-2 py-0.5 rounded-full">Ayer</span></div>
+<div>
+<span class="text-on-surface-variant font-label-sm text-label-sm uppercase">ARRANCADA</span>
+<div class="font-headline-md text-headline-md text-primary">85 <span class="text-label-sm">kg</span></div>
+</div>
+<div class="bg-primary/5 p-2 rounded-lg text-primary">
+<span class="material-symbols-outlined" data-icon="speed">speed</span>
+</div>
+</div>
+<div class="h-10 w-full sparkline-container">
+<svg class="w-full h-full" viewbox="0 0 100 30">
+<path d="M0,20 L25,22 L50,15 L75,18 L100,5" fill="none" stroke="#2f6384" stroke-linecap="round" stroke-width="2.5"></path>
+</svg>
+</div>
+</div>
+</div>
+</section>
+<!-- Medical Notes & Limitations -->
+<section class="bg-surface-container-low rounded-xl p-5 border border-outline-variant/30">
+<h3 class="font-headline-sm text-headline-sm flex items-center gap-2 mb-3 text-on-surface">
+<span class="material-symbols-outlined" data-icon="medical_services">medical_services</span>
+                Notas Médicas y Limitaciones
+            </h3>
+<ul class="space-y-2">
+<li class="flex items-start gap-2 text-on-surface-variant font-body-md">
+<span class="material-symbols-outlined text-error text-[18px] mt-0.5" data-icon="warning">warning</span>
+                    Molestia leve en tendón rotuliano derecho. Evitar saltos de cajón de alta intensidad.
+                </li>
+<li class="flex items-start gap-2 text-on-surface-variant font-body-md">
+<span class="material-symbols-outlined text-primary text-[18px] mt-0.5" data-icon="info">info</span>
+                    Enfoque en movilidad de hombros previo a trabajos Overhead.
+                </li>
+</ul>
+</section><!-- Injuries and Concerns Section -->
+<section class="bg-surface-container-low rounded-xl p-5 border border-outline-variant/30 mt-stack-lg">
+<h3 class="font-headline-sm text-headline-sm flex items-center gap-2 mb-4 text-on-surface">
+<span class="material-symbols-outlined" data-icon="healing">healing</span>
+        Registro de Lesiones y Preocupaciones
+    </h3>
+<div class="space-y-3 mb-6">
+<div class="flex justify-between items-center bg-white/50 p-3 rounded-lg border border-outline-variant/20">
+<div>
+<p class="font-body-md text-on-surface">Sobrecarga en lumbar</p>
+<p class="text-[10px] text-on-surface-variant uppercase tracking-wider">Reportado hace 2 días</p>
+</div>
+<span class="bg-error-container text-on-error-container font-label-bold text-[10px] px-2 py-0.5 rounded-full uppercase">Moderada</span>
+</div>
+<div class="flex justify-between items-center bg-white/50 p-3 rounded-lg border border-outline-variant/20">
+<div>
+<p class="font-body-md text-on-surface">Molestia en hombro izquierdo</p>
+<p class="text-[10px] text-on-surface-variant uppercase tracking-wider">En seguimiento</p>
+</div>
+<span class="bg-secondary-container text-on-secondary-container font-label-bold text-[10px] px-2 py-0.5 rounded-full uppercase">Leve</span>
+</div>
+</div>
+<button class="w-full bg-secondary-container text-on-secondary-container font-headline-sm py-3 rounded-xl flex items-center justify-center gap-2 hover:opacity-90 active:scale-[0.98] transition-all">
+<span class="material-symbols-outlined">add_circle</span>
+        + Registrar Nueva Lesión
+    </button>
+</section>
+</main>
+<!-- Bottom Navigation Bar -->
+<nav class="bg-surface/80 dark:bg-surface-dim/80 backdrop-blur-md fixed bottom-0 left-0 w-full flex justify-around items-center px-4 py-2 pb-safe-area-bottom z-50"><a class="flex flex-col items-center justify-center text-outline dark:text-outline-variant hover:bg-surface-variant/20 rounded-full p-2 transition-transform duration-200 active:scale-90" href="#">
+<span class="material-symbols-outlined">home</span>
+<span class="font-label-sm text-label-sm">Inicio</span>
+</a>
+<a class="flex flex-col items-center justify-center text-outline dark:text-outline-variant hover:bg-surface-variant/20 rounded-full p-2 transition-transform duration-200 active:scale-90" href="#">
+<span class="material-symbols-outlined">fitness_center</span>
+<span class="font-label-sm text-label-sm">WOD</span>
+</a>
+<a class="flex flex-col items-center justify-center text-outline dark:text-outline-variant hover:bg-surface-variant/20 rounded-full p-2 transition-transform duration-200 active:scale-90" href="#">
+<span class="material-symbols-outlined">show_chart</span>
+<span class="font-label-sm text-label-sm">Progreso</span>
+</a>
+<a class="flex flex-col items-center justify-center text-outline dark:text-outline-variant hover:bg-surface-variant/20 rounded-full p-2 transition-transform duration-200 active:scale-90" href="#">
+<span class="material-symbols-outlined">groups</span>
+<span class="font-label-sm text-label-sm">Comunidad</span>
+</a>
+<a class="flex flex-col items-center justify-center text-secondary dark:text-secondary-fixed-dim font-bold hover:bg-surface-variant/20 rounded-full p-2 transition-transform duration-200 active:scale-90" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">person</span>
+<span class="font-label-sm text-label-sm">Perfil</span>
+</a></nav>
+<script>
+        // Simple micro-interaction for cards
+        document.querySelectorAll('.glass-card, .bg-white').forEach(card => {
+            card.addEventListener('touchstart', () => {
+                card.style.transform = 'scale(0.98)';
+                card.style.transition = 'transform 0.15s ease';
+            });
+            card.addEventListener('touchend', () => {
+                card.style.transform = 'scale(1)';
+            });
+        });
+    </script>
+</body></html>
