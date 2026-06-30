@@ -9,6 +9,8 @@ enum NDCColor {
     static let primaryDark = Color(hex: 0x003953)
     /// Amarillo de acento para CTAs y celebración de PRs (#FFDE59)
     static let accent = Color(hex: 0xFFDE59)
+    /// Dorado oscuro — CTAs serios sobre fondo claro (#705D00); texto blanco encima
+    static let secondary = Color(hex: 0x705D00)
     /// Fondo principal (blanco puro, estética iOS nativa)
     static let background = Color(hex: 0xFFFFFF)
     /// Superficies secundarias / tarjetas (#F2F2F7)

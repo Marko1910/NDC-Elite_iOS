@@ -37,38 +37,11 @@ struct AthleteDashboardView: View {
             .overlay(alignment: .bottomTrailing) {
                 bookClassFAB
             }
-            .toolbar {
-                ToolbarItem(placement: .topBarLeading) { brandLabel }
-                ToolbarItem(placement: .topBarTrailing) {
-                    Button {
-                        Haptics.impact(.light)
-                        // TODO: → AthleteNotificationsView
-                    } label: {
-                        Image(systemName: "bell")
-                            .foregroundStyle(NDCColor.primary)
-                            .symbolEffect(.bounce, value: data.unreadCount)
-                    }
-                    .accessibilityLabel("Notificaciones")
-                    .accessibilityValue(data.unreadCount > 0 ? "\(data.unreadCount) sin leer" : "Sin novedades")
-                }
+            .ndcBrandToolbar(profile: profile, unreadCount: data.unreadCount) {
+                // TODO: → AthleteNotificationsView
             }
         }
         .tint(NDCColor.primary)
-    }
-
-    // MARK: - Barra de marca (avatar + NDC HQ)
-
-    private var brandLabel: some View {
-        HStack(spacing: NDCSpacing.stackSM) {
-            AvatarView(urlString: profile.avatarURL, size: 32)
-                .accessibilityHidden(true)
-            Text("NDC HQ")
-                .font(NDCFont.headlineMD)
-                .foregroundStyle(NDCColor.primary)
-        }
-        .accessibilityElement(children: .combine)
-        .accessibilityLabel("NDC HQ")
-        .accessibilityAddTraits(.isHeader)
     }
 
     // MARK: - Saludo
@@ -376,37 +349,6 @@ private struct CoachTipCard: View {
         .clipShape(.rect(cornerRadius: NDCRadius.large))
         .accessibilityElement(children: .contain)
         .accessibilityLabel("Tip del coach: \(tip.title)")
-    }
-}
-
-// MARK: - Avatar reutilizable
-
-private struct AvatarView: View {
-    let urlString: String?
-    let size: CGFloat
-
-    var body: some View {
-        Group {
-            if let urlString, let url = URL(string: urlString) {
-                AsyncImage(url: url) { image in
-                    image.resizable().scaledToFill()
-                } placeholder: {
-                    placeholder
-                }
-            } else {
-                placeholder
-            }
-        }
-        .frame(width: size, height: size)
-        .clipShape(.circle)
-        .overlay(Circle().stroke(NDCColor.primary, lineWidth: 2))
-    }
-
-    private var placeholder: some View {
-        Image(systemName: "person.fill")
-            .foregroundStyle(NDCColor.primary)
-            .frame(width: size, height: size)
-            .background(NDCColor.surface)
     }
 }
 
