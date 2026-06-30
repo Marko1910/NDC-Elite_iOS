@@ -64,7 +64,7 @@ struct AthleteManagementView: View {
             .navigationBarTitleDisplayMode(.large)
             .searchable(text: $query, prompt: "Buscar atletas por nombre...")
             .sheet(isPresented: $showAttendance) { AttendanceControlView() }
-            .sheet(isPresented: $showInvite) { InviteAthleteView() }
+            .sheet(isPresented: $showInvite) { GenerateInviteCodeView() }
             .navigationDestination(item: $selectedAthlete) { name in
                 CoachAthleteProfileView(athleteName: name)
             }

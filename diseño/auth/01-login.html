@@ -1,0 +1,241 @@
+<!DOCTYPE html><html class="light" lang="es" style=""><head>
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" name="viewport">
+<title>NDC HQ - Iniciar Sesión</title>
+<!-- Fonts -->
+<link href="https://fonts.googleapis.com" rel="preconnect">
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect">
+<link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@600;700;800&amp;family=Inter:wght@400;500;600&amp;display=swap" rel="stylesheet">
+<!-- Material Symbols -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<!-- Tailwind -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "tertiary-container": "#00489c",
+                    "on-surface-variant": "#41484d",
+                    "inverse-primary": "#9accf2",
+                    "on-secondary-fixed": "#221b00",
+                    "inverse-on-surface": "#f0f0f5",
+                    "tertiary-fixed": "#d8e2ff",
+                    "outline": "#71787e",
+                    "secondary": "#705d00",
+                    "secondary-fixed": "#ffe16e",
+                    "error": "#ba1a1a",
+                    "surface-container-low": "#f3f3f8",
+                    "secondary-fixed-dim": "#e4c542",
+                    "inverse-surface": "#2e3034",
+                    "on-secondary-fixed-variant": "#544600",
+                    "background": "#ffffff",
+                    "on-tertiary-fixed-variant": "#004493",
+                    "tertiary-fixed-dim": "#adc6ff",
+                    "on-secondary-container": "#756100",
+                    "primary-container": "#165070",
+                    "outline-variant": "#c1c7ce",
+                    "primary-fixed": "#c8e6ff",
+                    "surface": "#ffffff",
+                    "on-primary-fixed": "#001e2f",
+                    "secondary-container": "#ffde59",
+                    "on-tertiary": "#ffffff",
+                    "surface-bright": "#ffffff",
+                    "surface-container-highest": "#e2e2e7",
+                    "surface-container-lowest": "#ffffff",
+                    "on-background": "#1a1c1f",
+                    "primary": "#165070",
+                    "on-primary-container": "#90c2e7",
+                    "on-error-container": "#93000a",
+                    "tertiary": "#003271",
+                    "primary-fixed-dim": "#9accf2",
+                    "on-primary-fixed-variant": "#0e4b6b",
+                    "surface-container": "#ededf2",
+                    "on-tertiary-fixed": "#001a41",
+                    "on-primary": "#ffffff",
+                    "surface-tint": "#2f6384",
+                    "on-tertiary-container": "#9bbbff",
+                    "error-container": "#ffdad6",
+                    "on-error": "#ffffff",
+                    "on-secondary": "#ffffff",
+                    "surface-container-high": "#e8e8ed",
+                    "surface-variant": "#e2e2e7",
+                    "on-surface": "#1a1c1f",
+                    "surface-dim": "#d9dade"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.25rem",
+                    "lg": "0.5rem",
+                    "xl": "0.75rem",
+                    "full": "9999px"
+            },
+            "spacing": {
+                    "stack-md": "1rem",
+                    "safe-area-bottom": "2.125rem",
+                    "margin-main": "1.25rem",
+                    "stack-lg": "1.5rem",
+                    "stack-sm": "0.5rem",
+                    "gutter": "1rem"
+            },
+            "fontFamily": {
+                    "stats-xl": ["Hanken Grotesk"],
+                    "body-lg": ["Inter"],
+                    "label-bold": ["Inter"],
+                    "body-md": ["Inter"],
+                    "headline-sm": ["Hanken Grotesk"],
+                    "label-sm": ["Inter"],
+                    "display-lg": ["Hanken Grotesk"],
+                    "headline-md": ["Hanken Grotesk"]
+            },
+            "fontSize": {
+                    "stats-xl": ["48px", {"lineHeight": "48px", "letterSpacing": "-1px", "fontWeight": "800"}],
+                    "body-lg": ["17px", {"lineHeight": "24px", "fontWeight": "400"}],
+                    "label-bold": ["13px", {"lineHeight": "18px", "fontWeight": "600"}],
+                    "body-md": ["15px", {"lineHeight": "20px", "fontWeight": "400"}],
+                    "headline-sm": ["20px", {"lineHeight": "25px", "fontWeight": "600"}],
+                    "label-sm": ["12px", {"lineHeight": "16px", "fontWeight": "500"}],
+                    "display-lg": ["34px", {"lineHeight": "41px", "letterSpacing": "-0.5px", "fontWeight": "800"}],
+                    "headline-md": ["24px", {"lineHeight": "30px", "letterSpacing": "0px", "fontWeight": "700"}]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        body {
+            -webkit-tap-highlight-color: transparent;
+            background-color: #ffffff;
+        }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .glass-header {
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+        }
+        .ios-input-shadow:focus {
+            box-shadow: 0 0 0 3px rgba(22, 80, 112, 0.1);
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="font-body-md text-on-background min-h-screen flex flex-col items-center justify-between selection:bg-primary-fixed">
+<!-- Top Navigation (Suppressed per rules for transactional screen, but maintaining safe area) -->
+<div class="w-full pt-12 pb-6 flex justify-center items-center">
+<!-- Logo Representation -->
+<div class="flex flex-col items-center gap-2">
+<div class="w-16 h-16 bg-primary flex items-center justify-center rounded-xl rotate-45 shadow-lg shadow-primary/20 overflow-hidden relative group transition-transform duration-500 active:scale-95">
+<div class="absolute inset-0 bg-gradient-to-tr from-primary to-primary-container opacity-50"></div>
+<span class="material-symbols-outlined text-white text-4xl -rotate-45" style="font-variation-settings: &quot;FILL&quot; 1;">fitness_center</span>
+</div>
+<div class="mt-4 font-headline-md text-headline-md text-primary tracking-tighter">NDC HQ</div>
+</div>
+</div>
+<!-- Main Content Container -->
+<main class="w-full max-w-md px-margin-main flex-1 flex flex-col justify-center gap-stack-lg">
+<!-- Welcome Header -->
+<div class="text-center space-y-1">
+<h1 class="font-headline-sm text-headline-sm text-on-surface">Bienvenido de vuelta</h1>
+<p class="font-body-md text-on-surface-variant opacity-70">Accede a tu programación diaria</p>
+</div>
+<!-- Login Form -->
+<form class="flex flex-col gap-stack-md" onsubmit="event.preventDefault();">
+<!-- Email Input -->
+<div class="space-y-2">
+<div class="relative group">
+<input class="w-full h-14 px-4 bg-surface-container-low border-none rounded-lg font-body-lg text-body-lg text-on-surface placeholder:text-outline-variant transition-all ios-input-shadow focus:ring-1 focus:ring-primary focus:bg-white" placeholder="Correo electrónico" required="" type="email">
+</div>
+</div>
+<!-- Password Input -->
+<div class="space-y-2">
+<div class="relative group">
+<input class="w-full h-14 px-4 bg-surface-container-low border-none rounded-lg font-body-lg text-body-lg text-on-surface placeholder:text-outline-variant transition-all ios-input-shadow focus:ring-1 focus:ring-primary focus:bg-white" placeholder="Contraseña" required="" type="password">
+</div>
+<!-- Forgot Password -->
+<div class="flex justify-end">
+<button class="font-label-bold text-label-bold text-primary active:opacity-60 transition-opacity" type="button">
+                        ¿Olvidaste tu contraseña?
+                    </button>
+</div>
+</div>
+<!-- Primary Action -->
+<div class="pt-2">
+<button class="w-full h-14 bg-primary text-white font-label-bold text-body-lg rounded-xl shadow-md shadow-primary/10 active:scale-[0.98] transition-all flex items-center justify-center gap-2" type="submit">
+                    Iniciar Sesión
+                </button>
+</div>
+</form>
+<!-- Elegant Separator -->
+<div class="relative py-4">
+<div aria-hidden="true" class="absolute inset-0 flex items-center">
+<div class="w-full border-t border-outline-variant/30"></div>
+</div>
+<div class="relative flex justify-center">
+<span class="bg-white px-4 text-label-sm font-label-sm text-outline uppercase tracking-widest">
+                    Acceso exclusivo para miembros
+                </span>
+</div>
+</div>
+<!-- Visual Anchor (Professional Fitness Image) -->
+<div class="w-full h-40 rounded-2xl overflow-hidden relative">
+<img class="w-full h-full object-cover grayscale-[20%] contrast-[110%] brightness-[90%]" data-alt="A professional, high-end CrossFit gym interior with premium equipment under atmospheric, soft studio lighting. The scene captures the discipline and elite environment of a private fitness community, using a minimalist color palette of deep grays and highlights of white. The mood is focused and executive, perfectly aligning with the sophisticated NDC HQ brand identity." src="https://lh3.googleusercontent.com/aida-public/AB6AXuD8bw8iFzkpfHoHO9sU6X-pC1VkohykcC2MlzgUqU0VYXGAZPy8yV6vS_4nYTtdU0JngdYiM7WSzZGRYufbzxES4NG8JRI9YEwdixLL9I2sQvzVNT7co4vmXB80WejkdPVXPvSFEOpLgOAqy89nH5Mq1hvWT-8XQcyNH45lM5LEAZhWDIR0okWs6KVTcd7hwgwMw3v4_td4czKUIl3Sz9tH6M7JEUQkAy3BOpTZS90rsWXJZEMBDERUnJFm0041UEh5zynJHWDVQr9Z">
+<div class="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent"></div>
+</div>
+</main>
+<!-- Footer Information -->
+<footer class="w-full px-margin-main pb-safe-area-bottom pt-8">
+<div class="bg-surface-container-low/50 p-4 rounded-xl border border-outline-variant/10 flex items-start gap-3">
+<div class="mt-1">
+<span class="material-symbols-outlined text-primary text-[18px]">lock</span>
+</div>
+<p class="font-label-sm text-label-sm text-on-surface-variant leading-relaxed">
+                NDC HQ es una comunidad cerrada. Si aún no tienes cuenta, solicita una invitación a tu coach.
+            </p>
+</div><div class="mt-4 text-center">
+    <p class="font-body-md text-on-surface-variant">
+        ¿No tienes cuenta? 
+        <button class="font-label-bold text-primary active:opacity-60 transition-opacity" type="button">
+            Regístrate
+        </button>
+    </p>
+</div>
+<!-- App Version / Legal -->
+<div class="mt-6 mb-4 text-center">
+<span class="font-label-sm text-label-sm text-outline-variant opacity-50 uppercase tracking-tighter">
+                v2.4.0 • NDC High Performance
+            </span>
+</div>
+</footer>
+<!-- Micro-interaction Script -->
+<script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const inputs = document.querySelectorAll('input');
+            
+            inputs.forEach(input => {
+                // Focus effect for premium feel
+                input.addEventListener('focus', () => {
+                    input.parentElement.classList.add('scale-[1.01]');
+                });
+                
+                input.addEventListener('blur', () => {
+                    input.parentElement.classList.remove('scale-[1.01]');
+                });
+            });
+
+            // Prevent scroll on focus for iOS webview feel
+            window.addEventListener('resize', () => {
+                if (document.activeElement.tagName === 'INPUT') {
+                    document.activeElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                }
+            });
+        });
+    </script>
+
+
+</body></html>

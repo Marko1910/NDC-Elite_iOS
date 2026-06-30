@@ -45,6 +45,39 @@ final class SessionStore {
         }
     }
 
+    /// Registro de atleta con código de invitación (comunidad cerrada).
+    /// Valida el código → crea la cuenta → canjea el código. Devuelve true si OK.
+    func register(name: String, email: String, phone: String,
+                  password: String, inviteCode: String) async -> Bool {
+        errorMessage = nil
+        let code = inviteCode.trimmingCharacters(in: .whitespaces).uppercased()
+        do {
+            // 1) ¿Código válido y disponible? (RPC pública)
+            let valid: Bool = try await client.rpc("invitation_code_valid", params: ["p_code": code])
+                .execute().value
+            guard valid else {
+                errorMessage = "Código de invitación inválido o ya usado. Pídele uno a tu coach."
+                return false
+            }
+            // 2) Crear cuenta
+            try await client.auth.signUp(
+                email: email, password: password,
+                data: ["full_name": .string(name)])
+            // 3) Guardar teléfono y canjear el código (ya autenticado)
+            if let uid = client.auth.currentSession?.user.id {
+                try? await client.from("profiles")
+                    .update(["phone": phone]).eq("id", value: uid).execute()
+            }
+            let redeemed: Bool = try await client.rpc("redeem_invitation_code", params: ["p_code": code])
+                .execute().value
+            if !redeemed { /* el código se tomó entre validar y canjear; cuenta creada igual */ }
+            return true
+        } catch {
+            errorMessage = "No se pudo crear la cuenta. Verifica el correo (¿ya registrado?) e inténtalo de nuevo."
+            return false
+        }
+    }
+
     func signOut() async {
         try? await client.auth.signOut()
         state = .loggedOut
