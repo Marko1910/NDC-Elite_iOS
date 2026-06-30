@@ -17,7 +17,7 @@ struct AthleteTabView: View {
                 PerformanceView(profile: profile)
             }
             Tab("Comunidad", systemImage: "person.3.fill") {
-                CommunityPlaceholderView()
+                CommunityView(profile: profile)
             }
             Tab("Perfil", systemImage: "person.fill") {
                 AthleteProfileView(profile: profile)
@@ -32,13 +32,4 @@ struct AthleteTabView: View {
 // WodDetailView vive en WodDetailView.swift
 // PerformanceView vive en PerformanceView.swift
 // AthleteProfileView vive en AthleteProfileView.swift
-
-struct CommunityPlaceholderView: View {
-    var body: some View {
-        ContentUnavailableView(
-            "Comunidad",
-            systemImage: "person.3.fill",
-            description: Text("Retos y ranking (FLOWS.md: CommunityView)")
-        )
-    }
-}
+// CommunityView vive en CommunityView.swift
