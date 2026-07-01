@@ -35,8 +35,9 @@ struct CoachDashboardView: View {
             .scrollIndicators(.hidden)
             .navigationDestination(isPresented: $showValidation) { ValidationView() }
             .navigationDestination(isPresented: $showAlerts) { CoachAlertsView(profile: profile) }
+            .navigationTitle("NDC HQ")
+            .navigationBarTitleDisplayMode(.inline)
             .toolbar {
-                ToolbarItem(placement: .topBarLeading) { brandLabel }
                 ToolbarItem(placement: .topBarTrailing) {
                     NDCBellButton(unreadCount: data.unreadCount) { showAlerts = true }
                 }
@@ -47,17 +48,9 @@ struct CoachDashboardView: View {
         .tint(NDCColor.primary)
     }
 
-    private var brandLabel: some View {
-        VStack(alignment: .leading, spacing: 0) {
-            Text("NDC HQ").font(NDCFont.labelBold).foregroundStyle(NDCColor.primary)
-            Text(data.liveClass).font(NDCFont.labelSM).foregroundStyle(NDCColor.outline)
-        }
-        .accessibilityElement(children: .combine)
-    }
-
     private var greeting: some View {
         VStack(alignment: .leading, spacing: 2) {
-            Text("¡Hola, Coach!")
+            Text("¡Hola, \(profile.firstName)!")
                 .font(NDCFont.displayLG).foregroundStyle(NDCColor.primaryDark)
             Text("Resumen estratégico de hoy")
                 .font(NDCFont.bodyLG).foregroundStyle(NDCColor.onSurfaceVariant)
@@ -286,7 +279,6 @@ private struct CoachDashboardData {
         var firstName: String { name.components(separatedBy: " ").first ?? name }
     }
 
-    let liveClass: String
     let attendedToday: Int
     let capacityToday: Int
     let attendancePercent: Int
@@ -296,7 +288,6 @@ private struct CoachDashboardData {
     let unreadCount: Int
 
     static let sample = CoachDashboardData(
-        liveClass: "Box en vivo: Clase 07:00 AM",
         attendedToday: 42, capacityToday: 50, attendancePercent: 84,
         pendingValidations: 8,
         nextWod: NextWod(schedule: "MAÑANA • 06:00 AM",

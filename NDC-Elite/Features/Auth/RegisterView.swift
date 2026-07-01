@@ -14,9 +14,12 @@ struct RegisterView: View {
     @State private var password = ""
     @State private var code = ""
     @State private var isLoading = false
+    @State private var anyCoachExists = true
+    @State private var registerAsFoundingCoach = false
 
     private var canSubmit: Bool {
-        !name.isEmpty && email.contains("@") && password.count >= 6 && !code.isEmpty
+        let base = !name.isEmpty && email.contains("@") && password.count >= 6
+        return registerAsFoundingCoach ? base : (base && !code.isEmpty)
     }
 
     var body: some View {
@@ -46,7 +49,12 @@ struct RegisterView: View {
                     field("Contraseña") {
                         SecureField("Mínimo 6 caracteres", text: $password).textContentType(.newPassword)
                     }
-                    inviteCodeField
+                    if !anyCoachExists {
+                        founderToggle
+                    }
+                    if !registerAsFoundingCoach {
+                        inviteCodeField
+                    }
 
                     if let error = session.errorMessage {
                         Text(error).font(NDCFont.labelBold).foregroundStyle(NDCColor.error)
@@ -56,8 +64,10 @@ struct RegisterView: View {
                     Button {
                         Task {
                             isLoading = true
-                            let ok = await session.register(name: name, email: email, phone: phone,
-                                                            password: password, inviteCode: code)
+                            let ok = registerAsFoundingCoach
+                                ? await session.registerFoundingCoach(name: name, email: email, phone: phone, password: password)
+                                : await session.register(name: name, email: email, phone: phone,
+                                                          password: password, inviteCode: code)
                             isLoading = false
                             if ok { dismiss() } // authStateChanges enruta a los tabs
                         }
@@ -77,6 +87,21 @@ struct RegisterView: View {
         }
         .background(NDCColor.background)
         .scrollDismissesKeyboard(.interactively)
+        .task { anyCoachExists = await session.anyCoachExists() }
+    }
+
+    private var founderToggle: some View {
+        VStack(alignment: .leading, spacing: NDCSpacing.stackSM) {
+            Toggle(isOn: $registerAsFoundingCoach) {
+                Label("Registrarme como Coach Fundador", systemImage: "star.fill")
+                    .font(NDCFont.labelBold).foregroundStyle(NDCColor.onSurfaceVariant)
+            }
+            .tint(NDCColor.primary)
+            Text("Aún no hay ningún coach en NDC HQ. Esta opción solo aparece la primera vez.")
+                .font(NDCFont.labelSM).foregroundStyle(NDCColor.outline)
+        }
+        .padding(14)
+        .background(NDCColor.surface, in: .rect(cornerRadius: NDCRadius.standard))
     }
 
     private var inviteCodeField: some View {

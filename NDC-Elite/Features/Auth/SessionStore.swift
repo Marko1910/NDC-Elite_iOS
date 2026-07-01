@@ -68,7 +68,9 @@ final class SessionStore {
                 try? await client.from("profiles")
                     .update(["phone": phone]).eq("id", value: uid).execute()
             }
-            let redeemed: Bool = try await client.rpc("redeem_invitation_code", params: ["p_code": code])
+            // redeem_role_code marca el código usado y, si es de tipo 'coach',
+            // sube el rol del perfil recién creado (ver migración 14).
+            let redeemed: Bool = try await client.rpc("redeem_role_code", params: ["p_code": code])
                 .execute().value
             if !redeemed { /* el código se tomó entre validar y canjear; cuenta creada igual */ }
             return true
@@ -78,9 +80,43 @@ final class SessionStore {
         }
     }
 
+    /// Registro del primer coach (fundador), sin código de invitación. Solo
+    /// concede el rol si todavía no existe ningún coach (lo valida el trigger
+    /// `handle_new_user` en el servidor; si ya hay uno, la cuenta se crea igual
+    /// pero como atleta).
+    func registerFoundingCoach(name: String, email: String, phone: String, password: String) async -> Bool {
+        errorMessage = nil
+        do {
+            try await client.auth.signUp(
+                email: email, password: password,
+                data: ["full_name": .string(name), "requested_role": .string("coach")])
+            if let uid = client.auth.currentSession?.user.id {
+                try? await client.from("profiles")
+                    .update(["phone": phone]).eq("id", value: uid).execute()
+            }
+            return true
+        } catch {
+            errorMessage = "No se pudo crear la cuenta. Verifica el correo (¿ya registrado?) e inténtalo de nuevo."
+            return false
+        }
+    }
+
+    /// ¿Ya existe algún coach? Determina si el registro debe ofrecer la opción
+    /// de "coach fundador". Ante cualquier duda (RPC aún no desplegada, sin
+    /// red) asume que sí existe, para no exponer la opción de más.
+    func anyCoachExists() async -> Bool {
+        (try? await client.rpc("any_coach_exists").execute().value) ?? true
+    }
+
     func signOut() async {
         try? await client.auth.signOut()
         state = .loggedOut
+    }
+
+    /// Refresca el perfil en memoria tras una edición (nombre, foto), para que
+    /// el saludo y el resto de la app se actualicen sin esperar un relogin.
+    func updateLocalProfile(_ profile: Profile) {
+        state = .loggedIn(profile)
     }
 
     private func loadProfile(userId: UUID) async {

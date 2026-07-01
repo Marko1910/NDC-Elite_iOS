@@ -5,9 +5,8 @@ import SwiftUI
 /// la app** antes de guardar; el atleta luego lo reproduce en `ExerciseDetailView`.
 /// (ver FLOWS.md → ExerciseEditorView)
 ///
-/// TODO(datos): al guardar, insertar/actualizar en `exercises` +
-/// `exercise_technique_steps` de Supabase.
 struct ExerciseEditorView: View {
+    let profile: Profile
     @Environment(\.dismiss) private var dismiss
     private let store = ExerciseLibraryStore.shared
     private let editingID: UUID?
@@ -19,8 +18,11 @@ struct ExerciseEditorView: View {
     @State private var youtubeURL: String
     @State private var summary: String
     @State private var steps: [LibraryExercise.Step]
+    @State private var isSaving = false
+    @State private var errorMessage: String?
 
-    init(exercise: LibraryExercise? = nil) {
+    init(profile: Profile, exercise: LibraryExercise? = nil) {
+        self.profile = profile
         editingID = exercise?.id
         _name = State(initialValue: exercise?.name ?? "")
         _subtitle = State(initialValue: exercise?.subtitle ?? "")
@@ -33,7 +35,7 @@ struct ExerciseEditorView: View {
 
     private var videoID: String? { YouTube.videoID(from: youtubeURL) }
     private var canSave: Bool {
-        !name.trimmingCharacters(in: .whitespaces).isEmpty && videoID != nil
+        !name.trimmingCharacters(in: .whitespaces).isEmpty && videoID != nil && !isSaving
     }
 
     var body: some View {
@@ -53,6 +55,9 @@ struct ExerciseEditorView: View {
                     videoPreview
                     field("Descripción") { descriptionEditor }
                     stepsSection
+                    if let errorMessage {
+                        Text(errorMessage).font(NDCFont.labelBold).foregroundStyle(NDCColor.error)
+                    }
                 }
                 .padding(NDCSpacing.marginMain)
                 .padding(.bottom, NDCSpacing.stackLG)
@@ -66,7 +71,7 @@ struct ExerciseEditorView: View {
                     Button("Cancelar") { dismiss() }.foregroundStyle(NDCColor.primary)
                 }
                 ToolbarItem(placement: .topBarTrailing) {
-                    Button("Guardar") { save() }
+                    Button(isSaving ? "Guardando…" : "Guardar") { Task { await save() } }
                         .font(NDCFont.labelBold)
                         .foregroundStyle(canSave ? NDCColor.primary : NDCColor.outline)
                         .disabled(!canSave)
@@ -192,7 +197,7 @@ struct ExerciseEditorView: View {
         }
     }
 
-    private func save() {
+    private func save() async {
         guard let videoID else { return }
         let exercise = LibraryExercise(
             id: editingID ?? UUID(),
@@ -204,9 +209,16 @@ struct ExerciseEditorView: View {
             summary: summary.trimmingCharacters(in: .whitespacesAndNewlines),
             steps: steps.filter { !$0.title.trimmingCharacters(in: .whitespaces).isEmpty }
         )
-        store.upsert(exercise)
-        Haptics.notify(.success)
-        dismiss()
+        isSaving = true
+        errorMessage = nil
+        do {
+            try await store.upsert(exercise, createdBy: profile.id)
+            Haptics.notify(.success)
+            dismiss()
+        } catch {
+            isSaving = false
+            errorMessage = "No se pudo guardar. ¿El nombre ya existe en la biblioteca?"
+        }
     }
 }
 
@@ -238,9 +250,5 @@ private struct StepEditorRow: View {
 }
 
 #Preview {
-    ExerciseEditorView()
-}
-
-#Preview("Editar") {
-    ExerciseEditorView(exercise: ExerciseLibrary.sample[0])
+    ExerciseEditorView(profile: .preview)
 }

@@ -2,16 +2,18 @@ import SwiftUI
 import Supabase
 
 /// Generar Código de Invitación - Coach — diseño Stitch.
-/// El coach genera un código único de acceso, lo comparte con el atleta (que lo
-/// usa al registrarse) y ve sus códigos activos. (ver NAVIGATION.md)
+/// El coach genera un código único de acceso, lo comparte con el atleta (o con
+/// un futuro coach) y ve sus códigos activos. (ver NAVIGATION.md)
 ///
-/// Persiste en `invitation_codes` (created_by = coach). El atleta lo canjea al
-/// registrarse vía `redeem_invitation_code`.
+/// Persiste en `invitation_codes` (created_by = coach, role = atleta|coach).
+/// Quien lo canjea usa `redeem_role_code`, que sube su rol si el código es de
+/// tipo coach.
 struct GenerateInviteCodeView: View {
     @Environment(\.dismiss) private var dismiss
     private let client = SupabaseManager.client
 
     @State private var currentCode = ""
+    @State private var role: UserRole = .atleta
     @State private var active: [InviteCode] = []
     @State private var isWorking = false
 
@@ -20,17 +22,19 @@ struct GenerateInviteCodeView: View {
         var code: String
         var createdAt: Date
         var usedBy: UUID?
-        enum CodingKeys: String, CodingKey { case id, code; case createdAt = "created_at"; case usedBy = "used_by" }
+        var role: UserRole
+        enum CodingKeys: String, CodingKey { case id, code, role; case createdAt = "created_at"; case usedBy = "used_by" }
     }
 
     var body: some View {
         NavigationStack {
             ScrollView {
                 VStack(spacing: NDCSpacing.stackLG) {
-                    Text("Genera un código de acceso único para invitar a un nuevo atleta a unirse a la comunidad NDC HQ.")
+                    Text("Genera un código de acceso único para invitar a un nuevo atleta —o a un nuevo coach— a unirse a NDC HQ.")
                         .font(NDCFont.bodyMD).foregroundStyle(NDCColor.onSurfaceVariant)
                         .multilineTextAlignment(.center)
 
+                    rolePicker
                     codeCard
                     shareButton
                     activeCodesSection
@@ -39,7 +43,7 @@ struct GenerateInviteCodeView: View {
             }
             .background(NDCColor.background)
             .scrollIndicators(.hidden)
-            .navigationTitle("Invitar Atleta")
+            .navigationTitle("Invitar")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .topBarLeading) {
@@ -55,9 +59,18 @@ struct GenerateInviteCodeView: View {
         .presentationDragIndicator(.visible)
     }
 
+    private var rolePicker: some View {
+        Picker("Tipo de código", selection: $role) {
+            Text("Atleta").tag(UserRole.atleta)
+            Text("Coach").tag(UserRole.coach)
+        }
+        .pickerStyle(.segmented)
+    }
+
     private var codeCard: some View {
         VStack(spacing: NDCSpacing.stackMD) {
-            Text("CÓDIGO DE ACCESO").font(NDCFont.labelBold).foregroundStyle(NDCColor.outline).tracking(1)
+            Text(role == .coach ? "CÓDIGO DE COACH" : "CÓDIGO DE ACCESO")
+                .font(NDCFont.labelBold).foregroundStyle(NDCColor.outline).tracking(1)
             Text(currentCode).font(.system(size: 38, weight: .heavy, design: .rounded)).foregroundStyle(NDCColor.primaryDark)
             Button {
                 Haptics.impact(); currentCode = Self.newCode()
@@ -105,7 +118,12 @@ struct GenerateInviteCodeView: View {
                         Image(systemName: "person.badge.key.fill").foregroundStyle(NDCColor.primary)
                             .frame(width: 40, height: 40).background(NDCColor.surface, in: .circle)
                         VStack(alignment: .leading, spacing: 2) {
-                            Text(item.code).font(NDCFont.labelBold).foregroundStyle(NDCColor.onSurface)
+                            HStack(spacing: 6) {
+                                Text(item.code).font(NDCFont.labelBold).foregroundStyle(NDCColor.onSurface)
+                                if item.role == .coach {
+                                    NDCChip(text: "Coach")
+                                }
+                            }
                             Text(item.createdAt, format: .dateTime.day().month().hour().minute())
                                 .font(NDCFont.labelSM).foregroundStyle(NDCColor.outline)
                         }
@@ -146,7 +164,7 @@ struct GenerateInviteCodeView: View {
         do {
             guard let uid = client.auth.currentSession?.user.id else { return }
             try await client.from("invitation_codes")
-                .insert(["code": currentCode, "created_by": uid.uuidString]).execute()
+                .insert(["code": currentCode, "created_by": uid.uuidString, "role": role.rawValue]).execute()
             Haptics.notify(.success)
             await loadActive()
             await MainActor.run { shareSheet(text: shareMessage) }
@@ -165,7 +183,9 @@ struct GenerateInviteCodeView: View {
     }
 
     private var shareMessage: String {
-        "¡Bienvenido a NDC HQ! 💪 Regístrate en la app con este código de invitación: \(currentCode)"
+        role == .coach
+            ? "¡Bienvenido a NDC HQ como coach! 💪 Regístrate en la app con este código de invitación: \(currentCode)"
+            : "¡Bienvenido a NDC HQ! 💪 Regístrate en la app con este código de invitación: \(currentCode)"
     }
 
     private func shareSheet(text: String) {

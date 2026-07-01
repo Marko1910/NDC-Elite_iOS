@@ -79,6 +79,14 @@ enum WodType: String, Codable, CaseIterable, Sendable {
 
 enum WodStatus: String, Codable, CaseIterable, Sendable {
     case borrador, publicado, archivado
+
+    var displayName: String {
+        switch self {
+        case .borrador: "Borrador"
+        case .publicado: "Publicado"
+        case .archivado: "Archivado"
+        }
+    }
 }
 
 enum BlockType: String, Codable, CaseIterable, Sendable {

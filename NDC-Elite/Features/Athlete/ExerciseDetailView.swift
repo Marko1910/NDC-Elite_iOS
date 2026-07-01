@@ -159,6 +159,14 @@ struct ExerciseDetailView: View {
 
 #Preview {
     NavigationStack {
-        ExerciseDetailView(exercise: ExerciseLibrary.sample[0])
+        ExerciseDetailView(exercise: LibraryExercise(
+            name: "Back Squat",
+            subtitle: "Sentadilla por detrás",
+            category: .fuerza,
+            level: .basico,
+            youtubeURL: "https://www.youtube.com/watch?v=nEsZViY3EJ4",
+            summary: "Ejercicio base de fuerza de tren inferior.",
+            steps: [.init(title: "Setup", detail: "Pies a la anchura de los hombros.")]
+        ))
     }
 }

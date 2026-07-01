@@ -5,17 +5,13 @@ import SwiftUI
 /// abre su detalle con el video del coach (YouTube in-app), descripción y pasos.
 /// El coach mantiene esta biblioteca subiendo enlaces de YouTube.
 /// (ver FLOWS.md → ExerciseLibraryView)
-///
-/// TODO(datos): hoy usa `ExerciseLibrary.sample`. Conectar a Supabase:
-/// `exercises` + `exercise_technique_steps` (con `video_url`).
 struct ExerciseLibraryView: View {
     @State private var query = ""
     @State private var category: ExerciseCategory?
-
     private let store = ExerciseLibraryStore.shared
 
-    private var filtered: [LibraryExercise] {
-        store.exercises.filter { ex in
+    private func filtered(_ all: [LibraryExercise]) -> [LibraryExercise] {
+        all.filter { ex in
             (category == nil || ex.category == category)
             && (query.isEmpty
                 || ex.name.localizedCaseInsensitiveContains(query)
@@ -27,14 +23,23 @@ struct ExerciseLibraryView: View {
         ScrollView {
             VStack(alignment: .leading, spacing: NDCSpacing.stackMD) {
                 categoryFilter
-                if filtered.isEmpty {
-                    emptyState
-                } else {
-                    ForEach(filtered) { ex in
-                        NavigationLink(value: ex) {
-                            ExerciseRow(exercise: ex)
+                LoadStateView(state: store.state, retry: { Task { await store.load() } }) { all in
+                    let visible = filtered(all)
+                    if visible.isEmpty {
+                        emptyState
+                    } else {
+                        ForEach(visible) { ex in
+                            NavigationLink(value: ex) {
+                                ExerciseRow(exercise: ex)
+                            }
+                            .buttonStyle(.plain)
                         }
-                        .buttonStyle(.plain)
+                    }
+                } skeleton: {
+                    VStack(spacing: NDCSpacing.stackSM) {
+                        SkeletonCard(lines: 2, height: 72)
+                        SkeletonCard(lines: 2, height: 72)
+                        SkeletonCard(lines: 2, height: 72)
                     }
                 }
             }
@@ -50,6 +55,8 @@ struct ExerciseLibraryView: View {
         .navigationDestination(for: LibraryExercise.self) { ex in
             ExerciseDetailView(exercise: ex)
         }
+        .task { await store.load() }
+        .refreshable { await store.load() }
     }
 
     // MARK: - Filtro de categorías
@@ -149,103 +156,37 @@ extension ExerciseCategory {
     }
 }
 
-// MARK: - Store compartido (coach escribe, atleta lee)
+// MARK: - Store compartido (coach escribe en Supabase, atleta lee)
 
-/// Biblioteca técnica en memoria: el coach añade/edita ejercicios desde
-/// `ExerciseLibraryManagementView` y el atleta los ve al instante aquí.
-/// TODO(datos): reemplazar por fetch/insert/update en `exercises` de Supabase.
+/// Biblioteca técnica real: el coach añade/edita ejercicios desde
+/// `ExerciseLibraryManagementView` (persistido en `exercises` +
+/// `exercise_technique_steps`); el atleta los consulta aquí mismo.
 @Observable
 final class ExerciseLibraryStore {
     static let shared = ExerciseLibraryStore()
     private init() {}
+    private let repo = ExerciseRepository()
 
-    var exercises: [LibraryExercise] = ExerciseLibrary.sample
+    private(set) var state: LoadState<[LibraryExercise]> = .loading
 
-    func upsert(_ exercise: LibraryExercise) {
-        if let index = exercises.firstIndex(where: { $0.id == exercise.id }) {
-            exercises[index] = exercise
-        } else {
-            exercises.append(exercise)
+    func load() async {
+        state = .loading
+        do {
+            state = .loaded(try await repo.fetchLibrary())
+        } catch {
+            state = .failed(error.localizedDescription)
         }
     }
 
-    func delete(_ exercise: LibraryExercise) {
-        exercises.removeAll { $0.id == exercise.id }
+    func upsert(_ exercise: LibraryExercise, createdBy: UUID) async throws {
+        try await repo.upsert(exercise, createdBy: createdBy)
+        await load()
     }
-}
 
-// MARK: - Datos de muestra (a reemplazar por fetch de Supabase)
-
-enum ExerciseLibrary {
-    /// Los `youtubeURL` son **placeholders**; el coach los reemplaza con sus
-    /// enlaces reales de YouTube. El reproductor acepta cualquier formato.
-    static let sample: [LibraryExercise] = [
-        LibraryExercise(
-            name: "Back Squat",
-            subtitle: "Sentadilla por detrás",
-            category: .fuerza,
-            level: .basico,
-            youtubeURL: "https://www.youtube.com/watch?v=nEsZViY3EJ4",
-            summary: "Ejercicio base de fuerza de tren inferior. Trabaja cuádriceps, glúteos y core con la barra apoyada sobre los trapecios.",
-            steps: [
-                .init(title: "Setup", detail: "Pies a la anchura de los hombros, barra apoyada firmemente sobre los trapecios."),
-                .init(title: "Descenso", detail: "Inicia rompiendo la cadera, manteniendo el pecho erguido y las rodillas alineadas con los pies."),
-                .init(title: "Profundidad", detail: "El pliegue de la cadera debe bajar más que el tope de la rodilla.")
-            ]
-        ),
-        LibraryExercise(
-            name: "Snatch",
-            subtitle: "Arranque olímpico",
-            category: .olimpico,
-            level: .avanzado,
-            youtubeURL: "https://youtu.be/9xQp2sldyts",
-            summary: "Levantamiento olímpico que lleva la barra del suelo a por encima de la cabeza en un solo movimiento. Exige potencia y movilidad.",
-            steps: [
-                .init(title: "Primer tirón", detail: "Despega la barra del suelo controlando la espalda neutra y los hombros sobre la barra."),
-                .init(title: "Segundo tirón", detail: "Extiende cadera y rodillas de forma explosiva; encoge bajo la barra."),
-                .init(title: "Recepción", detail: "Recibe en sentadilla profunda con la barra estable por encima de la cabeza.")
-            ]
-        ),
-        LibraryExercise(
-            name: "Muscle Up",
-            subtitle: "Transición en anillas/barra",
-            category: .gimnasia,
-            level: .avanzado,
-            youtubeURL: "https://www.youtube.com/watch?v=astSQRcAU2g",
-            summary: "Combina una dominada explosiva con un fondo. Requiere fuerza de tirón y empuje y una transición técnica.",
-            steps: [
-                .init(title: "Kipping", detail: "Genera ritmo con el hollow-arch manteniendo tensión en el core."),
-                .init(title: "Tirón alto", detail: "Tira los codos hacia atrás llevando el pecho por encima de la barra/anillas."),
-                .init(title: "Transición", detail: "Gira las muñecas y termina con un fondo a la extensión completa.")
-            ]
-        ),
-        LibraryExercise(
-            name: "Peso Muerto",
-            subtitle: "Deadlift",
-            category: .fuerza,
-            level: .intermedio,
-            youtubeURL: "https://youtu.be/op9kVnSso6Q",
-            summary: "Patrón de bisagra de cadera que desarrolla la cadena posterior. Clave para la fuerza total y la prevención de lesiones lumbares.",
-            steps: [
-                .init(title: "Setup", detail: "Barra sobre el medio del pie, espalda neutra, hombros ligeramente por delante de la barra."),
-                .init(title: "Tirón", detail: "Empuja el suelo con las piernas manteniendo la barra pegada al cuerpo."),
-                .init(title: "Bloqueo", detail: "Extiende cadera y rodillas a la vez sin hiperextender la lumbar.")
-            ]
-        ),
-        LibraryExercise(
-            name: "Double Unders",
-            subtitle: "Dobles a la comba",
-            category: .endurance,
-            level: .intermedio,
-            youtubeURL: "https://www.youtube.com/watch?v=82jNjDS19lg",
-            summary: "La cuerda pasa dos veces por salto. Mejora la coordinación, la resistencia y la economía de movimiento en metcons.",
-            steps: [
-                .init(title: "Postura", detail: "Codos pegados al cuerpo, salto pequeño y rápido desde la punta de los pies."),
-                .init(title: "Muñecas", detail: "El giro viene de las muñecas, no de los brazos; mantén el ritmo constante."),
-                .init(title: "Timing", detail: "Un solo salto, dos giros: sincroniza el doble giro en el punto más alto.")
-            ]
-        )
-    ]
+    func delete(_ exercise: LibraryExercise) async throws {
+        try await repo.delete(id: exercise.id)
+        await load()
+    }
 }
 
 #Preview {

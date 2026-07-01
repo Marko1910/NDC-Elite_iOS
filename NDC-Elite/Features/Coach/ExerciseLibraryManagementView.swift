@@ -5,44 +5,51 @@ import SwiftUI
 /// el enlace de YouTube que el coach sube y previsualiza dentro de la app.
 /// (ver FLOWS.md → ExerciseLibraryManagementView)
 struct ExerciseLibraryManagementView: View {
+    let profile: Profile
     private let store = ExerciseLibraryStore.shared
     @State private var query = ""
     @State private var editingExercise: LibraryExercise?
     @State private var showEditor = false
 
-    private var filtered: [LibraryExercise] {
-        query.isEmpty
-            ? store.exercises
-            : store.exercises.filter { $0.name.localizedCaseInsensitiveContains(query) }
+    private func filtered(_ all: [LibraryExercise]) -> [LibraryExercise] {
+        query.isEmpty ? all : all.filter { $0.name.localizedCaseInsensitiveContains(query) }
     }
 
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: NDCSpacing.stackMD) {
-                if filtered.isEmpty {
-                    ContentUnavailableView(
-                        "Biblioteca vacía",
-                        systemImage: "video.badge.plus",
-                        description: Text("Añade tu primer ejercicio con su video de técnica.")
-                    )
-                    .padding(.top, NDCSpacing.stackLG)
-                } else {
-                    ForEach(filtered) { exercise in
-                        Button {
-                            Haptics.impact(.light)
-                            editingExercise = exercise
-                            showEditor = true
-                        } label: {
-                            ManagementRow(exercise: exercise)
-                        }
-                        .buttonStyle(.plain)
-                        .contextMenu {
-                            Button(role: .destructive) {
-                                store.delete(exercise)
+                LoadStateView(state: store.state, retry: { Task { await store.load() } }) { all in
+                    let visible = filtered(all)
+                    if visible.isEmpty {
+                        ContentUnavailableView(
+                            "Biblioteca vacía",
+                            systemImage: "video.badge.plus",
+                            description: Text("Añade tu primer ejercicio con su video de técnica.")
+                        )
+                        .padding(.top, NDCSpacing.stackLG)
+                    } else {
+                        ForEach(visible) { exercise in
+                            Button {
+                                Haptics.impact(.light)
+                                editingExercise = exercise
+                                showEditor = true
                             } label: {
-                                Label("Eliminar", systemImage: "trash")
+                                ManagementRow(exercise: exercise)
+                            }
+                            .buttonStyle(.plain)
+                            .contextMenu {
+                                Button(role: .destructive) {
+                                    Task { try? await store.delete(exercise) }
+                                } label: {
+                                    Label("Eliminar", systemImage: "trash")
+                                }
                             }
                         }
+                    }
+                } skeleton: {
+                    VStack(spacing: NDCSpacing.stackSM) {
+                        SkeletonCard(lines: 2, height: 64)
+                        SkeletonCard(lines: 2, height: 64)
                     }
                 }
             }
@@ -68,8 +75,10 @@ struct ExerciseLibraryManagementView: View {
             }
         }
         .sheet(isPresented: $showEditor) {
-            ExerciseEditorView(exercise: editingExercise)
+            ExerciseEditorView(profile: profile, exercise: editingExercise)
         }
+        .task { await store.load() }
+        .refreshable { await store.load() }
     }
 }
 
@@ -106,5 +115,5 @@ private struct ManagementRow: View {
 }
 
 #Preview {
-    NavigationStack { ExerciseLibraryManagementView() }
+    NavigationStack { ExerciseLibraryManagementView(profile: .preview) }
 }
