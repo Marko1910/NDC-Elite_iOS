@@ -4,6 +4,7 @@ xcuserdata/
 *.xcscmblueprint
 DerivedData/
 build/
+build-device/
 
 # Swift Package Manager
 .swiftpm/
