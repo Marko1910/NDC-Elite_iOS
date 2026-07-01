@@ -8,6 +8,7 @@ struct LoginView: View {
     @State private var email = ""
     @State private var password = ""
     @State private var isLoading = false
+    @State private var showRegister = false
 
     var body: some View {
         ScrollView {
@@ -74,10 +75,21 @@ struct LoginView: View {
                 }
                 .padding(NDCSpacing.gutter)
                 .background(NDCColor.surface, in: .rect(cornerRadius: NDCRadius.standard))
+
+                // ¿No tienes cuenta? Regístrate
+                HStack(spacing: 4) {
+                    Text("¿No tienes cuenta?")
+                        .font(NDCFont.labelBold).foregroundStyle(NDCColor.onSurfaceVariant)
+                    Button("Regístrate") { showRegister = true }
+                        .font(NDCFont.labelBold).foregroundStyle(NDCColor.primary)
+                }
             }
             .padding(.horizontal, NDCSpacing.marginMain)
         }
         .background(NDCColor.background)
+        .sheet(isPresented: $showRegister) {
+            RegisterView().environment(session)
+        }
     }
 }
 

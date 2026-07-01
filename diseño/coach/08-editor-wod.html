@@ -1,0 +1,332 @@
+<!DOCTYPE html><html class="light" lang="es" style=""><head><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" name="viewport">
+<title>Editor de WOD - NDC HQ</title>
+<!-- Fonts & Icons -->
+<link href="https://fonts.googleapis.com" rel="preconnect">
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect">
+<link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@600;700;800&amp;family=Inter:wght@400;500;600&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "error-container": "#ffdad6",
+                        "surface-container-high": "#e8e8ed",
+                        "tertiary": "#003271",
+                        "inverse-on-surface": "#f0f0f5",
+                        "surface-container": "#ededf2",
+                        "secondary-fixed-dim": "#e4c542",
+                        "on-secondary-fixed": "#221b00",
+                        "primary": "#003953",
+                        "surface-container-lowest": "#ffffff",
+                        "on-secondary-container": "#756100",
+                        "surface-container-highest": "#e2e2e7",
+                        "on-primary": "#ffffff",
+                        "on-error-container": "#93000a",
+                        "on-secondary-fixed-variant": "#544600",
+                        "tertiary-fixed": "#d8e2ff",
+                        "tertiary-container": "#00489c",
+                        "surface-dim": "#d9dade",
+                        "error": "#ba1a1a",
+                        "background": "#f9f9fe",
+                        "secondary": "#705d00",
+                        "on-primary-container": "#90c2e7",
+                        "on-background": "#1a1c1f",
+                        "surface-container-low": "#f3f3f8",
+                        "on-error": "#ffffff",
+                        "primary-fixed-dim": "#9accf2",
+                        "surface-bright": "#f9f9fe",
+                        "surface-variant": "#e2e2e7",
+                        "surface": "#f9f9fe",
+                        "on-primary-fixed-variant": "#0e4b6b",
+                        "secondary-container": "#ffde59",
+                        "secondary-fixed": "#ffe16e",
+                        "on-tertiary-fixed": "#001a41",
+                        "on-tertiary-fixed-variant": "#004493",
+                        "inverse-primary": "#9accf2",
+                        "tertiary-fixed-dim": "#adc6ff",
+                        "outline-variant": "#c1c7ce",
+                        "primary-fixed": "#c8e6ff",
+                        "on-surface": "#1a1c1f",
+                        "surface-tint": "#2f6384",
+                        "primary-container": "#165070",
+                        "on-tertiary": "#ffffff",
+                        "inverse-surface": "#2e3034",
+                        "on-tertiary-container": "#9bbbff",
+                        "on-secondary": "#ffffff",
+                        "on-surface-variant": "#41484d",
+                        "on-primary-fixed": "#001e2f",
+                        "outline": "#71787e"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "stack-sm": "0.5rem",
+                        "stack-lg": "1.5rem",
+                        "stack-md": "1rem",
+                        "gutter": "1rem",
+                        "safe-area-bottom": "2.125rem",
+                        "margin-main": "1.25rem"
+                    },
+                    "fontFamily": {
+                        "headline-md": ["Hanken Grotesk"],
+                        "body-md": ["Inter"],
+                        "body-lg": ["Inter"],
+                        "stats-xl": ["Hanken Grotesk"],
+                        "label-sm": ["Inter"],
+                        "label-bold": ["Inter"],
+                        "headline-sm": ["Hanken Grotesk"],
+                        "display-lg": ["Hanken Grotesk"]
+                    },
+                    "fontSize": {
+                        "headline-md": ["24px", {"lineHeight": "30px", "letterSpacing": "0px", "fontWeight": "700"}],
+                        "body-md": ["15px", {"lineHeight": "20px", "fontWeight": "400"}],
+                        "body-lg": ["17px", {"lineHeight": "24px", "fontWeight": "400"}],
+                        "stats-xl": ["48px", {"lineHeight": "48px", "letterSpacing": "-1px", "fontWeight": "800"}],
+                        "label-sm": ["12px", {"lineHeight": "16px", "fontWeight": "500"}],
+                        "label-bold": ["13px", {"lineHeight": "18px", "fontWeight": "600"}],
+                        "headline-sm": ["20px", {"lineHeight": "25px", "fontWeight": "600"}],
+                        "display-lg": ["34px", {"lineHeight": "41px", "letterSpacing": "-0.5px", "fontWeight": "800"}]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .glass-card {
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+        }
+        input:focus, textarea:focus {
+            outline: none;
+            border-color: #003953;
+        }
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 4px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #d9dade;
+            border-radius: 10px;
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+</head>
+<body class="bg-background text-on-background font-body-md min-h-screen pb-32">
+<!-- TopAppBar -->
+<header class="fixed top-0 w-full z-50 bg-surface/80 backdrop-blur-md flex justify-between items-center px-margin-main h-16">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-full overflow-hidden border-2 border-primary">
+<img alt="Coach Profile" class="w-full h-full object-cover" data-alt="A professional close-up portrait of a fitness coach with a determined expression, set against a blurred gym background. The lighting is crisp and cinematic, emphasizing athletic discipline. The overall style is high-end and professional, aligning with a premium fitness brand identity using clean, modern tones." src="https://lh3.googleusercontent.com/aida-public/AB6AXuD1u1Ye0GqHgEZkExWshwKzyxmGgVF3NIBoE_7PYbh6rgLOo1c0Sz22hRNkY9wo3zin8MS-LkOV4Gs4e6evcPRueWh3nCeJq4OBHVS2AGMddFT0mYz0OU-PeiBAdyvzRSh5v65O8QRzg3BVDjzZ3MO4NHPk_83gkU6LOxTrl7-QgbJ5mI2lpi36p-CBmQfYqkQJcSS9Vftsa5nFwnssvXbwwUSnp2ZgN5cE5nqUogMuMe8SqrhXFZ_cChPFwCDeRp1Xzx8dPaPFsHw">
+</div>
+<h1 class="font-headline-sm text-headline-sm font-semibold text-primary">NDC HQ</h1>
+</div>
+<button class="active:scale-95 transition-transform duration-200">
+<span class="material-symbols-outlined text-primary">notifications</span>
+</button>
+</header>
+<!-- Main Content -->
+<main class="pt-20 px-margin-main space-y-stack-lg max-w-2xl mx-auto">
+<!-- Header Section -->
+<section class="flex flex-col gap-1">
+<span class="font-label-sm text-label-sm text-primary font-bold uppercase tracking-wider">Creador de Entrenamientos</span>
+<h2 class="font-headline-md text-headline-md text-on-surface">Nuevo WOD del Día</h2>
+</section>
+<!-- General Info Bento Card -->
+<div class="glass-card bg-surface-container-lowest rounded-xl p-6 shadow-sm border border-surface-variant/50 space-y-stack-md">
+<!-- Date & Title Row -->
+<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+<div class="flex flex-col gap-2">
+<label class="font-label-bold text-label-bold text-on-surface-variant">Fecha de Programación</label>
+<div class="relative">
+<input class="w-full bg-surface-container-low border-none rounded-lg px-4 py-3 text-body-md font-medium text-on-surface" type="date" value="2023-10-27">
+<span class="material-symbols-outlined absolute right-3 top-3 text-outline text-xl pointer-events-none">calendar_today</span>
+</div>
+</div>
+<div class="flex flex-col gap-2">
+<label class="font-label-bold text-label-bold text-on-surface-variant">Nombre del WOD</label>
+<input class="w-full bg-surface-container-low border-none rounded-lg px-4 py-3 text-body-md font-medium text-on-surface" placeholder="Ej: The Ghost" type="text">
+</div>
+</div>
+<!-- Configuration Row -->
+<div class="grid grid-cols-2 md:grid-cols-3 gap-4 pt-2">
+<div class="flex flex-col gap-2">
+<label class="font-label-bold text-label-bold text-on-surface-variant">Tipo</label>
+<select class="w-full bg-surface-container-low border-none rounded-lg px-4 py-3 text-body-md font-medium text-on-surface appearance-none">
+<option>AMRAP</option>
+<option>EMOM</option>
+<option>FOR TIME</option>
+<option>TABATA</option>
+</select>
+</div>
+<div class="flex flex-col gap-2">
+<label class="font-label-bold text-label-bold text-on-surface-variant">Time Cap</label>
+<div class="relative">
+<input class="w-full bg-surface-container-low border-none rounded-lg px-4 py-3 text-body-md font-medium text-on-surface" placeholder="15:00" type="text">
+<span class="material-symbols-outlined absolute right-3 top-3 text-outline text-xl pointer-events-none">timer</span>
+</div>
+</div>
+
+</div>
+</div>
+<!-- Editor Blocks -->
+<section class="space-y-stack-md">
+<h3 class="font-headline-sm text-headline-sm text-on-surface px-1">Estructura del Bloque</h3>
+<!-- Block: Warm-up -->
+<div class="bg-surface-container-lowest rounded-xl border border-surface-variant/50 overflow-hidden shadow-sm transition-all hover:shadow-md">
+<div class="bg-surface-container-low px-5 py-3 flex justify-between items-center border-b border-surface-variant/30">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-primary">potted_plant</span>
+<span class="font-label-bold text-label-bold text-primary uppercase tracking-tight">Calentamiento</span>
+</div>
+<span class="material-symbols-outlined text-outline cursor-pointer">drag_handle</span>
+</div>
+<div class="p-4"><div class="space-y-3"><div class="flex items-center justify-between p-3 bg-surface-container-low rounded-lg"><div class="flex flex-col"><span class="text-body-md font-semibold text-on-surface">200m Run</span><span class="text-label-sm text-outline">1 Round</span></div><button class="p-2 text-primary hover:bg-primary/10 rounded-full transition-colors"><span class="material-symbols-outlined">visibility</span></button></div><div class="flex items-center justify-between p-3 bg-surface-container-low rounded-lg"><div class="flex flex-col"><span class="text-body-md font-semibold text-on-surface">10 Scapular Pull-ups</span><span class="text-label-sm text-outline">1 Round</span></div><button class="p-2 text-primary hover:bg-primary/10 rounded-full transition-colors"><span class="material-symbols-outlined">visibility</span></button></div><div class="flex items-center justify-between p-3 bg-surface-container-low rounded-lg"><div class="flex flex-col"><span class="text-body-md font-semibold text-on-surface">15 Air Squats</span><span class="text-label-sm text-outline">1 Round</span></div><button class="p-2 text-primary hover:bg-primary/10 rounded-full transition-colors"><span class="material-symbols-outlined">visibility</span></button></div><button class="w-full flex items-center gap-3 p-3 border border-dashed border-outline/30 rounded-lg text-outline hover:text-primary hover:border-primary/50 transition-all"><span class="material-symbols-outlined text-xl">add</span><span class="font-label-bold">Añadir Ejercicio de Biblioteca...</span></button></div></div>
+</div>
+<!-- Block: Tech/Strength -->
+<div class="bg-surface-container-lowest rounded-xl border border-surface-variant/50 overflow-hidden shadow-sm transition-all hover:shadow-md border-l-4 border-l-primary">
+<div class="bg-surface-container-low px-5 py-3 flex justify-between items-center border-b border-surface-variant/30">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-primary">fitness_center</span>
+<span class="font-label-bold text-label-bold text-primary uppercase tracking-tight">Técnica / Fuerza</span>
+</div>
+<span class="material-symbols-outlined text-outline cursor-pointer">drag_handle</span>
+</div>
+<div class="p-4"><div class="space-y-3">
+<div class="flex items-center justify-between p-3 bg-surface-container-low rounded-lg">
+<div class="flex flex-col">
+<span class="text-body-md font-semibold text-on-surface">Back Squat</span>
+<span class="text-label-sm text-outline">5 sets of 5 reps at 75% 1RM</span>
+</div>
+<button class="p-2 text-primary hover:bg-primary/10 rounded-full transition-colors">
+<span class="material-symbols-outlined">visibility</span>
+</button>
+</div>
+<button class="w-full flex items-center gap-3 p-3 border border-dashed border-outline/30 rounded-lg text-outline hover:text-primary hover:border-primary/50 transition-all">
+<span class="material-symbols-outlined text-xl">add</span>
+<span class="font-label-bold">Aadir Ejercicio de Biblioteca...</span>
+</button>
+</div></div>
+</div>
+<!-- Block: Metcon -->
+<div class="bg-surface-container-lowest rounded-xl border border-surface-variant/50 overflow-hidden shadow-sm transition-all hover:shadow-md border-l-4 border-l-secondary-container">
+<div class="bg-surface-container-low px-5 py-3 flex justify-between items-center border-b border-surface-variant/30">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-primary">speed</span>
+<span class="font-label-bold text-label-bold text-primary uppercase tracking-tight">Metcon</span>
+</div>
+<div class="flex items-center gap-2">
+<span class="px-2 py-0.5 bg-primary/10 text-primary text-[10px] font-bold rounded uppercase">RX</span>
+<span class="material-symbols-outlined text-outline cursor-pointer">drag_handle</span>
+</div>
+</div>
+<div class="p-4"><div class="space-y-3">
+<div class="flex items-center justify-between p-3 bg-surface-container-low rounded-lg">
+<div class="flex flex-col">
+<span class="text-body-md font-semibold text-on-surface">Chest to Bar Pull-ups</span>
+<span class="text-label-sm text-outline">5 Reps</span>
+</div>
+<button class="p-2 text-primary hover:bg-primary/10 rounded-full transition-colors">
+<span class="material-symbols-outlined">visibility</span>
+</button>
+</div>
+<div class="flex items-center justify-between p-3 bg-surface-container-low rounded-lg">
+<div class="flex flex-col">
+<span class="text-body-md font-semibold text-on-surface">Power Snatches</span>
+<span class="text-label-sm text-outline">15 Reps (75/55 lb)</span>
+</div>
+<button class="p-2 text-primary hover:bg-primary/10 rounded-full transition-colors">
+<span class="material-symbols-outlined">visibility</span>
+</button>
+</div>
+<button class="w-full flex items-center gap-3 p-3 border border-dashed border-outline/30 rounded-lg text-outline hover:text-primary hover:border-primary/50 transition-all">
+<span class="material-symbols-outlined text-xl">add</span>
+<span class="font-label-bold">Aadir Ejercicio de Biblioteca...</span>
+</button>
+</div></div>
+</div>
+<!-- Add Block Trigger -->
+<button class="w-full py-4 border-2 border-dashed border-outline-variant/50 rounded-xl flex items-center justify-center gap-2 text-outline hover:text-primary hover:border-primary/50 transition-all">
+<span class="material-symbols-outlined">add_circle</span>
+<span class="font-label-bold text-label-bold">Añadir Bloque de Trabajo</span>
+</button>
+</section>
+<!-- Action Section -->
+<section class="pt-4 space-y-4">
+<button class="w-full bg-secondary-container text-primary font-bold py-4 rounded-xl shadow-lg flex items-center justify-center gap-2 active:scale-[0.98] transition-transform" style="box-shadow: rgba(0, 57, 83, 0.1) 0px 4px 12px;">
+<span class="material-symbols-outlined font-variation-settings: 'FILL' 1;">send</span>
+<span class="text-lg">Publicar para el Box</span>
+</button>
+<div class="flex gap-3">
+<button class="flex-1 border border-primary text-primary font-bold py-3 rounded-xl flex items-center justify-center gap-2 active:scale-[0.98] transition-transform">
+<span class="material-symbols-outlined">save</span>
+                    Guardar Borrador
+                </button>
+<button class="px-5 border border-error text-error py-3 rounded-xl flex items-center justify-center active:scale-[0.98] transition-transform">
+<span class="material-symbols-outlined">delete</span>
+</button>
+</div>
+</section>
+</main>
+<!-- BottomNavBar -->
+<nav class="fixed bottom-0 w-full z-50 pb-safe-area-bottom bg-surface/80 dark:bg-surface-dim/80 backdrop-blur-md flex justify-around items-center h-20 px-2"><button class="flex flex-col items-center justify-center text-on-surface-variant dark:text-outline font-label-sm text-label-sm font-medium hover:bg-surface-container-low dark:hover:bg-surface-container-high transition-colors active:scale-90 transition-transform duration-150">
+<span class="material-symbols-outlined">home</span>
+<span class="">Inicio</span>
+</button>
+<button class="flex flex-col items-center justify-center text-primary dark:text-secondary-fixed-dim font-label-sm text-label-sm font-bold hover:bg-surface-container-low dark:hover:bg-surface-container-high transition-colors active:scale-90 transition-transform duration-150">
+<span class="material-symbols-outlined" style="font-variation-settings: &quot;FILL&quot; 1;">fitness_center</span>
+<span class="">WODs</span>
+</button>
+<button class="flex flex-col items-center justify-center text-on-surface-variant dark:text-outline font-label-sm text-label-sm font-medium hover:bg-surface-container-low dark:hover:bg-surface-container-high transition-colors active:scale-90 transition-transform duration-150">
+<span class="material-symbols-outlined">group</span>
+<span class="">Atletas</span>
+</button>
+<button class="flex flex-col items-center justify-center text-on-surface-variant dark:text-outline font-label-sm text-label-sm font-medium hover:bg-surface-container-low dark:hover:bg-surface-container-high transition-colors active:scale-90 transition-transform duration-150">
+<span class="material-symbols-outlined">notifications</span>
+<span class="">Alertas</span>
+</button>
+<button class="flex flex-col items-center justify-center text-on-surface-variant dark:text-outline font-label-sm text-label-sm font-medium hover:bg-surface-container-low dark:hover:bg-surface-container-high transition-colors active:scale-90 transition-transform duration-150">
+<span class="material-symbols-outlined">monitoring</span>
+<span class="">Progreso</span>
+</button></nav>
+<!-- Interactions Script -->
+<script>
+        // Simple micro-interactions for the editor
+        document.querySelectorAll('textarea').forEach(textarea => {
+            textarea.addEventListener('focus', function() {
+                this.parentElement.parentElement.classList.add('ring-2', 'ring-primary/20');
+            });
+            textarea.addEventListener('blur', function() {
+                this.parentElement.parentElement.classList.remove('ring-2', 'ring-primary/20');
+            });
+            
+            // Auto-resize
+            textarea.addEventListener('input', function() {
+                this.style.height = 'auto';
+                this.style.height = (this.scrollHeight) + 'px';
+            });
+        });
+
+        // Floating Action Button logic if needed (suppressed per rules for details/editor screen)
+    </script>
+
+
+
+
+</body></html>

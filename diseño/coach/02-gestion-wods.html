@@ -1,0 +1,329 @@
+<!DOCTYPE html><html class="light" lang="es" style=""><head>
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0, viewport-fit=cover" name="viewport">
+<title>Gestión de WODs - Coach Dashboard</title>
+<!-- Google Fonts -->
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&amp;family=Hanken+Grotesk:wght@700;800&amp;display=swap" rel="stylesheet">
+<!-- Material Symbols -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<!-- Tailwind CSS -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "tertiary-fixed": "#d8e2ff",
+                        "surface-variant": "#e2e2e7",
+                        "surface-tint": "#2f6384",
+                        "secondary-container": "#ffde59",
+                        "on-tertiary-fixed-variant": "#004493",
+                        "primary": "#003953",
+                        "on-background": "#1a1c1f",
+                        "on-primary-fixed": "#001e2f",
+                        "secondary-fixed-dim": "#e4c542",
+                        "primary-fixed-dim": "#9accf2",
+                        "on-error": "#ffffff",
+                        "surface-container-high": "#e8e8ed",
+                        "inverse-on-surface": "#f0f0f5",
+                        "error": "#ba1a1a",
+                        "error-container": "#ffdad6",
+                        "on-primary": "#ffffff",
+                        "tertiary-fixed-dim": "#adc6ff",
+                        "background": "#f9f9fe",
+                        "on-tertiary-container": "#9bbbff",
+                        "on-secondary-fixed": "#221b00",
+                        "surface-bright": "#f9f9fe",
+                        "outline": "#71787e",
+                        "on-secondary-container": "#756100",
+                        "on-error-container": "#93000a",
+                        "tertiary": "#003271",
+                        "on-primary-fixed-variant": "#0e4b6b",
+                        "primary-container": "#165070",
+                        "on-surface-variant": "#41484d",
+                        "surface-container-low": "#f3f3f8",
+                        "on-secondary": "#ffffff",
+                        "outline-variant": "#c1c7ce",
+                        "on-secondary-fixed-variant": "#544600",
+                        "inverse-surface": "#2e3034",
+                        "surface-container": "#ededf2",
+                        "secondary": "#705d00",
+                        "on-tertiary-fixed": "#001a41",
+                        "primary-fixed": "#c8e6ff",
+                        "on-tertiary": "#ffffff",
+                        "on-primary-container": "#90c2e7",
+                        "surface": "#f9f9fe",
+                        "surface-container-lowest": "#ffffff",
+                        "surface-dim": "#d9dade",
+                        "surface-container-highest": "#e2e2e7",
+                        "tertiary-container": "#00489c",
+                        "on-surface": "#1a1c1f",
+                        "secondary-fixed": "#ffe16e",
+                        "inverse-primary": "#9accf2"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "8px",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "stack-sm": "0.5rem",
+                        "stack-md": "1rem",
+                        "gutter": "1rem",
+                        "stack-lg": "1.5rem",
+                        "margin-main": "1.25rem",
+                        "safe-area-bottom": "2.125rem"
+                    },
+                    "fontFamily": {
+                        "body-lg": ["Inter"],
+                        "stats-xl": ["Hanken Grotesk"],
+                        "label-bold": ["Inter"],
+                        "headline-md": ["Hanken Grotesk"],
+                        "display-lg": ["Hanken Grotesk"],
+                        "body-md": ["Inter"],
+                        "headline-sm": ["Hanken Grotesk"],
+                        "label-sm": ["Inter"]
+                    },
+                    "fontSize": {
+                        "body-lg": ["17px", {"lineHeight": "24px", "fontWeight": "400"}],
+                        "stats-xl": ["48px", {"lineHeight": "48px", "letterSpacing": "-1px", "fontWeight": "800"}],
+                        "label-bold": ["13px", {"lineHeight": "18px", "fontWeight": "600"}],
+                        "headline-md": ["24px", {"lineHeight": "30px", "letterSpacing": "0px", "fontWeight": "700"}],
+                        "display-lg": ["34px", {"lineHeight": "41px", "letterSpacing": "-0.5px", "fontWeight": "800"}],
+                        "body-md": ["15px", {"lineHeight": "20px", "fontWeight": "400"}],
+                        "headline-sm": ["20px", {"lineHeight": "25px", "fontWeight": "600"}],
+                        "label-sm": ["12px", {"lineHeight": "16px", "fontWeight": "500"}]
+                    }
+                },
+            },
+        }
+    </script>
+<style>
+        body { -webkit-tap-highlight-color: transparent; }
+        .glass-header { backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); }
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+    </style>
+</head>
+<body class="bg-background text-on-background font-body-md antialiased min-h-screen pb-32">
+<!-- TopAppBar -->
+<header class="fixed top-0 w-full z-50 bg-surface/80 dark:bg-surface-dim/80 backdrop-blur-md">
+<div class="flex justify-between items-center px-margin-main h-16 w-full">
+<div class="flex items-center gap-3">
+<img alt="Coach Profile Picture" class="w-10 h-10 rounded-full border-2 border-primary object-cover" data-alt="A professional headshot of a fit athletic coach with a confident expression, set in a modern high-performance cross-training gym background with blurred weights and equipment. The lighting is clean and cinematic, reflecting a premium executive fitness environment with deep navy and soft white tones." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAc9jFebLUXBtdPEj4yfpuzppbyPrcQX2Yvu5JyVJmICZlUeAX_9Dnj3p0sMbOV0BlafWhohL3unFOEag5GxBTTeHqecJRj21pJoGsijAb_UykkuA5s8pPKLM3Op0q9OKmBSoCfv_ANC09ONpiXny7IVm6ygjhof4Jke_uzpBqPBT1QLLvVTr-hi3a-77SpX_kVqRoUyyfDD5eaSh4U82GICwA_DsfGKHMY9EpKQl93iyeNqwlabcPf9gj2U_x9K8K77IWNHMOPIoWN">
+<h1 class="font-headline-md text-headline-md font-bold text-primary dark:text-primary-fixed">Gestión de WODs</h1>
+</div>
+<button class="active:scale-95 transition-transform duration-200 hover:opacity-80 p-2 rounded-full text-primary dark:text-primary-fixed" aria-label="Biblioteca de Ejercicios">
+  <span class="material-symbols-outlined text-[28px]">library_add</span>
+</button>
+</div>
+</header>
+<main class="pt-20 px-margin-main space-y-stack-lg">
+<!-- Calendar/Date Picker -->
+<section class="mt-4">
+<div class="flex overflow-x-auto no-scrollbar gap-3 pb-2">
+<!-- Day Items -->
+<div class="flex-shrink-0 flex flex-col items-center justify-center w-14 h-20 rounded-xl bg-primary text-on-primary">
+<span class="font-label-sm text-label-sm opacity-80">LUN</span>
+<span class="font-headline-sm text-headline-sm">24</span>
+<div class="w-1 h-1 bg-secondary-container rounded-full mt-1"></div>
+</div>
+<div class="flex-shrink-0 flex flex-col items-center justify-center w-14 h-20 rounded-xl bg-surface-container hover:bg-surface-container-high transition-colors text-on-surface">
+<span class="font-label-sm text-label-sm opacity-60">MAR</span>
+<span class="font-headline-sm text-headline-sm">25</span>
+</div>
+<div class="flex-shrink-0 flex flex-col items-center justify-center w-14 h-20 rounded-xl bg-surface-container hover:bg-surface-container-high transition-colors text-on-surface">
+<span class="font-label-sm text-label-sm opacity-60">MIÉ</span>
+<span class="font-headline-sm text-headline-sm">26</span>
+</div>
+<div class="flex-shrink-0 flex flex-col items-center justify-center w-14 h-20 rounded-xl bg-surface-container hover:bg-surface-container-high transition-colors text-on-surface">
+<span class="font-label-sm text-label-sm opacity-60">JUE</span>
+<span class="font-headline-sm text-headline-sm">27</span>
+<div class="w-1 h-1 bg-primary/20 rounded-full mt-1"></div>
+</div>
+<div class="flex-shrink-0 flex flex-col items-center justify-center w-14 h-20 rounded-xl bg-surface-container hover:bg-surface-container-high transition-colors text-on-surface">
+<span class="font-label-sm text-label-sm opacity-60">VIE</span>
+<span class="font-headline-sm text-headline-sm">28</span>
+</div>
+<div class="flex-shrink-0 flex flex-col items-center justify-center w-14 h-20 rounded-xl bg-surface-container hover:bg-surface-container-high transition-colors text-on-surface">
+<span class="font-label-sm text-label-sm opacity-60">SÁB</span>
+<span class="font-headline-sm text-headline-sm">29</span>
+</div>
+<div class="flex-shrink-0 flex flex-col items-center justify-center w-14 h-20 rounded-xl bg-surface-container hover:bg-surface-container-high transition-colors text-on-surface">
+<span class="font-label-sm text-label-sm opacity-60">DOM</span>
+<span class="font-headline-sm text-headline-sm">30</span>
+</div>
+</div>
+</section>
+<!-- Weekly Summary Card -->
+<section>
+<div class="bg-primary-container p-6 rounded-xl relative overflow-hidden flex items-center justify-between">
+<div class="relative z-10">
+<p class="text-on-primary-container font-label-bold text-label-bold opacity-80">RESUMEN SEMANAL</p>
+<h3 class="text-white font-display-lg text-display-lg mt-1">12 WODs</h3>
+<p class="text-on-primary-container font-body-md text-body-md">Programados para esta semana</p>
+</div>
+<div class="bg-secondary-container w-16 h-16 rounded-full flex items-center justify-center relative z-10">
+<span class="material-symbols-outlined text-on-secondary-container text-[32px]">calendar_month</span>
+</div>
+<!-- Abstract visual element -->
+<div class="absolute -right-8 -bottom-8 w-32 h-32 bg-on-primary-container opacity-10 rounded-full"></div>
+</div>
+</section>
+<!-- WOD List -->
+<section class="space-y-stack-md">
+<div class="flex justify-between items-center">
+<h2 class="font-headline-sm text-headline-sm text-primary">WODs del Lunes</h2>
+<span class="font-label-sm text-label-sm text-outline">3 sesiones</span>
+</div>
+<!-- Card 1 -->
+<div class="bg-white p-4 rounded-xl shadow-sm border border-surface-container-low transition-all active:scale-[0.98]">
+<div class="flex justify-between items-start mb-3">
+<div>
+<span class="inline-block px-2 py-0.5 rounded-full bg-secondary-container/20 text-on-secondary-container font-label-bold text-[11px] mb-2 uppercase">Publicado</span>
+<h4 class="font-headline-sm text-headline-sm text-primary">The Ghost</h4>
+</div>
+<div class="flex gap-2">
+<button class="p-2 hover:bg-surface-container rounded-full text-outline transition-colors"><span class="material-symbols-outlined">edit</span></button>
+<button class="p-2 hover:bg-error-container/20 rounded-full text-error transition-colors"><span class="material-symbols-outlined">delete</span></button>
+</div>
+</div>
+<div class="flex items-center gap-4 text-on-surface-variant font-body-md">
+<div class="flex items-center gap-1">
+<span class="material-symbols-outlined text-[18px]">timer</span>
+<span class="">20' Cap</span>
+</div>
+<div class="flex items-center gap-1">
+<span class="material-symbols-outlined text-[18px]">fitness_center</span>
+<span class="">AMRAP</span>
+</div>
+<div class="ml-auto">
+<span class="bg-surface-container px-3 py-1 rounded-full text-label-bold">RX</span>
+</div>
+</div>
+</div>
+<!-- Card 2 -->
+<div class="bg-white p-4 rounded-xl shadow-sm border border-surface-container-low transition-all active:scale-[0.98]">
+<div class="flex justify-between items-start mb-3">
+<div>
+<span class="inline-block px-2 py-0.5 rounded-full bg-surface-container text-on-surface-variant font-label-bold text-[11px] mb-2 uppercase">Borrador</span>
+<h4 class="font-headline-sm text-headline-sm text-primary">Murph Prep</h4>
+</div>
+<div class="flex gap-2">
+<button class="p-2 hover:bg-surface-container rounded-full text-outline transition-colors"><span class="material-symbols-outlined">edit</span></button>
+<button class="p-2 hover:bg-error-container/20 rounded-full text-error transition-colors"><span class="material-symbols-outlined">delete</span></button>
+</div>
+</div>
+<div class="flex items-center gap-4 text-on-surface-variant font-body-md">
+<div class="flex items-center gap-1">
+<span class="material-symbols-outlined text-[18px]">schedule</span>
+<span class="">45' Duration</span>
+</div>
+<div class="flex items-center gap-1">
+<span class="material-symbols-outlined text-[18px]">repeat</span>
+<span class="">EMOM</span>
+</div>
+<div class="ml-auto">
+<span class="bg-surface-container px-3 py-1 rounded-full text-label-bold">Escalado</span>
+</div>
+</div>
+</div>
+<!-- Empty State Illustration Placeholder (Hidden for this view) -->
+<div class="hidden flex flex-col items-center justify-center py-12 text-center">
+<div class="w-48 h-48 bg-surface-container rounded-full mb-6 flex items-center justify-center overflow-hidden">
+<img alt="Fitness Placeholder" class="w-full h-full object-cover opacity-50 grayscale" data-alt="A minimalist and high-end artistic photograph of a single heavy kettlebell sitting on a clean, sunlit wooden gym floor with long shadows. The atmosphere is quiet, disciplined, and modern, utilizing a soft color palette of grays and warm natural light. The aesthetic is professional and calm." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBLoBOnR4YgRQkx5qbLVuf1qK34fYM0ao9DShh2zMWmAuI_z9t9iHxN01YieqMmTrA5UAJogvze67ZfuOvXlWOBMBYKzGl3AJmc-vpaMcFSRGsilyUfBKWpYRexQcNygI0lLdnACvb-yDA2QrXHZQzMX2MmXfEj3gOfbFxh0FPDYSrrebF4pVhHxf1zBtvAeN6WTT60UgY99k7_pnBn4IY2-hxpBJQbV7lrYZRw3kadehjFh7yMWKMtfDlQnQwCnYvEgz4frRjOz_6J">
+</div>
+<h3 class="font-headline-sm text-headline-sm text-primary mb-2">No hay WODs para hoy</h3>
+<p class="text-on-surface-variant px-12 mb-6">Tus atletas están esperando su entrenamiento. ¡Empieza a programar!</p>
+<button class="bg-secondary-container text-on-secondary-container font-label-bold px-8 py-3 rounded-xl active:scale-95 transition-transform">
+                    Programar WOD
+                </button>
+</div>
+<div class="bg-white p-4 rounded-xl shadow-sm border border-surface-container-low transition-all active:scale-[0.98]"><div class="flex justify-between items-start mb-3"><div><span class="inline-block px-2 py-0.5 rounded-full bg-secondary-container/20 text-on-secondary-container font-label-bold text-[11px] mb-2 uppercase">Publicado</span><h4 class="font-headline-sm text-headline-sm text-primary">Cisne Negro</h4></div><div class="flex gap-2"><button class="p-2 hover:bg-surface-container rounded-full text-outline transition-colors"><span class="material-symbols-outlined">edit</span></button><button class="p-2 hover:bg-error-container/20 rounded-full text-error transition-colors"><span class="material-symbols-outlined">delete</span></button></div></div><div class="flex items-center gap-4 text-on-surface-variant font-body-md"><div class="flex items-center gap-1"><span class="material-symbols-outlined text-[18px]">timer</span><span class="">AMRAP 15'</span></div><div class="flex items-center gap-1"><span class="material-symbols-outlined text-[18px]">fitness_center</span><span class="">Gymnastics</span></div><div class="ml-auto"><span class="bg-surface-container px-3 py-1 rounded-full text-label-bold">RX</span></div></div></div><div class="bg-white p-4 rounded-xl shadow-sm border border-surface-container-low transition-all active:scale-[0.98]"><div class="flex justify-between items-start mb-3"><div><span class="inline-block px-2 py-0.5 rounded-full bg-secondary-container/20 text-on-secondary-container font-label-bold text-[11px] mb-2 uppercase">Publicado</span><h4 class="font-headline-sm text-headline-sm text-primary">Fondo Dominical</h4></div><div class="flex gap-2"><button class="p-2 hover:bg-surface-container rounded-full text-outline transition-colors"><span class="material-symbols-outlined">edit</span></button><button class="p-2 hover:bg-error-container/20 rounded-full text-error transition-colors"><span class="material-symbols-outlined">delete</span></button></div></div><div class="flex items-center gap-4 text-on-surface-variant font-body-md"><div class="flex items-center gap-1"><span class="material-symbols-outlined text-[18px]">directions_run</span><span class="">10km Aerobic Pace</span></div><div class="flex items-center gap-1"><span class="material-symbols-outlined text-[18px]">location_on</span><span class="">Outdoor</span></div><div class="ml-auto"><span class="bg-surface-container px-3 py-1 rounded-full text-label-bold">Running</span></div></div></div></section>
+</main>
+<!-- BottomNavBar -->
+<nav class="fixed bottom-0 w-full z-50 bg-surface/80 dark:bg-surface-dim/80 backdrop-blur-md pb-safe-area-bottom">
+<div class="flex justify-around items-center w-full px-gutter py-2">
+<a class="flex flex-col items-center justify-center text-on-surface-variant dark:text-outline-variant px-4 py-1 hover:bg-surface-variant/50 dark:hover:bg-surface-variant/20 rounded-xl transition-colors" href="#">
+<span class="material-symbols-outlined">group</span>
+<span class="font-label-sm text-label-sm">Atletas</span>
+</a>
+<a class="flex flex-col items-center justify-center bg-secondary-container dark:bg-on-secondary-fixed-variant text-on-secondary-container dark:text-secondary-fixed rounded-xl px-4 py-1 transition-colors" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: &quot;FILL&quot; 1;">fitness_center</span>
+<span class="font-label-sm text-label-sm font-bold">WODs</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant dark:text-outline-variant px-4 py-1 hover:bg-surface-variant/50 dark:hover:bg-surface-variant/20 rounded-xl transition-colors" href="#">
+<span class="material-symbols-outlined">notifications</span>
+<span class="font-label-sm text-label-sm">Alertas</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant dark:text-outline-variant px-4 py-1 hover:bg-surface-variant/50 dark:hover:bg-surface-variant/20 rounded-xl transition-colors" href="#">
+<span class="material-symbols-outlined">trending_up</span>
+<span class="font-label-sm text-label-sm">Progreso</span>
+</a>
+</div>
+</nav>
+<!-- Micro-interaction Script -->
+<script>
+        document.querySelectorAll('a, button').forEach(el => {
+            el.addEventListener('touchstart', function() {
+                this.style.transform = 'scale(0.97)';
+            });
+            el.addEventListener('touchend', function() {
+                this.style.transform = 'scale(1)';
+            });
+        });
+        
+        // Simple day switcher logic simulation
+        const dayItems = document.querySelectorAll('section:first-of-type div.flex-shrink-0');
+        dayItems.forEach(item => {
+            item.addEventListener('click', () => {
+                dayItems.forEach(i => {
+                    i.classList.remove('bg-primary', 'text-on-primary');
+                    i.classList.add('bg-surface-container', 'text-on-surface');
+                    const indicator = i.querySelector('div');
+                    if(indicator) indicator.classList.remove('bg-secondary-container');
+                    if(indicator) indicator.classList.add('bg-primary/20');
+                });
+                item.classList.remove('bg-surface-container', 'text-on-surface');
+                item.classList.add('bg-primary', 'text-on-primary');
+                const indicator = item.querySelector('div');
+                if(indicator) indicator.classList.remove('bg-primary/20');
+                if(indicator) indicator.classList.add('bg-secondary-container');
+            });
+        });
+    </script>
+<div class="fixed bottom-24 right-6 z-[60] flex flex-col items-end gap-3">
+<!-- Expanded Menu Items (Hidden by default, shown on click/interaction) -->
+<div class="flex flex-col items-end gap-3 mb-2 hidden transition-all duration-300 transform translate-y-10 opacity-0" id="fab-menu"><button class="flex items-center gap-3 bg-surface-container-high dark:bg-surface-dim px-4 py-2 rounded-full shadow-lg border border-outline-variant active:scale-95 transition-transform"><span class="font-label-bold text-label-bold text-primary">Nuevo WOD</span><div class="w-10 h-10 bg-primary-container rounded-full flex items-center justify-center text-on-primary-container"><span class="material-symbols-outlined">add_task</span></div></button><button class="flex items-center gap-3 bg-surface-container-high dark:bg-surface-dim px-4 py-2 rounded-full shadow-lg border border-outline-variant active:scale-95 transition-transform"><span class="font-label-bold text-label-bold text-primary">Nueva Sesión de Running</span><div class="w-10 h-10 bg-secondary-container rounded-full flex items-center justify-center text-on-secondary-container"><span class="material-symbols-outlined">directions_run</span></div></button></div>
+<!-- Main FAB Button -->
+<button class="w-14 h-14 bg-[#165070] text-white rounded-full shadow-xl flex items-center justify-center active:scale-90 transition-all duration-200 z-10" id="main-fab">
+<span class="material-symbols-outlined text-[28px] transition-transform duration-300" id="fab-icon">add</span>
+</button>
+</div>
+<script>
+  const fab = document.getElementById('main-fab');
+  const menu = document.getElementById('fab-menu');
+  const icon = document.getElementById('fab-icon');
+  
+  fab.addEventListener('click', () => {
+    const isHidden = menu.classList.contains('hidden');
+    if (isHidden) {
+      menu.classList.remove('hidden');
+      setTimeout(() => {
+        menu.classList.remove('translate-y-10', 'opacity-0');
+        icon.style.transform = 'rotate(45deg)';
+      }, 10);
+    } else {
+      menu.classList.add('translate-y-10', 'opacity-0');
+      icon.style.transform = 'rotate(0deg)';
+      setTimeout(() => {
+        menu.classList.add('hidden');
+      }, 300);
+    }
+  });
+</script>
+
+</body></html>

@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+
+<html class="h-full" lang="es"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" name="viewport"/>
+<title>Invitar Atleta - NDC HQ</title>
+<!-- Material Symbols -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Google Fonts -->
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@600;700;800&amp;family=Inter:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "secondary-container": "#ffde59",
+                        "background": "#f9f9fe",
+                        "error-container": "#ffdad6",
+                        "surface-container-low": "#f3f3f8",
+                        "error": "#ba1a1a",
+                        "surface-tint": "#2f6384",
+                        "tertiary-fixed-dim": "#adc6ff",
+                        "inverse-on-surface": "#f0f0f5",
+                        "surface-container-high": "#e8e8ed",
+                        "on-secondary": "#ffffff",
+                        "surface-dim": "#d9dade",
+                        "on-primary-fixed": "#001e2f",
+                        "on-background": "#1a1c1f",
+                        "surface-variant": "#e2e2e7",
+                        "surface-container-lowest": "#ffffff",
+                        "inverse-surface": "#2e3034",
+                        "primary-container": "#165070",
+                        "tertiary": "#003271",
+                        "on-error-container": "#93000a",
+                        "surface-container": "#ededf2",
+                        "on-secondary-container": "#756100",
+                        "secondary-fixed-dim": "#e4c542",
+                        "on-tertiary-fixed": "#001a41",
+                        "surface-container-highest": "#e2e2e7",
+                        "primary": "#003953",
+                        "on-primary-container": "#90c2e7",
+                        "secondary": "#705d00",
+                        "on-tertiary": "#ffffff",
+                        "surface": "#f9f9fe",
+                        "tertiary-container": "#00489c",
+                        "tertiary-fixed": "#d8e2ff",
+                        "on-secondary-fixed-variant": "#544600",
+                        "on-error": "#ffffff",
+                        "on-tertiary-fixed-variant": "#004493",
+                        "on-tertiary-container": "#9bbbff",
+                        "surface-bright": "#f9f9fe",
+                        "on-primary": "#ffffff",
+                        "inverse-primary": "#9accf2",
+                        "primary-fixed-dim": "#9accf2",
+                        "secondary-fixed": "#ffe16e",
+                        "on-primary-fixed-variant": "#0e4b6b",
+                        "outline": "#71787e",
+                        "on-surface-variant": "#41484d",
+                        "on-surface": "#1a1c1f",
+                        "on-secondary-fixed": "#221b00",
+                        "outline-variant": "#c1c7ce",
+                        "primary-fixed": "#c8e6ff"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "gutter": "1rem",
+                        "stack-md": "1rem",
+                        "margin-main": "1.25rem",
+                        "stack-sm": "0.5rem",
+                        "stack-lg": "1.5rem",
+                        "safe-area-bottom": "2.125rem"
+                    },
+                    "fontFamily": {
+                        "label-bold": ["Inter"],
+                        "headline-md": ["Hanken Grotesk"],
+                        "display-lg": ["Hanken Grotesk"],
+                        "body-lg": ["Inter"],
+                        "headline-sm": ["Hanken Grotesk"],
+                        "label-sm": ["Inter"],
+                        "body-md": ["Inter"],
+                        "stats-xl": ["Hanken Grotesk"]
+                    },
+                    "fontSize": {
+                        "label-bold": ["13px", { "lineHeight": "18px", "fontWeight": "600" }],
+                        "headline-md": ["24px", { "lineHeight": "30px", "letterSpacing": "0px", "fontWeight": "700" }],
+                        "display-lg": ["34px", { "lineHeight": "41px", "letterSpacing": "-0.5px", "fontWeight": "800" }],
+                        "body-lg": ["17px", { "lineHeight": "24px", "fontWeight": "400" }],
+                        "headline-sm": ["20px", { "lineHeight": "25px", "fontWeight": "600" }],
+                        "label-sm": ["12px", { "lineHeight": "16px", "fontWeight": "500" }],
+                        "body-md": ["15px", { "lineHeight": "20px", "fontWeight": "400" }],
+                        "stats-xl": ["48px", { "lineHeight": "48px", "letterSpacing": "-1px", "fontWeight": "800" }]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        body { -webkit-tap-highlight-color: transparent; }
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background text-on-background h-full font-body-md antialiased overflow-hidden">
+<!-- Main Container -->
+<div class="h-full flex flex-col relative w-full max-w-md mx-auto bg-surface">
+<!-- TopAppBar (Transactional - Hidden Nav per instructions for focused intent, but JSON provided top app bar for 'Invitar Atleta') -->
+<header class="bg-surface/80 dark:bg-surface-container-highest/80 backdrop-blur-md rounded-t-xl w-full border-b border-outline-variant/30 flex items-center justify-between px-margin-main py-stack-sm w-full sticky top-0 z-40">
+<button class="w-11 h-11 flex items-center justify-center text-primary dark:text-primary-fixed active:scale-95 transition-transform">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 0;">close</span>
+</button>
+<h1 class="font-headline-sm text-headline-sm font-bold text-primary dark:text-primary-fixed">Invitar Atleta</h1>
+<button class="h-11 px-2 flex items-center justify-center text-primary dark:text-primary-fixed font-label-bold active:scale-95 transition-transform hover:opacity-80 transition-opacity">
+                Enviar
+            </button>
+</header>
+<!-- Canvas -->
+<main class="flex-1 overflow-y-auto pb-safe-area-bottom">
+<div class="px-margin-main py-stack-lg flex flex-col gap-stack-lg">
+<!-- Hero Section / Code Generator -->
+<section class="flex flex-col items-center justify-center py-stack-lg gap-stack-md">
+<p class="font-body-md text-on-surface-variant text-center px-4">
+                        Genera un código de acceso único para invitar a un nuevo atleta a unirse a la comunidad NDC HQ.
+                    </p>
+<!-- The Code Display -->
+<div class="bg-surface-container-lowest shadow-sm rounded-xl border border-surface-variant p-6 w-full flex flex-col items-center justify-center relative overflow-hidden group">
+<!-- Decorative background element -->
+<div class="absolute -top-10 -right-10 w-32 h-32 bg-secondary-container/20 rounded-full blur-2xl"></div>
+<div class="absolute -bottom-10 -left-10 w-32 h-32 bg-primary-container/10 rounded-full blur-2xl"></div>
+<p class="font-label-sm text-on-surface-variant mb-2 uppercase tracking-widest relative z-10">Código de Acceso</p>
+<h2 class="font-display-lg text-display-lg text-primary tracking-wider mb-6 relative z-10" id="invite-code">
+                            NDC-7X29
+                        </h2>
+<button class="flex items-center gap-2 px-4 py-2 rounded-full border border-primary text-primary font-label-bold hover:bg-surface-container-low active:scale-95 transition-all relative z-10" onclick="generateNewCode()">
+<span class="material-symbols-outlined text-[18px]">refresh</span>
+                            Generar nuevo código
+                        </button>
+</div>
+<!-- Primary Action -->
+<button class="w-full h-14 mt-4 bg-primary text-on-primary font-headline-sm text-headline-sm rounded-xl shadow-[0_4px_12px_rgba(22,80,112,0.2)] active:scale-95 transition-transform flex items-center justify-center gap-2">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">ios_share</span>
+                        Enviar a Atleta
+                    </button>
+</section>
+<hr class="border-outline-variant/30"/>
+<!-- Active Codes List -->
+<section class="flex flex-col gap-stack-sm pb-10">
+<div class="flex items-center justify-between px-2 mb-2">
+<h3 class="font-headline-sm text-headline-sm text-primary">Códigos Activos</h3>
+<span class="bg-secondary-container text-on-secondary-container font-label-bold px-2 py-0.5 rounded-full text-[10px]">3 PENDIENTES</span>
+</div>
+<!-- List Item 1 -->
+<div class="bg-surface-container-lowest rounded-lg p-4 flex items-center justify-between border border-surface-variant/50">
+<div class="flex items-center gap-4">
+<div class="w-10 h-10 rounded-full bg-surface-container-high flex items-center justify-center text-primary">
+<span class="material-symbols-outlined">person_add</span>
+</div>
+<div class="flex flex-col">
+<span class="font-label-bold text-on-surface">NDC-4A1B</span>
+<span class="font-label-sm text-on-surface-variant">Generado hoy, 08:30 AM</span>
+</div>
+</div>
+<button class="w-8 h-8 flex items-center justify-center text-outline hover:text-error active:scale-95 transition-colors">
+<span class="material-symbols-outlined text-[20px]">delete</span>
+</button>
+</div>
+<!-- List Item 2 -->
+<div class="bg-surface-container-lowest rounded-lg p-4 flex items-center justify-between border border-surface-variant/50">
+<div class="flex items-center gap-4">
+<div class="w-10 h-10 rounded-full bg-surface-container-high flex items-center justify-center text-primary">
+<span class="material-symbols-outlined">person_add</span>
+</div>
+<div class="flex flex-col">
+<span class="font-label-bold text-on-surface">NDC-9K8P</span>
+<span class="font-label-sm text-on-surface-variant">Ayer, 19:45 PM</span>
+</div>
+</div>
+<button class="w-8 h-8 flex items-center justify-center text-outline hover:text-error active:scale-95 transition-colors">
+<span class="material-symbols-outlined text-[20px]">delete</span>
+</button>
+</div>
+</section>
+</div>
+</main>
+<!-- BottomNavBar is suppressed per rules: "Linear/Transactional: Login, Sign-up, Onboarding, Checkout, or "Success/Confirmation" splash screens. Task-Focused: Any sub-page featuring a "Close" or "Back" action that implies a temporary departure from the main navigation flow." This page has a "Close" action in the TopAppBar. -->
+</div>
+<script>
+        function generateNewCode() {
+            const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+            let result = 'NDC-';
+            for ( let i = 0; i < 4; i++ ) {
+                result += characters.charAt(Math.floor(Math.random() * characters.length));
+            }
+            
+            const codeElement = document.getElementById('invite-code');
+            
+            // Simple animation
+            codeElement.style.opacity = '0';
+            codeElement.style.transform = 'scale(0.95)';
+            
+            setTimeout(() => {
+                codeElement.innerText = result;
+                codeElement.style.opacity = '1';
+                codeElement.style.transform = 'scale(1)';
+                codeElement.style.transition = 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)';
+            }, 150);
+        }
+    </script>
+</body></html>

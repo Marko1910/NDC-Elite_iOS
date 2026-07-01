@@ -13,6 +13,7 @@ struct WodDetailView: View {
 
     @State private var search = ""
     @State private var showLogResult = false
+    @State private var showHistory = false
 
     var body: some View {
         NavigationStack {
@@ -37,8 +38,27 @@ struct WodDetailView: View {
             .navigationDestination(isPresented: $showLogResult) {
                 LogWodResultView()
             }
-            .ndcBrandToolbar(profile: profile, unreadCount: data.unreadCount) {
-                // TODO: → AthleteNotificationsView
+            .navigationDestination(isPresented: $showHistory) {
+                WodHistoryView()
+            }
+            .toolbar {
+                ToolbarItem(placement: .topBarLeading) {
+                    NDCBrandLabel(avatarURL: profile.avatarURL)
+                }
+                ToolbarItemGroup(placement: .topBarTrailing) {
+                    Button {
+                        Haptics.impact(.light)
+                        showHistory = true
+                    } label: {
+                        Image(systemName: "clock.arrow.circlepath")
+                            .foregroundStyle(NDCColor.primary)
+                    }
+                    .accessibilityLabel("Historial de WODs")
+
+                    NDCBellButton(unreadCount: data.unreadCount) {
+                        // TODO: → AthleteNotificationsView
+                    }
+                }
             }
         }
         .tint(NDCColor.primary)

@@ -1,0 +1,271 @@
+<!DOCTYPE html><html class="light" lang="es"><head>
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0, viewport-fit=cover" name="viewport">
+<title>Seguimiento de Resultados | NDC HQ</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;500;600;700;800&amp;family=Inter:wght@400;500;600&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "error-container": "#ffdad6",
+                    "surface-container-high": "#e8e8ed",
+                    "tertiary": "#003271",
+                    "inverse-on-surface": "#f0f0f5",
+                    "surface-container": "#ededf2",
+                    "secondary-fixed-dim": "#e4c542",
+                    "on-secondary-fixed": "#221b00",
+                    "primary": "#003953",
+                    "surface-container-lowest": "#ffffff",
+                    "on-secondary-container": "#756100",
+                    "surface-container-highest": "#e2e2e7",
+                    "on-primary": "#ffffff",
+                    "on-error-container": "#93000a",
+                    "on-secondary-fixed-variant": "#544600",
+                    "tertiary-fixed": "#d8e2ff",
+                    "tertiary-container": "#00489c",
+                    "surface-dim": "#d9dade",
+                    "error": "#ba1a1a",
+                    "background": "#f9f9fe",
+                    "secondary": "#705d00",
+                    "on-primary-container": "#90c2e7",
+                    "on-background": "#1a1c1f",
+                    "surface-container-low": "#f3f3f8",
+                    "on-error": "#ffffff",
+                    "primary-fixed-dim": "#9accf2",
+                    "surface-bright": "#f9f9fe",
+                    "surface-variant": "#e2e2e7",
+                    "surface": "#f9f9fe",
+                    "on-primary-fixed-variant": "#0e4b6b",
+                    "secondary-container": "#ffde59",
+                    "secondary-fixed": "#ffe16e",
+                    "on-tertiary-fixed": "#001a41",
+                    "on-tertiary-fixed-variant": "#004493",
+                    "inverse-primary": "#9accf2",
+                    "tertiary-fixed-dim": "#adc6ff",
+                    "outline-variant": "#c1c7ce",
+                    "primary-fixed": "#c8e6ff",
+                    "on-surface": "#1a1c1f",
+                    "surface-tint": "#2f6384",
+                    "primary-container": "#165070",
+                    "on-tertiary": "#ffffff",
+                    "inverse-surface": "#2e3034",
+                    "on-tertiary-container": "#9bbbff",
+                    "on-secondary": "#ffffff",
+                    "on-surface-variant": "#41484d",
+                    "on-primary-fixed": "#001e2f",
+                    "outline": "#71787e"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.25rem",
+                    "lg": "0.5rem",
+                    "xl": "0.75rem",
+                    "full": "9999px"
+            },
+            "spacing": {
+                    "stack-sm": "0.5rem",
+                    "stack-lg": "1.5rem",
+                    "stack-md": "1rem",
+                    "gutter": "1rem",
+                    "safe-area-bottom": "2.125rem",
+                    "margin-main": "1.25rem"
+            },
+            "fontFamily": {
+                    "headline-md": ["Hanken Grotesk"],
+                    "body-md": ["Inter"],
+                    "body-lg": ["Inter"],
+                    "stats-xl": ["Hanken Grotesk"],
+                    "label-sm": ["Inter"],
+                    "label-bold": ["Inter"],
+                    "headline-sm": ["Hanken Grotesk"],
+                    "display-lg": ["Hanken Grotesk"]
+            },
+            "fontSize": {
+                    "headline-md": ["24px", {"lineHeight": "30px", "letterSpacing": "0px", "fontWeight": "700"}],
+                    "body-md": ["15px", {"lineHeight": "20px", "fontWeight": "400"}],
+                    "body-lg": ["17px", {"lineHeight": "24px", "fontWeight": "400"}],
+                    "stats-xl": ["48px", {"lineHeight": "48px", "letterSpacing": "-1px", "fontWeight": "800"}],
+                    "label-sm": ["12px", {"lineHeight": "16px", "fontWeight": "500"}],
+                    "label-bold": ["13px", {"lineHeight": "18px", "fontWeight": "600"}],
+                    "headline-sm": ["20px", {"lineHeight": "25px", "fontWeight": "600"}],
+                    "display-lg": ["34px", {"lineHeight": "41px", "letterSpacing": "-0.5px", "fontWeight": "800"}]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        body { font-family: 'Inter', sans-serif; -webkit-font-smoothing: antialiased; }
+        .hanken { font-family: 'Hanken Grotesk', sans-serif; }
+        .glass { backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); }
+        .scrollbar-hide::-webkit-scrollbar { display: none; }
+        .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+</head>
+<body class="bg-background text-on-background min-h-screen pb-44">
+<!-- TopAppBar -->
+<header class="fixed top-0 w-full z-50 bg-surface/80 dark:bg-surface-dim/80 backdrop-blur-md flex justify-between items-center px-margin-main h-16"><div class="flex items-center gap-4">
+<button class="p-2 -ml-2 text-primary hover:bg-primary/5 rounded-full">
+<span class="material-symbols-outlined">arrow_back_ios_new</span>
+</button>
+<h1 class="font-display-lg text-headline-sm font-extrabold text-primary hanken">Validar Marcas</h1>
+</div>
+<div class="flex items-center gap-4">
+<span class="text-label-sm font-bold bg-secondary-container text-on-secondary-container px-2 py-1 rounded-full">4 PENDIENTES</span>
+</div></header>
+<main class="pt-20 px-margin-main space-y-stack-lg"><!-- Search Bar -->
+<section class="sticky top-16 z-40 bg-background/95 backdrop-blur-sm pb-4 pt-2">
+<div class="relative">
+<span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-on-surface-variant">search</span>
+<input class="w-full bg-surface-container-high border-none rounded-2xl py-3.5 pl-12 pr-4 text-body-md focus:ring-2 focus:ring-primary/20" placeholder="Buscar atleta..." type="text">
+</div>
+</section>
+<!-- Pending Results List -->
+<section class="space-y-4">
+<!-- Card 1 -->
+<div class="bg-white rounded-3xl p-5 shadow-sm border border-surface-container-high">
+<div class="flex items-center gap-4 mb-4">
+<div class="w-12 h-12 rounded-full overflow-hidden bg-surface-container">
+<img class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCF6J7Pm-uQFyXK4Sxqz2nVEk5pWOOVgYydoaiosH_pyfry6oHzKxg892sawnmI0SBIYEohNWZJ08QlMaGBsFoaZCCY7qr9W5QqSKkw7JhS5k5bqINxCObfpNQevQ_ea8E26PmrMn8CRyqtOBME-ol2oU6sgBRdPwewjHCz9PgXzhFTwkVyl_cbN2SdXPebPFJv7TazabaTvvARmriiH0EcmSjIggYY7igm8tWCwe_yoNNiIzPkTUglav4sFfrbZsOBCyv8tsQ9DBc">
+</div>
+<div>
+<p class="font-label-bold text-on-surface">Mateo Jiménez</p>
+<p class="text-xs text-on-surface-variant">Clase 8:00 am</p>
+</div>
+</div>
+<div class="bg-surface-container-low rounded-2xl p-4 mb-4">
+<div class="flex justify-between items-start">
+<div>
+<p class="text-[10px] uppercase font-bold text-on-surface-variant tracking-wider mb-1">Metcon "The Executive"</p>
+<p class="font-headline-sm text-primary">08:42</p>
+</div>
+<span class="text-[10px] px-2 py-0.5 bg-primary/10 text-primary rounded-full font-bold">RX</span>
+</div>
+</div>
+<div class="grid grid-cols-2 gap-3">
+<button class="flex items-center justify-center gap-2 border-2 border-outline/20 py-2.5 rounded-xl font-label-bold text-on-surface active:scale-95 transition-transform">
+<span class="material-symbols-outlined text-[20px]">edit</span> Corregir
+</button>
+<button class="flex items-center justify-center gap-2 bg-secondary-container py-2.5 rounded-xl font-label-bold text-primary shadow-sm active:scale-95 transition-transform">
+<span class="material-symbols-outlined text-[20px]">check_circle</span> Validar
+</button>
+</div>
+</div>
+<!-- Card 2 -->
+<div class="bg-white rounded-3xl p-5 shadow-sm border border-surface-container-high">
+<div class="flex items-center gap-4 mb-4">
+<div class="w-12 h-12 rounded-full overflow-hidden bg-surface-container">
+<img class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAAKddlZbCEOyirr7D5nnfu3E9Kg-VM9w5X7CicYuStNwEB9axkOdQNyxwTcj3Ttxyjkk_wI3CyqeoCpBk1UR7VsqVbjrDrNkMxJgJe9G1Rpg6sWfYn0qUw4-hSzC_-XARoFjO2lp56v1QjI3H0DLNRLYIjymBDViMDAFYKckUnOFQBbrHjBIGDI-h3cNUzV3G1SKGUek35FtVz6bo2XiXZqIiErnvQIU2ZTklO_QNf5f3-71pdPED7GxP-b_xNbfo2A08-HgtdDWY">
+</div>
+<div>
+<p class="font-label-bold text-on-surface">Valeria Ruiz</p>
+<p class="text-xs text-on-surface-variant">Clase 8:00 am</p>
+</div>
+</div>
+<div class="bg-surface-container-low rounded-2xl p-4 mb-4">
+<div class="flex justify-between items-start">
+<div>
+<p class="text-[10px] uppercase font-bold text-on-surface-variant tracking-wider mb-1">Back Squat 1RM</p>
+<p class="font-headline-sm text-primary">95 kg</p>
+</div>
+<span class="text-[10px] px-2 py-0.5 bg-secondary-container/30 text-secondary font-bold rounded-full">RX</span>
+</div>
+</div>
+<div class="grid grid-cols-2 gap-3">
+<button class="flex items-center justify-center gap-2 border-2 border-outline/20 py-2.5 rounded-xl font-label-bold text-on-surface active:scale-95 transition-transform">
+<span class="material-symbols-outlined text-[20px]">edit</span> Corregir
+</button>
+<button class="flex items-center justify-center gap-2 bg-secondary-container py-2.5 rounded-xl font-label-bold text-primary shadow-sm active:scale-95 transition-transform">
+<span class="material-symbols-outlined text-[20px]">check_circle</span> Validar
+</button>
+</div>
+</div>
+<!-- Card 3 -->
+<div class="bg-white rounded-3xl p-5 shadow-sm border border-surface-container-high">
+<div class="flex items-center gap-4 mb-4">
+<div class="w-12 h-12 rounded-full overflow-hidden bg-surface-container">
+<img class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuB1_bXIcrOpQrVDlh7R7H8340SaeEVpQGxY4bhGQaSMgz4tTUelj4GCfOMbWjDfMP52l1SBGP148idFBb8epcZaOatiMLam8HPtqZ-t4FQEtRX8Lv-bqNSe_3_KPPHJMOUKG1w68Zwl6VHvpHU8YJCtMFPOWW5oDSRtbt2JV-BRzzNTy5Llq1r4CyRFNNBQZgKWm_gMSuejDC_tefpweqmg8r-7DjvpcTyB6GaBVp6PwuU-fM2htaaZzHEGfkN1EHVpRntuM0XpuCI">
+</div>
+<div>
+<p class="font-label-bold text-on-surface">Santi Castro</p>
+<p class="text-xs text-on-surface-variant">Clase 8:00 am</p>
+</div>
+</div>
+<div class="bg-surface-container-low rounded-2xl p-4 mb-4">
+<div class="flex justify-between items-start">
+<div>
+<p class="text-[10px] uppercase font-bold text-on-surface-variant tracking-wider mb-1">Metcon "The Executive"</p>
+<p class="font-headline-sm text-primary">10:04</p>
+</div>
+<span class="text-[10px] px-2 py-0.5 bg-outline-variant/30 text-outline font-bold rounded-full">Scalado</span>
+</div>
+</div>
+<div class="grid grid-cols-2 gap-3">
+<button class="flex items-center justify-center gap-2 border-2 border-outline/20 py-2.5 rounded-xl font-label-bold text-on-surface active:scale-95 transition-transform">
+<span class="material-symbols-outlined text-[20px]">edit</span> Corregir
+</button>
+<button class="flex items-center justify-center gap-2 bg-secondary-container py-2.5 rounded-xl font-label-bold text-primary shadow-sm active:scale-95 transition-transform">
+<span class="material-symbols-outlined text-[20px]">check_circle</span> Validar
+</button>
+</div>
+</div>
+</section>
+<!-- Sticky Bottom Action -->
+<div class="fixed bottom-24 left-0 right-0 px-margin-main z-40">
+<button class="w-full bg-primary text-white py-4 rounded-2xl font-label-bold shadow-lg flex items-center justify-center gap-3 active:scale-[0.98] transition-all" style="box-shadow: rgba(0, 57, 83, 0.4) 0px 10px 30px -10px;">
+<span class="material-symbols-outlined">done_all</span>
+Validar Todo
+</button>
+</div></main>
+<!-- BottomNavBar -->
+<script>
+        // Simple micro-interaction for validating buttons
+        document.querySelectorAll('button').forEach(btn => {
+            btn.addEventListener('click', function() {
+                const icon = this.querySelector('.material-symbols-outlined');
+                if (icon) {
+                    icon.style.transform = 'rotate(360deg)';
+                    icon.style.transition = 'transform 0.5s ease';
+                    setTimeout(() => icon.style.transform = 'rotate(0deg)', 500);
+                }
+            });
+        });
+
+        // Atmospheric effect: Soft pulse on the active class card
+        setInterval(() => {
+            const activeCard = document.querySelector('.bg-primary.rounded-2xl');
+            if (activeCard) {
+                activeCard.style.boxShadow = `0 10px 30px -10px rgba(0, 57, 83, ${0.3 + Math.random() * 0.2})`;
+            }
+        }, 2000);
+    </script>
+<nav class="fixed bottom-0 w-full z-50 pb-safe-area-bottom bg-surface/80 dark:bg-surface-dim/80 backdrop-blur-md flex justify-around items-center h-20 px-2"> <a class="flex flex-col items-center justify-center text-on-surface-variant dark:text-outline font-medium hover:bg-surface-container-low dark:hover:bg-surface-container-high transition-colors active:scale-90 transition-transform duration-150" href="#">
+<span class="material-symbols-outlined">home</span>
+<span class="font-label-sm text-label-sm">Inicio</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant dark:text-outline font-medium hover:bg-surface-container-low dark:hover:bg-surface-container-high transition-colors active:scale-90 transition-transform duration-150" href="#">
+<span class="material-symbols-outlined">fitness_center</span>
+<span class="font-label-sm text-label-sm">WODs</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant dark:text-outline font-medium hover:bg-surface-container-low dark:hover:bg-surface-container-high transition-colors active:scale-90 transition-transform duration-150" href="#">
+<span class="material-symbols-outlined">group</span>
+<span class="font-label-sm text-label-sm">Atletas</span>
+</a>
+<a class="flex flex-col items-center justify-center text-primary dark:text-secondary-fixed-dim font-bold hover:bg-surface-container-low dark:hover:bg-surface-container-high transition-colors active:scale-90 transition-transform duration-150 relative" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1">notifications</span>
+<span class="font-label-sm text-label-sm">Alertas</span>
+<span class="absolute top-0 right-1/2 translate-x-3 w-2 h-2 bg-error rounded-full border-2 border-surface"></span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant dark:text-outline font-medium hover:bg-surface-container-low dark:hover:bg-surface-container-high transition-colors active:scale-90 transition-transform duration-150" href="#">
+<span class="material-symbols-outlined">monitoring</span>
+<span class="font-label-sm text-label-sm">Progreso</span>
+</a></nav></body></html>

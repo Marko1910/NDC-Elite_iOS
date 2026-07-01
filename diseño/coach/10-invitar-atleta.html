@@ -1,0 +1,290 @@
+<!DOCTYPE html><html class="light" lang="es"><head>
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" name="viewport">
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&amp;family=Hanken+Grotesk:wght@600;700;800&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "on-tertiary-fixed-variant": "#004493",
+                    "on-error-container": "#93000a",
+                    "primary-fixed": "#c8e6ff",
+                    "surface-container-lowest": "#ffffff",
+                    "error": "#ba1a1a",
+                    "surface-container-low": "#f3f3f8",
+                    "secondary-fixed": "#ffe16e",
+                    "secondary-container": "#ffde59",
+                    "on-primary-container": "#90c2e7",
+                    "on-secondary": "#ffffff",
+                    "outline": "#71787e",
+                    "tertiary-fixed": "#d8e2ff",
+                    "tertiary-container": "#00489c",
+                    "inverse-primary": "#9accf2",
+                    "on-tertiary-fixed": "#001a41",
+                    "on-surface-variant": "#41484d",
+                    "on-surface": "#1a1c1f",
+                    "tertiary-fixed-dim": "#adc6ff",
+                    "surface-variant": "#e2e2e7",
+                    "primary": "#003953",
+                    "error-container": "#ffdad6",
+                    "background": "#f9f9fe",
+                    "surface-container": "#ededf2",
+                    "on-primary": "#ffffff",
+                    "on-secondary-container": "#756100",
+                    "inverse-surface": "#2e3034",
+                    "on-background": "#1a1c1f",
+                    "surface-bright": "#f9f9fe",
+                    "outline-variant": "#c1c7ce",
+                    "primary-fixed-dim": "#9accf2",
+                    "on-secondary-fixed": "#221b00",
+                    "on-primary-fixed-variant": "#0e4b6b",
+                    "tertiary": "#003271",
+                    "on-secondary-fixed-variant": "#544600",
+                    "secondary": "#705d00",
+                    "surface-dim": "#d9dade",
+                    "on-tertiary-container": "#9bbbff",
+                    "on-error": "#ffffff",
+                    "secondary-fixed-dim": "#e4c542",
+                    "on-tertiary": "#ffffff",
+                    "surface-tint": "#2f6384",
+                    "surface-container-highest": "#e2e2e7",
+                    "surface": "#f9f9fe",
+                    "on-primary-fixed": "#001e2f",
+                    "surface-container-high": "#e8e8ed",
+                    "primary-container": "#165070",
+                    "inverse-on-surface": "#f0f0f5"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.25rem",
+                    "lg": "0.5rem",
+                    "xl": "0.75rem",
+                    "full": "9999px"
+            },
+            "spacing": {
+                    "stack-md": "1rem",
+                    "stack-sm": "0.5rem",
+                    "margin-main": "1.25rem",
+                    "gutter": "1rem",
+                    "safe-area-bottom": "2.125rem",
+                    "stack-lg": "1.5rem"
+            },
+            "fontFamily": {
+                    "label-sm": ["Inter"],
+                    "stats-xl": ["Hanken Grotesk"],
+                    "display-lg": ["Hanken Grotesk"],
+                    "body-md": ["Inter"],
+                    "label-bold": ["Inter"],
+                    "headline-md": ["Hanken Grotesk"],
+                    "headline-sm": ["Hanken Grotesk"],
+                    "body-lg": ["Inter"]
+            },
+            "fontSize": {
+                    "label-sm": ["12px", {"lineHeight": "16px", "fontWeight": "500"}],
+                    "stats-xl": ["48px", {"lineHeight": "48px", "letterSpacing": "-1px", "fontWeight": "800"}],
+                    "display-lg": ["34px", {"lineHeight": "41px", "letterSpacing": "-0.5px", "fontWeight": "800"}],
+                    "body-md": ["15px", {"lineHeight": "20px", "fontWeight": "400"}],
+                    "label-bold": ["13px", {"lineHeight": "18px", "fontWeight": "600"}],
+                    "headline-md": ["24px", {"lineHeight": "30px", "letterSpacing": "0px", "fontWeight": "700"}],
+                    "headline-sm": ["20px", {"lineHeight": "25px", "fontWeight": "600"}],
+                    "body-lg": ["17px", {"lineHeight": "24px", "fontWeight": "400"}]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        body {
+            background-color: #000;
+            overflow: hidden;
+            -webkit-tap-highlight-color: transparent;
+        }
+        .ios-sheet {
+            height: 92vh;
+            border-radius: 20px 20px 0 0;
+            box-shadow: 0 -10px 40px rgba(0,0,0,0.3);
+            animation: slideUp 0.5s cubic-bezier(0.32, 0.72, 0, 1);
+        }
+        @keyframes slideUp {
+            from { transform: translateY(100%); }
+            to { transform: translateY(0); }
+        }
+        .segmented-control {
+            background: #ededf2;
+            padding: 2px;
+            border-radius: 8px;
+            display: flex;
+        }
+        .segment-item {
+            flex: 1;
+            text-align: center;
+            padding: 6px 0;
+            font-size: 13px;
+            font-weight: 500;
+            border-radius: 6px;
+            transition: all 0.2s;
+        }
+        .segment-item.active {
+            background: #ffffff;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.12);
+        }
+        .toggle-switch {
+            width: 51px;
+            height: 31px;
+            background: #e5e5ea;
+            border-radius: 15.5px;
+            position: relative;
+            transition: background 0.3s;
+            cursor: pointer;
+        }
+        .toggle-switch.active {
+            background: #34c759;
+        }
+        .toggle-handle {
+            width: 27px;
+            height: 27px;
+            background: white;
+            border-radius: 50%;
+            position: absolute;
+            top: 2px;
+            left: 2px;
+            transition: transform 0.3s cubic-bezier(0.32, 0.72, 0, 1);
+            box-shadow: 0 3px 8px rgba(0,0,0,0.15);
+        }
+        .toggle-switch.active .toggle-handle {
+            transform: translateX(20px);
+        }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="flex items-end h-screen font-body-md text-on-surface">
+<!-- Mock Background Content -->
+<div class="absolute inset-0 z-0 p-margin-main opacity-40">
+<div class="h-12 w-full bg-surface-container rounded-lg mb-4"></div>
+<div class="h-64 w-full bg-surface-container rounded-xl mb-4"></div>
+<div class="h-32 w-full bg-surface-container rounded-xl"></div>
+</div>
+<!-- iOS Bottom Sheet -->
+<main class="ios-sheet w-full bg-surface z-50 flex flex-col overflow-hidden">
+<!-- TopAppBar (Based on Shared Components JSON) -->
+<header class="bg-surface/80 dark:bg-surface-container-highest/80 backdrop-blur-md border-b border-outline-variant/30 flex items-center justify-between px-margin-main py-stack-sm w-full rounded-t-xl shrink-0">
+<button class="flex items-center text-primary active:scale-95 transition-transform">
+<span class="material-symbols-outlined text-[24px]">close</span>
+</button>
+<h1 class="font-headline-sm text-headline-sm font-bold text-primary">Nuevo Atleta</h1>
+<button class="text-secondary font-label-bold hover:opacity-80 transition-opacity active:scale-95">
+                Enviar
+            </button>
+</header>
+<!-- Content Area -->
+<div class="flex-1 overflow-y-auto px-margin-main py-stack-lg pb-safe-area-bottom">
+<!-- Info Text -->
+<section class="mb-stack-lg">
+<p class="font-body-md text-on-surface-variant leading-relaxed">
+                    NDC HQ es una comunidad cerrada. El atleta recibirá una invitación por correo para crear su cuenta.
+                </p>
+</section>
+<!-- Form Container -->
+<form class="space-y-stack-lg">
+<!-- Full Name -->
+<div class="space-y-1">
+<label class="block font-label-bold text-primary ml-1">Nombre completo</label>
+<input class="w-full bg-surface-container-low border-none rounded-lg px-4 py-3 text-body-lg focus:ring-2 focus:ring-primary-container outline-none transition-all placeholder:text-outline-variant" placeholder="Ej: Mariana Ortiz" type="text">
+</div>
+<!-- Email -->
+<div class="space-y-1">
+<label class="block font-label-bold text-primary ml-1">Correo electrónico</label>
+<input class="w-full bg-surface-container-low border-none rounded-lg px-4 py-3 text-body-lg focus:ring-2 focus:ring-primary-container outline-none transition-all placeholder:text-outline-variant" placeholder="atleta@email.com" type="email">
+</div>
+<!-- Phone -->
+<div class="space-y-1">
+<label class="block font-label-bold text-primary ml-1">Teléfono</label>
+<div class="flex gap-2">
+<div class="bg-surface-container-low rounded-lg px-4 py-3 text-body-lg text-on-surface font-medium flex items-center shrink-0">
+                            +51
+                        </div>
+<input class="flex-1 bg-surface-container-low border-none rounded-lg px-4 py-3 text-body-lg focus:ring-2 focus:ring-primary-container outline-none transition-all placeholder:text-outline-variant" placeholder="987 654 321" type="tel">
+</div>
+<p class="text-label-sm text-on-surface-variant/70 mt-1 ml-1 flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px]">info</span>
+                        Se usará para recordatorios por WhatsApp
+                    </p>
+</div>
+<!-- Level Selector (Segmented Control) -->
+<div class="space-y-2 pt-2">
+<label class="block font-label-bold text-primary ml-1">Nivel inicial</label>
+<div class="segmented-control">
+<button class="segment-item" onclick="selectSegment(this)" type="button">Básico</button>
+<button class="segment-item active" onclick="selectSegment(this)" type="button">Intermedio</button>
+<button class="segment-item" onclick="selectSegment(this)" type="button">Avanzado</button>
+</div>
+</div>
+<!-- Toggle Section -->
+<div class="flex items-center justify-between py-stack-sm bg-surface-container-low/50 px-3 rounded-xl border border-outline-variant/10">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-primary">person_check</span>
+<span class="font-body-lg text-primary font-medium">Asignarme como su coach</span>
+</div>
+<div class="toggle-switch active" onclick="toggleSwitch(this)">
+<div class="toggle-handle"></div>
+</div>
+</div>
+<!-- Spacer -->
+<div class="h-4"></div>
+<!-- Final Action Button -->
+<button class="w-full bg-primary-container text-white py-4 rounded-xl flex items-center justify-center gap-3 font-headline-sm shadow-md active:scale-[0.98] transition-all hover:opacity-90" type="submit">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">send</span>
+<span>Enviar Invitación</span>
+</button>
+</form>
+</div>
+<!-- Safe Area Spacer -->
+<div class="bg-surface h-safe-area-bottom"></div>
+</main>
+<script>
+        function selectSegment(el) {
+            const items = el.parentElement.querySelectorAll('.segment-item');
+            items.forEach(item => item.classList.remove('active'));
+            el.classList.add('active');
+            
+            // Haptic feedback simulation
+            if (window.navigator && window.navigator.vibrate) {
+                window.navigator.vibrate(5);
+            }
+        }
+
+        function toggleSwitch(el) {
+            el.classList.toggle('active');
+            
+            // Haptic feedback simulation
+            if (window.navigator && window.navigator.vibrate) {
+                window.navigator.vibrate(10);
+            }
+        }
+
+        // Handle simple submit animation
+        document.querySelector('form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const btn = e.target.querySelector('button[type="submit"]');
+            btn.innerHTML = '<span class="material-symbols-outlined animate-spin">sync</span><span>Enviando...</span>';
+            btn.classList.add('opacity-80');
+            
+            setTimeout(() => {
+                btn.innerHTML = '<span class="material-symbols-outlined">check_circle</span><span>Invitación Enviada</span>';
+                btn.classList.remove('bg-primary-container');
+                btn.classList.add('bg-green-600');
+            }, 1500);
+        });
+    </script>
+</body></html>
