@@ -12,7 +12,9 @@ import Charts
 struct CoachDashboardView: View {
     let profile: Profile
     private let data = CoachDashboardData.sample
+    @State private var weeklyStore = CoachWeeklyPerformanceStore()
     @State private var showValidation = false
+    @State private var showAlerts = false
 
     var body: some View {
         NavigationStack {
@@ -21,7 +23,7 @@ struct CoachDashboardView: View {
                     greeting
                     AttendanceTodayCard(data: data)
                     PendingValidationsCard(count: data.pendingValidations, onReview: { showValidation = true })
-                    WeeklyPerformanceCard(data: data)
+                    WeeklyPerformanceCard(state: weeklyStore.state, retry: { Task { await weeklyStore.load() } })
                     NextWodCard(wod: data.nextWod)
                     attendanceAlerts
                 }
@@ -32,24 +34,23 @@ struct CoachDashboardView: View {
             .background(NDCColor.background)
             .scrollIndicators(.hidden)
             .navigationDestination(isPresented: $showValidation) { ValidationView() }
+            .navigationDestination(isPresented: $showAlerts) { CoachAlertsView(profile: profile) }
             .toolbar {
                 ToolbarItem(placement: .topBarLeading) { brandLabel }
                 ToolbarItem(placement: .topBarTrailing) {
-                    NDCBellButton(unreadCount: data.unreadCount) { /* TODO: → CoachAlertsView */ }
+                    NDCBellButton(unreadCount: data.unreadCount) { showAlerts = true }
                 }
             }
+            .task { await weeklyStore.load() }
+            .refreshable { await weeklyStore.load() }
         }
         .tint(NDCColor.primary)
     }
 
     private var brandLabel: some View {
-        HStack(spacing: NDCSpacing.stackSM) {
-            NDCAvatarView(urlString: profile.avatarURL, size: 32)
-                .accessibilityHidden(true)
-            VStack(alignment: .leading, spacing: 0) {
-                Text("NDC HQ").font(NDCFont.labelBold).foregroundStyle(NDCColor.primary)
-                Text(data.liveClass).font(NDCFont.labelSM).foregroundStyle(NDCColor.outline)
-            }
+        VStack(alignment: .leading, spacing: 0) {
+            Text("NDC HQ").font(NDCFont.labelBold).foregroundStyle(NDCColor.primary)
+            Text(data.liveClass).font(NDCFont.labelSM).foregroundStyle(NDCColor.outline)
         }
         .accessibilityElement(children: .combine)
     }
@@ -149,29 +150,36 @@ private struct PendingValidationsCard: View {
     }
 }
 
-// MARK: - Rendimiento semanal (gráfico real)
+// MARK: - Rendimiento semanal (gráfico real: asistencia "presente" por día)
 
 private struct WeeklyPerformanceCard: View {
-    let data: CoachDashboardData
+    let state: LoadState<CoachWeeklyPerformanceStore.Weekly>
+    let retry: () -> Void
 
     var body: some View {
         VStack(alignment: .leading, spacing: NDCSpacing.stackMD) {
-            HStack {
-                Text("Rendimiento Semanal").font(NDCFont.headlineSM).foregroundStyle(NDCColor.primary)
-                Spacer()
-                Label(data.weeklyDelta, systemImage: "arrow.up.right")
-                    .font(NDCFont.labelBold).foregroundStyle(.green)
+            LoadStateView(state: state, retry: retry) { weekly in
+                VStack(alignment: .leading, spacing: NDCSpacing.stackMD) {
+                    HStack {
+                        Text("Rendimiento Semanal").font(NDCFont.headlineSM).foregroundStyle(NDCColor.primary)
+                        Spacer()
+                        Label(weekly.deltaLabel, systemImage: "arrow.up.right")
+                            .font(NDCFont.labelBold).foregroundStyle(.green)
+                    }
+                    Chart(weekly.bars) { bar in
+                        BarMark(x: .value("Día", bar.day), y: .value("Asistencias", bar.value))
+                            .foregroundStyle(NDCColor.primary)
+                            .cornerRadius(4)
+                    }
+                    .chartYAxis(.hidden)
+                    .chartXAxis {
+                        AxisMarks { _ in AxisValueLabel().font(NDCFont.labelSM) }
+                    }
+                    .frame(height: 120)
+                }
+            } skeleton: {
+                SkeletonCard(lines: 1, height: 160)
             }
-            Chart(data.weeklyBars) { bar in
-                BarMark(x: .value("Día", bar.day), y: .value("Valor", bar.value))
-                    .foregroundStyle(NDCColor.primary)
-                    .cornerRadius(4)
-            }
-            .chartYAxis(.hidden)
-            .chartXAxis {
-                AxisMarks { _ in AxisValueLabel().font(NDCFont.labelSM) }
-            }
-            .frame(height: 120)
         }
         .padding(NDCSpacing.stackLG)
         .frame(maxWidth: .infinity, alignment: .leading)
@@ -283,8 +291,6 @@ private struct CoachDashboardData {
     let capacityToday: Int
     let attendancePercent: Int
     let pendingValidations: Int
-    let weeklyDelta: String
-    let weeklyBars: [Bar]
     let nextWod: NextWod
     let absenceAlerts: [AbsenceAlert]
     let unreadCount: Int
@@ -293,12 +299,6 @@ private struct CoachDashboardData {
         liveClass: "Box en vivo: Clase 07:00 AM",
         attendedToday: 42, capacityToday: 50, attendancePercent: 84,
         pendingValidations: 8,
-        weeklyDelta: "+12% vs anterior",
-        weeklyBars: [
-            .init(day: "L", value: 38), .init(day: "M", value: 42), .init(day: "X", value: 40),
-            .init(day: "J", value: 45), .init(day: "V", value: 48), .init(day: "S", value: 30),
-            .init(day: "D", value: 12)
-        ],
         nextWod: NextWod(schedule: "MAÑANA • 06:00 AM",
                          title: "MURPH PREP",
                          summary: "1 Mile Run, 100 Pull-ups, 200 Push-ups, 300 Air Squats, 1 Mile Run.",
@@ -310,6 +310,51 @@ private struct CoachDashboardData {
         ],
         unreadCount: 3
     )
+}
+
+// MARK: - Store (asistencia semanal real, agregada de todo el box)
+
+@MainActor @Observable
+final class CoachWeeklyPerformanceStore {
+    fileprivate struct Weekly {
+        let bars: [CoachDashboardData.Bar]
+        let deltaLabel: String
+    }
+
+    fileprivate var state: LoadState<Weekly> = .loading
+    private let repo = CoachRepository()
+    private static let dayLabels = ["L", "M", "X", "J", "V", "S", "D"]
+
+    func load() async {
+        state = .loading
+        do {
+            let calendar = CoachRepository.calendar
+            let now = Date()
+            let thisWeekStart = CoachRepository.startOfWeek(containing: now)
+            let lastWeekStart = calendar.date(byAdding: .day, value: -7, to: thisWeekStart)!
+
+            async let thisWeekTask = repo.weeklyAttendanceCounts(containing: now)
+            async let lastWeekTask = repo.weeklyAttendanceCounts(containing: lastWeekStart)
+            let (thisWeek, lastWeek) = try await (thisWeekTask, lastWeekTask)
+
+            let bars = (0..<7).map { offset -> CoachDashboardData.Bar in
+                let day = calendar.date(byAdding: .day, value: offset, to: thisWeekStart)!
+                return .init(day: Self.dayLabels[offset], value: Double(thisWeek[day] ?? 0))
+            }
+            let thisTotal = thisWeek.values.reduce(0, +)
+            let lastTotal = lastWeek.values.reduce(0, +)
+            let deltaLabel: String
+            if lastTotal == 0 {
+                deltaLabel = thisTotal == 0 ? "Sin datos aún" : "+100% vs anterior"
+            } else {
+                let pct = (Double(thisTotal - lastTotal) / Double(lastTotal)) * 100
+                deltaLabel = "\(pct >= 0 ? "+" : "")\(Int(pct.rounded()))% vs anterior"
+            }
+            state = .loaded(Weekly(bars: bars, deltaLabel: deltaLabel))
+        } catch {
+            state = .failed(error.localizedDescription)
+        }
+    }
 }
 
 #Preview {

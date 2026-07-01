@@ -1,6 +1,7 @@
 import SwiftUI
 
-/// TabView del COACH: Inicio · WODs · Atletas · Alertas · Progreso
+/// TabView del COACH: Inicio · WODs · Atletas · Progreso · Perfil
+/// Alertas se accede desde la campanita del Dashboard, no desde el tab bar.
 /// (ver FLOWS.md para el mapa completo de navegación).
 struct CoachTabView: View {
     let profile: Profile
@@ -16,11 +17,11 @@ struct CoachTabView: View {
             Tab("Atletas", systemImage: "person.3.fill") {
                 AthleteManagementView(profile: profile)
             }
-            Tab("Alertas", systemImage: "bell.fill") {
-                CoachAlertsView(profile: profile)
-            }
             Tab("Progreso", systemImage: "chart.bar.fill") {
                 CommunityProgressView(profile: profile)
+            }
+            Tab("Perfil", systemImage: "person.fill") {
+                CoachProfileView(profile: profile)
             }
         }
         .tint(NDCColor.primary)

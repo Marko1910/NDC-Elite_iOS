@@ -34,6 +34,16 @@ struct WodManagementView: View {
             .navigationTitle("Gestión de WODs")
             .navigationBarTitleDisplayMode(.large)
             .overlay(alignment: .bottomTrailing) { createFAB }
+            .toolbar {
+                ToolbarItem(placement: .topBarTrailing) {
+                    NavigationLink {
+                        ExerciseLibraryManagementView()
+                    } label: {
+                        Image(systemName: "books.vertical.fill")
+                    }
+                    .accessibilityLabel("Biblioteca Técnica")
+                }
+            }
             .navigationDestination(isPresented: $showWodEditor) { WodEditorView() }
             .sheet(isPresented: $showRunningEditor) { RunningEditorView() }
         }

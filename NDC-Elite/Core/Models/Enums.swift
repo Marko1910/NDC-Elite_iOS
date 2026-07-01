@@ -5,6 +5,14 @@ import Foundation
 
 enum UserRole: String, Codable, CaseIterable, Sendable {
     case atleta, coach, admin
+
+    var displayName: String {
+        switch self {
+        case .atleta: "Atleta"
+        case .coach: "Coach"
+        case .admin: "Administrador"
+        }
+    }
 }
 
 enum AthleteLevel: String, Codable, CaseIterable, Sendable {

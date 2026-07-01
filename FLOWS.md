@@ -10,7 +10,7 @@ App
 ├── Sin sesión → LoginView
 └── Con sesión (según profiles.role)
     ├── atleta  → TabView Atleta  (Inicio · WOD · Progreso · Comunidad · Perfil)
-    └── coach   → TabView Coach   (Inicio · WODs · Atletas · Alertas · Progreso)
+    └── coach   → TabView Coach   (Inicio · WODs · Atletas · Progreso · Perfil; Alertas vía campanita del Dashboard)
 ```
 
 ## 🔑 Autenticación
@@ -80,17 +80,22 @@ App
 | `AttendanceView` | Control de Asistencia | class_sessions, attendance | 📷 QR → `QrScannerView` ✨ · toggle presente/ausente |
 | `QrScannerView` ✨ | generada | attendance (insert check_in_method='qr') | Registrar manualmente → vuelve a lista |
 
-### Tab 4 · Alertas
+### Alertas (campanita del Dashboard, no es tab)
 | Vista | Diseño | Tablas | Botones |
 |---|---|---|---|
 | `CoachAlertsView` | Alertas y Notificaciones - Coach | notifications (user_id=coach) | Validar → `ValidationView` · Contactar Atleta → **WhatsApp deep link** |
 | `ValidationView` | Validación de Marcas | wod_results + personal_records (status=pendiente) | Validar (status=validado) · Corregir → `CorrectResultSheet` ✨ · Validar Todo |
 | `CorrectResultSheet` ✨ | generada | wod_results/personal_records (update + status=corregido) | Guardar Corrección |
 
-### Tab 5 · Progreso
+### Tab 4 · Progreso
 | Vista | Diseño | Tablas | Botones |
 |---|---|---|---|
 | `CommunityProgressView` | Rendimiento de Atletas - Coach | wod_results, personal_records, attendance (agregados) | Ver todo → listas completas |
+
+### Tab 5 · Perfil
+| Vista | Diseño | Tablas | Botones |
+|---|---|---|---|
+| `CoachProfileView` | ✨ generada | profiles | Cerrar Sesión → `SessionStore.signOut()` |
 
 ## 📲 Comportamientos especiales (sin pantalla)
 

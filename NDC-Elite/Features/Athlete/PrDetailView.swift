@@ -7,24 +7,47 @@ import Charts
 /// evolución histórica (gráfico) · notas · Compartir Logro · banner.
 /// (ver FLOWS.md → PrDetailView)
 ///
-/// TODO(datos): hoy usa `PrDetailData.sample`. Conectar a Supabase:
-/// personal_records (registro + historial 6 meses del ejercicio).
+/// Muestra la marca personal más reciente del atleta y su evolución real
+/// (`personal_records` del ejercicio, agrupadas por `exercise_id`).
 struct PrDetailView: View {
-    var athleteName: String = "Atleta NDC"
-    private let data = PrDetailData.sample
-
-    /// Imagen deportiva del logro para compartir en redes (se renderiza al aparecer).
+    let profile: Profile
+    @State private var store = PrDetailStore()
     @State private var shareImage: Image?
 
     var body: some View {
         ScrollView {
-            VStack(alignment: .leading, spacing: NDCSpacing.stackLG) {
-                heroCard
-                statsBento
-                evolutionChart
-                notesCard
-                shareButton
-                contextBanner
+            LoadStateView(
+                state: store.state,
+                retry: { Task { await store.load(athleteId: profile.id) } }
+            ) { data in
+                Group {
+                    if let data {
+                        VStack(alignment: .leading, spacing: NDCSpacing.stackLG) {
+                            heroCard(data)
+                            statsBento(data)
+                            evolutionChart(data)
+                            if let notes = data.notes {
+                                notesCard(notes)
+                            }
+                            shareButton(data)
+                            contextBanner
+                        }
+                        .onAppear { renderShareImage(data) }
+                    } else {
+                        ContentUnavailableView(
+                            "Aún sin marcas",
+                            systemImage: "trophy",
+                            description: Text("Registra tu primer PR para ver su evolución aquí.")
+                        )
+                        .padding(.top, NDCSpacing.stackLG)
+                    }
+                }
+            } skeleton: {
+                VStack(spacing: NDCSpacing.stackLG) {
+                    SkeletonCard(lines: 3, height: 150)
+                    SkeletonCard(lines: 2, height: 90)
+                    SkeletonCard(lines: 1, height: 180)
+                }
             }
             .padding(.horizontal, NDCSpacing.marginMain)
             .padding(.top, NDCSpacing.stackMD)
@@ -36,19 +59,22 @@ struct PrDetailView: View {
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
             ToolbarItem(placement: .topBarTrailing) {
-                achievementShareLink {
-                    Image(systemName: "square.and.arrow.up")
-                        .foregroundStyle(NDCColor.primary)
+                if let data = store.state.value ?? nil {
+                    achievementShareLink(data: data) {
+                        Image(systemName: "square.and.arrow.up")
+                            .foregroundStyle(NDCColor.primary)
+                    }
                 }
             }
         }
-        .onAppear(perform: renderShareImage)
+        .task { await store.load(athleteId: profile.id) }
+        .refreshable { await store.load(athleteId: profile.id) }
     }
 
     /// ShareLink que comparte la imagen deportiva del logro (con texto de respaldo
     /// mientras se renderiza). Reutilizado por la barra y por "Compartir Logro".
     @ViewBuilder
-    private func achievementShareLink<Label: View>(@ViewBuilder label: () -> Label) -> some View {
+    private func achievementShareLink<Label: View>(data: PrDetailData, @ViewBuilder label: () -> Label) -> some View {
         Group {
             if let shareImage {
                 ShareLink(
@@ -65,10 +91,10 @@ struct PrDetailView: View {
         .simultaneousGesture(TapGesture().onEnded { Haptics.impact() })
     }
 
-    @MainActor private func renderShareImage() {
+    @MainActor private func renderShareImage(_ data: PrDetailData) {
         guard shareImage == nil else { return }
         let renderer = ImageRenderer(
-            content: ShareableAchievementCard(data: data, athleteName: athleteName)
+            content: ShareableAchievementCard(data: data, athleteName: profile.fullName)
         )
         renderer.scale = 3
         if let ui = renderer.uiImage {
@@ -78,7 +104,7 @@ struct PrDetailView: View {
 
     // MARK: - Hero del récord
 
-    private var heroCard: some View {
+    private func heroCard(_ data: PrDetailData) -> some View {
         VStack(alignment: .leading, spacing: NDCSpacing.stackSM) {
             Text(data.badge)
                 .font(NDCFont.labelBold)
@@ -112,7 +138,7 @@ struct PrDetailView: View {
 
     // MARK: - Bento de stats
 
-    private var statsBento: some View {
+    private func statsBento(_ data: PrDetailData) -> some View {
         VStack(spacing: NDCSpacing.gutter) {
             HStack(spacing: NDCSpacing.gutter) {
                 miniStat(icon: "calendar", label: "Fecha", value: data.dateLabel)
@@ -161,7 +187,7 @@ struct PrDetailView: View {
 
     // MARK: - Evolución histórica (gráfico)
 
-    private var evolutionChart: some View {
+    private func evolutionChart(_ data: PrDetailData) -> some View {
         VStack(alignment: .leading, spacing: NDCSpacing.stackMD) {
             HStack {
                 Text("Evolución Histórica")
@@ -211,7 +237,7 @@ struct PrDetailView: View {
                 }
             }
             .frame(height: 180)
-            .accessibilityLabel("Evolución histórica del PR en los últimos 6 meses, tendencia ascendente")
+            .accessibilityLabel("Evolución histórica del PR en los últimos 6 meses")
         }
         .padding(NDCSpacing.stackLG)
         .frame(maxWidth: .infinity, alignment: .leading)
@@ -225,12 +251,12 @@ struct PrDetailView: View {
 
     // MARK: - Notas del atleta
 
-    private var notesCard: some View {
+    private func notesCard(_ notes: String) -> some View {
         VStack(alignment: .leading, spacing: NDCSpacing.stackSM) {
             Label("NOTAS DEL ATLETA", systemImage: "square.and.pencil")
                 .font(NDCFont.labelBold)
                 .foregroundStyle(NDCColor.primary)
-            Text("\"\(data.notes)\"")
+            Text("\"\(notes)\"")
                 .font(NDCFont.bodyLG)
                 .italic()
                 .foregroundStyle(NDCColor.onSurfaceVariant)
@@ -248,8 +274,8 @@ struct PrDetailView: View {
 
     // MARK: - Compartir logro
 
-    private var shareButton: some View {
-        achievementShareLink {
+    private func shareButton(_ data: PrDetailData) -> some View {
+        achievementShareLink(data: data) {
             Label("Compartir Logro", systemImage: "square.and.arrow.up")
                 .font(NDCFont.headlineSM)
                 .foregroundStyle(.white)
@@ -381,9 +407,9 @@ private struct ShareableAchievementCard: View {
     }
 }
 
-// MARK: - Datos de muestra (a reemplazar por fetch de Supabase)
+// MARK: - Datos del récord (poblados desde `personal_records` reales)
 
-private struct PrDetailData {
+struct PrDetailData {
     struct HistoryPoint: Identifiable {
         let id = UUID()
         let month: String
@@ -398,31 +424,107 @@ private struct PrDetailData {
     let level: String
     let ratioLabel: String
     let ringLabel: String
-    let notes: String
+    let notes: String?
     let history: [HistoryPoint]
     var shareText: String { "¡Nuevo PR en \(exercise): \(value) (\(delta))! 💪 #NDCHQ" }
+}
 
-    static let sample = PrDetailData(
-        badge: "NUEVO RÉCORD",
-        exercise: "Sentadilla Trasera",
-        value: "145kg",
-        delta: "+5kg",
-        dateLabel: "Hoy, 24 Oct",
-        level: "Avanzado",
-        ratioLabel: "103.5% del PR previo",
-        ringLabel: "103%",
-        notes: "Me sentí muy fuerte hoy, la técnica fue sólida en la última repetición.",
-        history: [
-            .init(month: "Abr", value: 120),
-            .init(month: "May", value: 122),
-            .init(month: "Jun", value: 121),
-            .init(month: "Jul", value: 130),
-            .init(month: "Ago", value: 135),
-            .init(month: "Hoy", value: 145)
-        ]
-    )
+// MARK: - Store (última marca real del atleta + su evolución)
+
+@MainActor @Observable
+final class PrDetailStore {
+    /// `.loaded(nil)` = el atleta aún no tiene ninguna marca registrada.
+    private(set) var state: LoadState<PrDetailData?> = .loading
+    private let repo = AthleteRepository()
+
+    func load(athleteId: UUID) async {
+        state = .loading
+        do {
+            let records = try await repo.personalRecords(athleteId: athleteId)
+            guard let latest = records.max(by: { $0.recordDate < $1.recordDate }) else {
+                state = .loaded(nil)
+                return
+            }
+            let exercises = try await repo.exercises(ids: [latest.exerciseId])
+            let exercise = exercises.first
+            let history = records
+                .filter { $0.exerciseId == latest.exerciseId }
+                .sorted { $0.recordDate < $1.recordDate }
+
+            state = .loaded(Self.buildData(latest: latest, exercise: exercise, history: history))
+        } catch {
+            state = .failed(error.localizedDescription)
+        }
+    }
+
+    private static func buildData(latest: PersonalRecord, exercise: Exercise?, history: [PersonalRecord]) -> PrDetailData {
+        let value = Self.formatValue(latest.value, scoreType: latest.scoreType)
+        let delta: String
+        let ratioLabel: String
+        let ringLabel: String
+        if let previous = latest.previousValue, previous > 0 {
+            let diff = latest.value - previous
+            let sign = diff >= 0 ? "+" : ""
+            delta = "\(sign)\(Self.formatValue(diff, scoreType: latest.scoreType))"
+            let ratio = (latest.value / previous) * 100
+            ratioLabel = "\(Int(ratio.rounded()))% del PR previo"
+            ringLabel = "\(Int(ratio.rounded()))%"
+        } else {
+            delta = "Nuevo"
+            ratioLabel = "Primera marca registrada"
+            ringLabel = "—"
+        }
+
+        let monthFormatter = DateFormatter()
+        monthFormatter.locale = Locale(identifier: "es_ES")
+        monthFormatter.dateFormat = "MMM"
+        let dateLabelFormatter = DateFormatter()
+        dateLabelFormatter.locale = Locale(identifier: "es_ES")
+        dateLabelFormatter.dateFormat = "d MMM"
+
+        return PrDetailData(
+            badge: latest.previousValue == nil ? "PRIMER RÉCORD" : "NUEVO RÉCORD",
+            exercise: exercise?.nameEs ?? exercise?.name ?? "Ejercicio",
+            value: value,
+            delta: delta,
+            dateLabel: Self.isToday(latest.recordDate) ? "Hoy, \(dateLabelFormatter.string(from: latest.recordDate))" : dateLabelFormatter.string(from: latest.recordDate),
+            level: exercise?.difficulty.displayName ?? "—",
+            ratioLabel: ratioLabel,
+            ringLabel: ringLabel,
+            notes: latest.athleteNotes,
+            history: history.suffix(6).map {
+                .init(month: monthFormatter.string(from: $0.recordDate).capitalized, value: $0.value)
+            }
+        )
+    }
+
+    private static func isToday(_ date: Date) -> Bool {
+        Calendar.current.isDateInToday(date)
+    }
+
+    private static func formatValue(_ value: Double, scoreType: ScoreType) -> String {
+        switch scoreType {
+        case .peso:
+            value == value.rounded() ? "\(Int(value))kg" : String(format: "%.1fkg", value)
+        case .tiempo:
+            Self.formatSeconds(value)
+        case .reps:
+            "\(Int(value)) reps"
+        case .rondas:
+            "\(Int(value)) rondas"
+        case .distancia:
+            String(format: "%.1fkm", value)
+        case .calorias:
+            "\(Int(value)) cal"
+        }
+    }
+
+    private static func formatSeconds(_ seconds: Double) -> String {
+        let total = Int(seconds.rounded())
+        return String(format: "%d:%02d", total / 60, total % 60)
+    }
 }
 
 #Preview {
-    NavigationStack { PrDetailView() }
+    NavigationStack { PrDetailView(profile: .preview) }
 }

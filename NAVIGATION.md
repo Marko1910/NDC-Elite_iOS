@@ -45,15 +45,17 @@ Componentes compartidos: `NDCBrandBar` (`.ndcBrandToolbar`), `NDCAvatarView`,
 
 ## TAB BAR — COACH (`CoachTabView`)
 
-5 tabs: **Inicio · WODs · Atletas · Alertas · Progreso**
+5 tabs: **Inicio · WODs · Atletas · Progreso · Perfil**
 
 | Tab | Vista raíz | Navega a |
 |---|---|---|
-| Inicio | `CoachDashboardView` | "Validaciones Pendientes" → `ValidationView` (push) · alertas de ausencia → WhatsApp (`WhatsAppHelper`) · próximo WOD → WodDetail (pend.) |
-| WODs | `WodManagementView` | FAB menú → "Nuevo WOD" `WodEditorView` (push) / "Nueva Sesión de Running" `RunningEditorView` (sheet) · editar/eliminar (pend.) |
+| Inicio | `CoachDashboardView` | "Validaciones Pendientes" → `ValidationView` (push) · campanita (toolbar) → `CoachAlertsView` (push) · alertas de ausencia → WhatsApp (`WhatsAppHelper`) · próximo WOD → WodDetail (pend.) |
+| WODs | `WodManagementView` | FAB menú → "Nuevo WOD" `WodEditorView` (push) / "Nueva Sesión de Running" `RunningEditorView` (sheet) · toolbar → `ExerciseLibraryManagementView` (push) · editar/eliminar (pend.) |
 | Atletas | `AthleteManagementView` | "Tomar Asistencia" → `AttendanceControlView` (sheet) · "Ver Perfil" → `CoachAthleteProfileView` (push) · barra "Invitar" → `InviteAthleteView` (sheet) |
-| Alertas | `CoachAlertsView` | Validar → `ValidationView` (entrada principal vía Dashboard) · Contactar → WhatsApp · Responder (pend.) |
 | Progreso | `CommunityProgressView` | "Ver todo" listas (pend.) |
+| Perfil | `CoachProfileView` | Cerrar Sesión → `SessionStore.signOut()` |
+
+`CoachAlertsView` ya no es tab: se accede desde la campanita del Dashboard. Validar → `ValidationView` · Contactar → WhatsApp · Responder (pend.)
 
 Sub-vistas coach:
 - `ValidationView` → Validar (status validado) / Corregir → `CorrectResultSheet` (pend.) / Validar Todo

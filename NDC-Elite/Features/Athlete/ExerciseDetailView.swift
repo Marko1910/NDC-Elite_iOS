@@ -3,7 +3,7 @@ import SwiftUI
 /// Ejercicio de la biblioteca técnica (modelo de muestra; futuro: tabla `exercises`
 /// + `exercise_technique_steps`, con `video_url` de YouTube que sube el coach).
 struct LibraryExercise: Identifiable, Hashable {
-    let id = UUID()
+    let id: UUID
     let name: String
     let subtitle: String
     let category: ExerciseCategory
@@ -12,6 +12,18 @@ struct LibraryExercise: Identifiable, Hashable {
     let youtubeURL: String
     let summary: String
     let steps: [Step]
+
+    init(id: UUID = UUID(), name: String, subtitle: String, category: ExerciseCategory,
+         level: AthleteLevel, youtubeURL: String, summary: String, steps: [Step]) {
+        self.id = id
+        self.name = name
+        self.subtitle = subtitle
+        self.category = category
+        self.level = level
+        self.youtubeURL = youtubeURL
+        self.summary = summary
+        self.steps = steps
+    }
 
     struct Step: Hashable {
         let title: String

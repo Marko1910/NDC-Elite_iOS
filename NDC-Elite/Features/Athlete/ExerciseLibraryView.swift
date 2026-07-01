@@ -12,10 +12,10 @@ struct ExerciseLibraryView: View {
     @State private var query = ""
     @State private var category: ExerciseCategory?
 
-    private let all = ExerciseLibrary.sample
+    private let store = ExerciseLibraryStore.shared
 
     private var filtered: [LibraryExercise] {
-        all.filter { ex in
+        store.exercises.filter { ex in
             (category == nil || ex.category == category)
             && (query.isEmpty
                 || ex.name.localizedCaseInsensitiveContains(query)
@@ -146,6 +146,31 @@ extension ExerciseCategory {
         case .movilidad: "figure.cooldown"
         case .olimpico: "figure.strengthtraining.traditional"
         }
+    }
+}
+
+// MARK: - Store compartido (coach escribe, atleta lee)
+
+/// Biblioteca técnica en memoria: el coach añade/edita ejercicios desde
+/// `ExerciseLibraryManagementView` y el atleta los ve al instante aquí.
+/// TODO(datos): reemplazar por fetch/insert/update en `exercises` de Supabase.
+@Observable
+final class ExerciseLibraryStore {
+    static let shared = ExerciseLibraryStore()
+    private init() {}
+
+    var exercises: [LibraryExercise] = ExerciseLibrary.sample
+
+    func upsert(_ exercise: LibraryExercise) {
+        if let index = exercises.firstIndex(where: { $0.id == exercise.id }) {
+            exercises[index] = exercise
+        } else {
+            exercises.append(exercise)
+        }
+    }
+
+    func delete(_ exercise: LibraryExercise) {
+        exercises.removeAll { $0.id == exercise.id }
     }
 }
 

@@ -10,6 +10,7 @@ import Charts
 struct CommunityProgressView: View {
     let profile: Profile
     private typealias data = CommunityProgressData
+    @State private var adherenceStore = CommunityAdherenceStore()
 
     var body: some View {
         NavigationStack {
@@ -29,6 +30,8 @@ struct CommunityProgressView: View {
             .scrollIndicators(.hidden)
             .navigationTitle("Progreso Comunitario")
             .navigationBarTitleDisplayMode(.large)
+            .task { await adherenceStore.load() }
+            .refreshable { await adherenceStore.load() }
         }
         .tint(NDCColor.primary)
     }
@@ -63,18 +66,33 @@ struct CommunityProgressView: View {
                 Spacer()
                 Text("Últimos 7 días").font(NDCFont.labelSM).foregroundStyle(NDCColor.outline)
             }
-            Chart(data.adherence) { day in
-                BarMark(x: .value("Día", day.label), y: .value("%", day.value))
-                    .foregroundStyle(day.value >= 80 ? NDCColor.primary : NDCColor.primary.opacity(0.45))
-                    .cornerRadius(4)
-                    .annotation(position: .top) {
-                        Text("\(day.value)%").font(.system(size: 9)).foregroundStyle(NDCColor.outline)
+            LoadStateView(
+                state: adherenceStore.state,
+                retry: { Task { await adherenceStore.load() } }
+            ) { days in
+                if days.isEmpty {
+                    ContentUnavailableView(
+                        "Sin atletas activos",
+                        systemImage: "person.3",
+                        description: Text("Aún no hay atletas activos para calcular adherencia.")
+                    )
+                } else {
+                    Chart(days) { day in
+                        BarMark(x: .value("Día", day.label), y: .value("%", day.value))
+                            .foregroundStyle(day.value >= 80 ? NDCColor.primary : NDCColor.primary.opacity(0.45))
+                            .cornerRadius(4)
+                            .annotation(position: .top) {
+                                Text("\(day.value)%").font(.system(size: 9)).foregroundStyle(NDCColor.outline)
+                            }
                     }
+                    .chartYAxis(.hidden)
+                    .chartYScale(domain: 0...110)
+                    .chartXAxis { AxisMarks { _ in AxisValueLabel().font(NDCFont.labelSM) } }
+                    .frame(height: 140)
+                }
+            } skeleton: {
+                SkeletonCard(lines: 1, height: 140)
             }
-            .chartYAxis(.hidden)
-            .chartYScale(domain: 0...110)
-            .chartXAxis { AxisMarks { _ in AxisValueLabel().font(NDCFont.labelSM) } }
-            .frame(height: 140)
         }
         .padding(NDCSpacing.stackLG)
         .frame(maxWidth: .infinity, alignment: .leading)
@@ -145,11 +163,6 @@ private enum CommunityProgressData {
     static let globalPRs = 128
     static let prDelta = "+12%"
     static let compliance = 84
-    static let adherence: [Day] = [
-        .init(label: "L", value: 60), .init(label: "M", value: 75), .init(label: "X", value: 88),
-        .init(label: "J", value: 82), .init(label: "V", value: 94), .init(label: "S", value: 45),
-        .init(label: "D", value: 20)
-    ]
     static let recentPRs: [PR] = [
         .init(athlete: "Elena Mora", exercise: "Deadlift", value: "125kg", tag: "Nuevo Récord!", isRecord: true),
         .init(athlete: "Carlos Ruiz", exercise: "Fran WOD", value: "3:42", tag: "-15 seg", isRecord: false),
@@ -160,6 +173,31 @@ private enum CommunityProgressData {
         .init(name: "Lucía Fernández", consistency: 92, delta: "+18%"),
         .init(name: "Andrés Soler", consistency: 89, delta: "+15%")
     ]
+}
+
+// MARK: - Store (adherencia real: % de atletas activos que asistieron por día)
+
+@MainActor @Observable
+final class CommunityAdherenceStore {
+    fileprivate var state: LoadState<[CommunityProgressData.Day]> = .loading
+    private let repo = CoachRepository()
+    private static let dayLabels = ["L", "M", "X", "J", "V", "S", "D"]
+
+    func load() async {
+        state = .loading
+        do {
+            let days = try await repo.adherenceByDay(days: 7)
+            let calendar = CoachRepository.calendar
+            let mapped = days.map { entry in
+                let weekday = calendar.component(.weekday, from: entry.date) // 1 = domingo
+                let labelIndex = (weekday + 5) % 7 // domingo→6, lunes→0…
+                return CommunityProgressData.Day(label: Self.dayLabels[labelIndex], value: entry.percent)
+            }
+            state = .loaded(mapped)
+        } catch {
+            state = .failed(error.localizedDescription)
+        }
+    }
 }
 
 #Preview {

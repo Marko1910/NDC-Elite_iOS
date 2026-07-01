@@ -13,6 +13,7 @@ struct AthleteProfileView: View {
     let profile: Profile
     @Environment(SessionStore.self) private var session
     private let data = ProfileData.sample
+    @State private var prStore = AthletePrHistoryStore()
 
     @State private var showLogInjury = false
     @State private var showScanner = false
@@ -57,6 +58,8 @@ struct AthleteProfileView: View {
                     .accessibilityLabel("Escanear QR de asistencia")
                 }
             }
+            .task { await prStore.load(athleteId: profile.id) }
+            .refreshable { await prStore.load(athleteId: profile.id) }
         }
         .tint(NDCColor.primary)
     }
@@ -185,9 +188,27 @@ struct AthleteProfileView: View {
             Text("Historial de Marcas (PR)")
                 .font(NDCFont.headlineSM)
                 .foregroundStyle(NDCColor.onSurface)
-            VStack(spacing: NDCSpacing.gutter) {
-                ForEach(data.prHistory) { pr in
-                    PRSparklineCard(pr: pr)
+            LoadStateView(
+                state: prStore.state,
+                retry: { Task { await prStore.load(athleteId: profile.id) } }
+            ) { marks in
+                if marks.isEmpty {
+                    ContentUnavailableView(
+                        "Aún sin marcas",
+                        systemImage: "chart.line.uptrend.xyaxis",
+                        description: Text("Registra tu primer PR para ver tu evolución aquí.")
+                    )
+                } else {
+                    VStack(spacing: NDCSpacing.gutter) {
+                        ForEach(marks) { pr in
+                            PRSparklineCard(pr: pr)
+                        }
+                    }
+                }
+            } skeleton: {
+                VStack(spacing: NDCSpacing.gutter) {
+                    SkeletonCard(lines: 2, height: 70)
+                    SkeletonCard(lines: 2, height: 70)
                 }
             }
         }
@@ -351,6 +372,50 @@ private extension View {
     }
 }
 
+// MARK: - Store (historial de PR real, agrupado por ejercicio)
+
+@MainActor @Observable
+final class AthletePrHistoryStore {
+    fileprivate var state: LoadState<[ProfileData.PRMark]> = .loading
+    private let repo = AthleteRepository()
+
+    func load(athleteId: UUID) async {
+        state = .loading
+        do {
+            let records = try await repo.personalRecords(athleteId: athleteId)
+            guard !records.isEmpty else { state = .loaded([]); return }
+
+            let exerciseIds = Array(Set(records.map(\.exerciseId)))
+            let exercises = try await repo.exercises(ids: exerciseIds)
+            let namesById = Dictionary(uniqueKeysWithValues: exercises.map { ($0.id, $0.nameEs ?? $0.name) })
+
+            let grouped = Dictionary(grouping: records, by: \.exerciseId)
+            let entries: [(Date, ProfileData.PRMark)] = grouped.compactMap { exerciseId, recs in
+                let sorted = recs.sorted { $0.recordDate < $1.recordDate }
+                guard let latest = sorted.last else { return nil }
+                let mark = ProfileData.PRMark(
+                    exercise: namesById[exerciseId] ?? "Ejercicio",
+                    value: latest.value,
+                    ago: Self.relative(latest.recordDate),
+                    history: sorted.suffix(6).map(\.value)
+                )
+                return (latest.recordDate, mark)
+            }
+            let ordered = entries.sorted { $0.0 > $1.0 }.map(\.1)
+            state = .loaded(Array(ordered.prefix(3)))
+        } catch {
+            state = .failed(error.localizedDescription)
+        }
+    }
+
+    private static func relative(_ date: Date) -> String {
+        let formatter = RelativeDateTimeFormatter()
+        formatter.locale = Locale(identifier: "es")
+        formatter.unitsStyle = .full
+        return formatter.localizedString(for: date, relativeTo: Date())
+    }
+}
+
 // MARK: - Datos de muestra (a reemplazar por fetch de Supabase)
 
 private struct ProfileData {
@@ -379,7 +444,6 @@ private struct ProfileData {
     let weightDelta: String
     let goalTitle: String
     let goalProgress: Double
-    let prHistory: [PRMark]
     let medicalNotes: [MedicalNote]
     let injuries: [InjuryItem]
     let unreadCount: Int
@@ -390,14 +454,6 @@ private struct ProfileData {
         weightDelta: "-0.8kg",
         goalTitle: "Ganar masa muscular y mejorar estabilidad en Clean & Jerk.",
         goalProgress: 0.85,
-        prHistory: [
-            PRMark(exercise: "Sentadilla Trasera", value: 145, ago: "Hace 3 días",
-                   history: [120, 125, 122, 130, 135, 140, 145]),
-            PRMark(exercise: "Cargada", value: 110, ago: "Hace 12 días",
-                   history: [95, 98, 100, 104, 106, 110]),
-            PRMark(exercise: "Arrancada", value: 85, ago: "Ayer",
-                   history: [70, 74, 72, 78, 80, 85])
-        ],
         medicalNotes: [
             MedicalNote(isWarning: true, text: "Molestia leve en tendón rotuliano derecho. Evitar saltos de cajón de alta intensidad."),
             MedicalNote(isWarning: false, text: "Enfoque en movilidad de hombros previo a trabajos Overhead.")

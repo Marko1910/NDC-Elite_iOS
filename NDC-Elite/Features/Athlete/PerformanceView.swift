@@ -41,7 +41,7 @@ struct PerformanceView: View {
             .overlay(alignment: .bottomTrailing) { logPrFAB }
             .sheet(isPresented: $showLogPr) { LogPrSheet() }
             .navigationDestination(isPresented: $showPrDetail) {
-                PrDetailView(athleteName: profile.fullName)
+                PrDetailView(profile: profile)
             }
             .navigationDestination(isPresented: $showLibrary) {
                 ExerciseLibraryView()

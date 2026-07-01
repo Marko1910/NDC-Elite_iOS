@@ -111,6 +111,31 @@ struct AthleteRepository {
         return rows.count
     }
 
+    // MARK: - Marcas Personales (sparklines / evolución de PR)
+
+    /// Todas las marcas del atleta, de más antigua a más reciente (para agrupar
+    /// por ejercicio y graficar su evolución).
+    func personalRecords(athleteId: UUID) async throws -> [PersonalRecord] {
+        try await client
+            .from("personal_records")
+            .select()
+            .eq("athlete_id", value: athleteId)
+            .order("record_date", ascending: true)
+            .execute()
+            .value
+    }
+
+    /// Ejercicios por id (para mostrar su nombre junto a la marca).
+    func exercises(ids: [UUID]) async throws -> [Exercise] {
+        guard !ids.isEmpty else { return [] }
+        return try await client
+            .from("exercises")
+            .select()
+            .in("id", values: ids)
+            .execute()
+            .value
+    }
+
     // MARK: - Helpers
 
     private static func isoDate(_ date: Date) -> String {
