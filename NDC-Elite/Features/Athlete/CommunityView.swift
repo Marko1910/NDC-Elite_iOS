@@ -34,9 +34,6 @@ struct CommunityView: View {
             }
             .padding(.top, NDCSpacing.stackSM)
             .background(NDCColor.background)
-            .toolbar {
-                ToolbarItem(placement: .topBarLeading) { NDCBrandLabel() }
-            }
         }
         .tint(NDCColor.primary)
     }

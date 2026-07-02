@@ -49,11 +49,12 @@ struct AthleteDashboardView: View {
             }
             .background(NDCColor.background)
             .scrollIndicators(.hidden)
-            .overlay(alignment: .bottomTrailing) {
-                bookClassFAB
-            }
-            .ndcBrandToolbar(profile: profile, unreadCount: store.state.value?.unreadCount ?? 0) {
-                showNotifications = true
+            .toolbar {
+                ToolbarItem(placement: .topBarTrailing) {
+                    NDCBellButton(unreadCount: store.state.value?.unreadCount ?? 0) {
+                        showNotifications = true
+                    }
+                }
             }
             .sheet(isPresented: $showNotifications, onDismiss: {
                 // Refresca el badge: la bandeja marcó todo como leído.
@@ -81,24 +82,6 @@ struct AthleteDashboardView: View {
         .accessibilityElement(children: .combine)
     }
 
-    // MARK: - FAB "Reservar clase"
-
-    private var bookClassFAB: some View {
-        Button {
-            Haptics.impact()
-            // TODO: reservar una clase
-        } label: {
-            Image(systemName: "plus")
-                .font(.system(size: 22, weight: .semibold))
-                .foregroundStyle(NDCColor.primary)
-                .frame(width: 56, height: 56)
-                .background(NDCColor.accent, in: .circle)
-                .shadow(color: .black.opacity(0.2), radius: 8, y: 4)
-        }
-        .padding(.trailing, NDCSpacing.marginMain)
-        .padding(.bottom, NDCSpacing.stackLG)
-        .accessibilityLabel("Reservar una clase")
-    }
 }
 
 // MARK: - Logro desbloqueado (alerta amarilla)

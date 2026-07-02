@@ -51,7 +51,11 @@ struct ExerciseDetailView: View {
                 heading
                 summary
                 steps
-                registerButton
+                // Los PR solo aplican a levantamientos: el botón aparece
+                // únicamente si el ejercicio se mide en peso.
+                if exercise.scoreType == .peso {
+                    registerButton
+                }
             }
             .padding(.horizontal, NDCSpacing.marginMain)
             .padding(.top, NDCSpacing.stackMD)

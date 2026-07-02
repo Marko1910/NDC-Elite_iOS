@@ -5,34 +5,54 @@ import SwiftUI
 /// resultado registrado por el atleta y su estado de validación. Se accede
 /// desde el icono de historial del tab WOD.
 ///
-/// TODO(datos): usa `WodHistoryData.sample`. Conectar a Supabase: wods (pasados)
-/// + wod_results del atleta (tiempo/rounds/reps, status, is_pr).
+/// Datos reales: `wods` pasados publicados + `wod_results` del atleta
+/// (tiempo/rounds/reps/peso, status, is_pr).
 struct WodHistoryView: View {
-    private let data = WodHistoryData.sample
+    let profile: Profile
+    @State private var store = WodHistoryStore()
     @State private var filter: Filter = .todos
+    @State private var selectedEntry: WodHistoryStore.Entry?
 
     enum Filter: String, CaseIterable { case todos = "Todos", registrados = "Registrados", pendientes = "Pendientes" }
 
-    private var filtered: [WodHistoryData.Entry] {
+    private func filtered(_ entries: [WodHistoryStore.Entry]) -> [WodHistoryStore.Entry] {
         switch filter {
-        case .todos: data.entries
-        case .registrados: data.entries.filter { $0.result != nil }
-        case .pendientes: data.entries.filter { $0.result == nil }
+        case .todos: entries
+        case .registrados: entries.filter { $0.result != nil }
+        case .pendientes: entries.filter { $0.result == nil }
         }
     }
 
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: NDCSpacing.stackLG) {
-                summaryCard
-                filterChips
-                if filtered.isEmpty {
-                    ContentUnavailableView("Sin WODs", systemImage: "calendar.badge.exclamationmark",
-                                           description: Text("No hay entrenamientos en esta categoría."))
-                        .padding(.top, NDCSpacing.stackLG)
-                } else {
-                    ForEach(filtered) { entry in
-                        WodHistoryRow(entry: entry)
+                LoadStateView(state: store.state, retry: { Task { await store.load(athleteId: profile.id) } }) { data in
+                    let visible = filtered(data.entries)
+                    VStack(alignment: .leading, spacing: NDCSpacing.stackLG) {
+                        summaryCard(data)
+                        filterChips
+                        if visible.isEmpty {
+                            ContentUnavailableView("Sin WODs", systemImage: "calendar.badge.exclamationmark",
+                                                   description: Text("No hay entrenamientos en esta categoría."))
+                                .padding(.top, NDCSpacing.stackLG)
+                        } else {
+                            ForEach(visible) { entry in
+                                Button {
+                                    Haptics.impact(.light)
+                                    selectedEntry = entry
+                                } label: {
+                                    WodHistoryRow(entry: entry)
+                                }
+                                .buttonStyle(.plain)
+                            }
+                        }
+                    }
+                } skeleton: {
+                    VStack(spacing: NDCSpacing.stackMD) {
+                        SkeletonCard(lines: 1, height: 90)
+                        SkeletonCard(lines: 2, height: 80)
+                        SkeletonCard(lines: 2, height: 80)
+                        SkeletonCard(lines: 2, height: 80)
                     }
                 }
             }
@@ -44,24 +64,29 @@ struct WodHistoryView: View {
         .scrollIndicators(.hidden)
         .navigationTitle("Historial de WODs")
         .navigationBarTitleDisplayMode(.large)
+        .task { await store.load(athleteId: profile.id) }
+        .refreshable { await store.load(athleteId: profile.id) }
+        .sheet(item: $selectedEntry) { entry in
+            WodExercisesSheet(wodId: entry.id, title: entry.title)
+        }
     }
 
     // MARK: - Resumen
 
-    private var summaryCard: some View {
+    private func summaryCard(_ data: WodHistoryStore.Data) -> some View {
         HStack(spacing: NDCSpacing.gutter) {
             summaryStat(value: "\(data.totalCompleted)", label: "Completados")
             Divider().frame(height: 40).overlay(.white.opacity(0.2))
             summaryStat(value: "\(data.prCount)", label: "PRs")
             Divider().frame(height: 40).overlay(.white.opacity(0.2))
-            summaryStat(value: data.compliance, label: "Racha")
+            summaryStat(value: data.compliance, label: "Cumplimiento")
         }
         .frame(maxWidth: .infinity)
         .padding(NDCSpacing.stackLG)
         .background(NDCColor.primary, in: .rect(cornerRadius: NDCRadius.large))
         .shadow(color: NDCColor.primaryDark.opacity(0.15), radius: 10, y: 4)
         .accessibilityElement(children: .combine)
-        .accessibilityLabel("\(data.totalCompleted) WODs completados, \(data.prCount) PRs, racha \(data.compliance)")
+        .accessibilityLabel("\(data.totalCompleted) WODs completados, \(data.prCount) PRs, cumplimiento \(data.compliance)")
     }
 
     private func summaryStat(value: String, label: String) -> some View {
@@ -97,7 +122,7 @@ struct WodHistoryView: View {
 // MARK: - Fila del historial
 
 private struct WodHistoryRow: View {
-    let entry: WodHistoryData.Entry
+    let entry: WodHistoryStore.Entry
 
     var body: some View {
         HStack(spacing: NDCSpacing.gutter) {
@@ -155,11 +180,20 @@ private struct WodHistoryRow: View {
     }
 }
 
-// MARK: - Datos de muestra (a reemplazar por fetch de Supabase)
+// MARK: - Store (WODs pasados + resultados reales del atleta)
 
-private struct WodHistoryData {
+@MainActor @Observable
+final class WodHistoryStore {
+    struct Data {
+        let totalCompleted: Int
+        let prCount: Int
+        /// % de WODs pasados con resultado registrado.
+        let compliance: String
+        let entries: [Entry]
+    }
+
     struct Entry: Identifiable {
-        let id = UUID()
+        let id: UUID
         let day: String
         let month: String
         let title: String
@@ -169,26 +203,65 @@ private struct WodHistoryData {
         let isPr: Bool
     }
 
-    let totalCompleted: Int
-    let prCount: Int
-    let compliance: String
-    let entries: [Entry]
+    private(set) var state: LoadState<Data> = .loading
+    private let repo = AthleteRepository()
 
-    static let sample = WodHistoryData(
-        totalCompleted: 48,
-        prCount: 5,
-        compliance: "85%",
-        entries: [
-            Entry(day: "29", month: "Jun", title: "El Desafío Híbrido", type: "FOR TIME", result: "12:45", validated: true, isPr: false),
-            Entry(day: "27", month: "Jun", title: "Fran", type: "FOR TIME", result: "3:12", validated: true, isPr: true),
-            Entry(day: "25", month: "Jun", title: "EMOM 20 — Clean & Jerk", type: "EMOM", result: "85 kg", validated: false, isPr: false),
-            Entry(day: "23", month: "Jun", title: "Helen", type: "FOR TIME", result: "10:30", validated: true, isPr: false),
-            Entry(day: "20", month: "Jun", title: "AMRAP 15 — Cindy", type: "AMRAP", result: nil, validated: false, isPr: false),
-            Entry(day: "18", month: "Jun", title: "Back Squat 5x5", type: "FUERZA", result: "145 kg", validated: true, isPr: true)
-        ]
-    )
+    private static let dayFmt: DateFormatter = {
+        let f = DateFormatter(); f.locale = Locale(identifier: "es_ES"); f.dateFormat = "d"; return f
+    }()
+    private static let monthFmt: DateFormatter = {
+        let f = DateFormatter(); f.locale = Locale(identifier: "es_ES"); f.dateFormat = "MMM"; return f
+    }()
+
+    func load(athleteId: UUID) async {
+        if state.value == nil { state = .loading }
+        do {
+            let wods = try await repo.pastWods()
+            let results = try await repo.wodResults(athleteId: athleteId)
+            let resultByWod = Dictionary(grouping: results, by: \.wodId).compactMapValues(\.first)
+
+            let entries = wods.map { wod -> Entry in
+                let result = resultByWod[wod.id]
+                return Entry(
+                    id: wod.id,
+                    day: Self.dayFmt.string(from: wod.scheduledDate),
+                    month: Self.monthFmt.string(from: wod.scheduledDate).replacingOccurrences(of: ".", with: ""),
+                    title: wod.title,
+                    type: wod.wodType.displayName.uppercased(),
+                    result: result.map(Self.format),
+                    validated: result?.status == .validado,
+                    isPr: result?.isPr ?? false
+                )
+            }
+            let completed = entries.filter { $0.result != nil }.count
+            let compliance = entries.isEmpty ? "—" : "\(completed * 100 / entries.count)%"
+            state = .loaded(Data(
+                totalCompleted: completed,
+                prCount: entries.filter(\.isPr).count,
+                compliance: compliance,
+                entries: entries
+            ))
+        } catch {
+            state = .failed("No se pudo cargar el historial.")
+        }
+    }
+
+    /// Resultado legible según lo que registró el atleta: tiempo (mm:ss),
+    /// rounds + reps (AMRAP), solo reps, o peso.
+    private static func format(_ result: WodResult) -> String {
+        if let secs = result.timeSeconds {
+            return String(format: "%d:%02d", secs / 60, secs % 60)
+        }
+        if let rounds = result.rounds {
+            let reps = result.reps.map { " + \($0)" } ?? ""
+            return "\(rounds) rondas\(reps)"
+        }
+        if let reps = result.reps { return "\(reps) reps" }
+        if let kg = result.weightUsedKg { return "\(kg.formatted()) kg" }
+        return "Registrado"
+    }
 }
 
 #Preview {
-    NavigationStack { WodHistoryView() }
+    NavigationStack { WodHistoryView(profile: .preview) }
 }

@@ -99,6 +99,29 @@ struct AthleteRepository {
         return rows.first
     }
 
+    /// WODs pasados publicados (históricos, el más reciente primero).
+    func pastWods(until today: Date = Date(), limit: Int = 60) async throws -> [Wod] {
+        try await client
+            .from("wods")
+            .select()
+            .lte("scheduled_date", value: Self.isoDate(today))
+            .eq("status", value: WodStatus.publicado.rawValue)
+            .order("scheduled_date", ascending: false)
+            .limit(limit)
+            .execute()
+            .value
+    }
+
+    /// Resultados del atleta (para cruzar con los WODs del historial).
+    func wodResults(athleteId: UUID) async throws -> [WodResult] {
+        try await client
+            .from("wod_results")
+            .select()
+            .eq("athlete_id", value: athleteId)
+            .execute()
+            .value
+    }
+
     /// Notificaciones del usuario, la más reciente primero (bandeja de la campana).
     func notifications(userId: UUID) async throws -> [AppNotification] {
         try await client

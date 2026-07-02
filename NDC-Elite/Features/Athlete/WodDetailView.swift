@@ -57,7 +57,7 @@ struct WodDetailView: View {
                 LogWodResultView()
             }
             .navigationDestination(isPresented: $showHistory) {
-                WodHistoryView()
+                WodHistoryView(profile: profile)
             }
             .navigationDestination(isPresented: $showLibrary) {
                 ExerciseLibraryView()
@@ -66,9 +66,6 @@ struct WodDetailView: View {
                 ExerciseDetailView(exercise: exercise)
             }
             .toolbar {
-                ToolbarItem(placement: .topBarLeading) {
-                    NDCBrandLabel()
-                }
                 ToolbarItem(placement: .topBarTrailing) {
                     Button {
                         Haptics.impact(.light)

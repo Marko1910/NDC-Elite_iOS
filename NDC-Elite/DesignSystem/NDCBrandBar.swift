@@ -1,41 +1,5 @@
 import SwiftUI
 
-/// Barra de marca superior compartida por las pantallas (avatar + "NDC HQ" a la
-/// izquierda, campana de notificaciones a la derecha). Diseño Stitch "NDC HQ".
-///
-/// Uso:
-/// ```
-/// NavigationStack { ... }
-///     .ndcBrandToolbar(profile: profile, unreadCount: n) { /* abrir notifs */ }
-/// ```
-extension View {
-    func ndcBrandToolbar(
-        profile: Profile,
-        unreadCount: Int = 0,
-        onBell: @escaping () -> Void
-    ) -> some View {
-        toolbar {
-            ToolbarItem(placement: .topBarLeading) {
-                NDCBrandLabel()
-            }
-            ToolbarItem(placement: .topBarTrailing) {
-                NDCBellButton(unreadCount: unreadCount, action: onBell)
-            }
-        }
-    }
-}
-
-/// Nombre de marca (sin avatar: el usuario ya se ve en Perfil, era redundante).
-struct NDCBrandLabel: View {
-    var body: some View {
-        Text("NDC HQ")
-            .font(NDCFont.headlineMD)
-            .foregroundStyle(NDCColor.primary)
-            .accessibilityLabel("NDC HQ")
-            .accessibilityAddTraits(.isHeader)
-    }
-}
-
 /// Botón de notificaciones con rebote cuando hay sin leer.
 struct NDCBellButton: View {
     let unreadCount: Int

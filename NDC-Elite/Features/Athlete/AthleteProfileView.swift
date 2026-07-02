@@ -43,9 +43,6 @@ struct AthleteProfileView: View {
                 AttendanceScannerView()
             }
             .toolbar {
-                ToolbarItem(placement: .topBarLeading) {
-                    NDCBrandLabel()
-                }
                 // Escáner QR de asistencia (en lugar de la campana).
                 ToolbarItem(placement: .topBarTrailing) {
                     Button {

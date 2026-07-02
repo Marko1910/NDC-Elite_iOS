@@ -5,7 +5,8 @@ import SwiftUI
 /// Progreso. Campos: ejercicio · resultado + fecha · notas · Guardar / Cancelar.
 /// (ver FLOWS.md → LogPrSheet)
 ///
-/// El picker lista los `exercises` reales de la Biblioteca Técnica y al guardar
+/// El picker lista los `exercises` reales de la Biblioteca Técnica —solo los
+/// que se miden en **peso** (los PR son de levantamientos)— y al guardar
 /// inserta en `personal_records` (status = pendiente, con `previous_value`).
 struct LogPrSheet: View {
     @Environment(\.dismiss) private var dismiss
@@ -232,7 +233,9 @@ struct LogPrSheet: View {
     private func loadExercises() async {
         exercises = .loading
         do {
-            exercises = .loaded(try await AthleteRepository().allExercises())
+            // Solo ejercicios de peso: los PR se registran para levantamientos.
+            let all = try await AthleteRepository().allExercises()
+            exercises = .loaded(all.filter { $0.defaultScoreType == .peso })
         } catch {
             exercises = .failed(error.localizedDescription)
         }

@@ -276,6 +276,7 @@ private struct WeeklySummarySheet: View {
     let weekDays: [Date]
     let wods: [Wod]
     @Environment(\.dismiss) private var dismiss
+    @State private var selectedWod: Wod?
 
     private static let dayFmt: DateFormatter = {
         let f = DateFormatter(); f.locale = Locale(identifier: "es_ES"); f.dateFormat = "EEEE d"; return f
@@ -299,16 +300,22 @@ private struct WeeklySummarySheet: View {
                                     .font(NDCFont.labelSM).foregroundStyle(NDCColor.outline)
                             } else {
                                 ForEach(dayWods) { wod in
-                                    HStack {
-                                        Text(wod.title).font(NDCFont.bodyMD).foregroundStyle(NDCColor.onSurface)
-                                        Spacer()
-                                        NDCChip(text: wod.wodType.displayName)
-                                        Text(wod.status.displayName.uppercased())
-                                            .font(NDCFont.labelSM)
-                                            .foregroundStyle(wod.status == .publicado ? .green : NDCColor.outline)
+                                    Button {
+                                        Haptics.impact(.light)
+                                        selectedWod = wod
+                                    } label: {
+                                        HStack {
+                                            Text(wod.title).font(NDCFont.bodyMD).foregroundStyle(NDCColor.onSurface)
+                                            Spacer()
+                                            NDCChip(text: wod.wodType.displayName)
+                                            Text(wod.status.displayName.uppercased())
+                                                .font(NDCFont.labelSM)
+                                                .foregroundStyle(wod.status == .publicado ? .green : NDCColor.outline)
+                                        }
+                                        .padding(NDCSpacing.gutter)
+                                        .background(NDCColor.surface, in: .rect(cornerRadius: NDCRadius.standard))
                                     }
-                                    .padding(NDCSpacing.gutter)
-                                    .background(NDCColor.surface, in: .rect(cornerRadius: NDCRadius.standard))
+                                    .buttonStyle(.plain)
                                 }
                             }
                         }
@@ -323,6 +330,9 @@ private struct WeeklySummarySheet: View {
                 ToolbarItem(placement: .topBarTrailing) {
                     Button("Cerrar") { dismiss() }.foregroundStyle(NDCColor.primary)
                 }
+            }
+            .sheet(item: $selectedWod) { wod in
+                WodExercisesSheet(wodId: wod.id, title: wod.title)
             }
         }
     }
