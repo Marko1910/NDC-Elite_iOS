@@ -1,5 +1,6 @@
 import SwiftUI
 import Charts
+import Supabase
 
 /// Tab 1 · Inicio del coach — diseño Stitch "Dashboard del Coach - Vista Estratégica".
 /// Asistencia de hoy · validaciones pendientes (acción requerida) · rendimiento
