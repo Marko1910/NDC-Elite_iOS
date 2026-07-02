@@ -54,14 +54,14 @@ struct WodHistoryView: View {
             Divider().frame(height: 40).overlay(.white.opacity(0.2))
             summaryStat(value: "\(data.prCount)", label: "PRs")
             Divider().frame(height: 40).overlay(.white.opacity(0.2))
-            summaryStat(value: data.compliance, label: "RX")
+            summaryStat(value: data.compliance, label: "Racha")
         }
         .frame(maxWidth: .infinity)
         .padding(NDCSpacing.stackLG)
         .background(NDCColor.primary, in: .rect(cornerRadius: NDCRadius.large))
         .shadow(color: NDCColor.primaryDark.opacity(0.15), radius: 10, y: 4)
         .accessibilityElement(children: .combine)
-        .accessibilityLabel("\(data.totalCompleted) WODs completados, \(data.prCount) PRs, \(data.compliance) RX")
+        .accessibilityLabel("\(data.totalCompleted) WODs completados, \(data.prCount) PRs, racha \(data.compliance)")
     }
 
     private func summaryStat(value: String, label: String) -> some View {

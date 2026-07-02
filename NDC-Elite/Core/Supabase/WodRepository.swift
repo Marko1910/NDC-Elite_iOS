@@ -73,6 +73,43 @@ struct WodRepository {
         try await client.from("wods").delete().eq("id", value: wodId).execute()
     }
 
+    /// Publica una sesión de running (wod_type = running, sin bloques).
+    /// La hora de salida viaja en `focus` (los wods no tienen columna de hora).
+    func publishRunning(title: String, scheduledDate: Date, startLabel: String,
+                        distanceKm: Double?, paceTarget: String?, routeURL: String?,
+                        notes: String?, createdBy: UUID) async throws {
+        struct Row: Encodable {
+            let title: String
+            let scheduledDate: String
+            let wodType: WodType
+            let status: WodStatus
+            let focus: String
+            let distanceKm: Double?
+            let paceTarget: String?
+            let routeURL: String?
+            let isOutdoor: Bool
+            let notes: String?
+            let createdBy: UUID
+
+            enum CodingKeys: String, CodingKey {
+                case title, status, focus, notes
+                case scheduledDate = "scheduled_date"
+                case wodType = "wod_type"
+                case distanceKm = "distance_km"
+                case paceTarget = "pace_target"
+                case routeURL = "route_url"
+                case isOutdoor = "is_outdoor"
+                case createdBy = "created_by"
+            }
+        }
+        try await client.from("wods")
+            .insert(Row(title: title, scheduledDate: Self.isoDate(scheduledDate),
+                        wodType: .running, status: .publicado, focus: "Salida \(startLabel)",
+                        distanceKm: distanceKm, paceTarget: paceTarget, routeURL: routeURL,
+                        isOutdoor: true, notes: notes, createdBy: createdBy))
+            .execute()
+    }
+
     static func isoDate(_ date: Date) -> String {
         let f = DateFormatter()
         f.locale = Locale(identifier: "en_US_POSIX")

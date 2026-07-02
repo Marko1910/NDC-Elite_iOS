@@ -18,9 +18,11 @@ enum UserRole: String, Codable, CaseIterable, Sendable {
 enum AthleteLevel: String, Codable, CaseIterable, Sendable {
     case basico, intermedio, avanzado
 
+    // El grupo maneja Principiante/Intermedio/Avanzado (el raw value 'basico'
+    // se mantiene porque así se llama el enum en la BD).
     var displayName: String {
         switch self {
-        case .basico: "Básico"
+        case .basico: "Principiante"
         case .intermedio: "Intermedio"
         case .avanzado: "Avanzado"
         }
@@ -40,6 +42,39 @@ enum RxLevel: String, Codable, CaseIterable, Sendable {
 
 enum ScoreType: String, Codable, CaseIterable, Sendable {
     case peso, tiempo, reps, rondas, distancia, calorias
+
+    var displayName: String {
+        switch self {
+        case .peso: "Peso"
+        case .tiempo: "Tiempo"
+        case .reps: "Reps"
+        case .rondas: "Rondas"
+        case .distancia: "Distancia"
+        case .calorias: "Calorías"
+        }
+    }
+
+    /// Valor formateado para mostrar: "145kg", "3:45", "12 reps", "5.0km"…
+    /// (tiempo se guarda en segundos; ver SCHEMA.md).
+    func format(_ value: Double) -> String {
+        switch self {
+        case .peso:
+            value == value.rounded() ? "\(Int(value))kg" : String(format: "%.1fkg", value)
+        case .tiempo:
+            {
+                let total = Int(value.rounded())
+                return String(format: "%d:%02d", total / 60, total % 60)
+            }()
+        case .reps:
+            "\(Int(value)) reps"
+        case .rondas:
+            "\(Int(value)) rondas"
+        case .distancia:
+            String(format: "%.1fkm", value)
+        case .calorias:
+            "\(Int(value)) cal"
+        }
+    }
 }
 
 enum ResultStatus: String, Codable, CaseIterable, Sendable {

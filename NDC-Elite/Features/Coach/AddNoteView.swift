@@ -4,16 +4,17 @@ import SwiftUI
 /// Sheet desde el perfil del atleta (vista coach). Categoría · contenido · fecha
 /// · visibilidad (solo coach / compartida). (ver FLOWS.md → AddNoteSheet)
 ///
-/// TODO(datos): al guardar, insertar en `coach_notes` (athlete_id, category,
-/// content, visibility, note_date).
+/// Al guardar inserta en `coach_notes` (coach_id = usuario autenticado, por RLS).
 struct AddNoteView: View {
     @Environment(\.dismiss) private var dismiss
-    let athleteName: String
+    let athlete: Profile
 
     @State private var category: NoteCategory = .general
     @State private var content = ""
     @State private var date = Date()
     @State private var visibility: NoteVisibility = .soloCoach
+    @State private var isSaving = false
+    @State private var errorMessage: String?
 
     var body: some View {
         NavigationStack {
@@ -29,6 +30,11 @@ struct AddNoteView: View {
                         }
                         section("Visibilidad") { visibilityToggle }
                     }
+                    if let errorMessage {
+                        Text(errorMessage)
+                            .font(NDCFont.labelBold)
+                            .foregroundStyle(NDCColor.error)
+                    }
                 }
                 .padding(NDCSpacing.marginMain)
             }
@@ -40,9 +46,9 @@ struct AddNoteView: View {
                     Button("Cancelar") { dismiss() }.foregroundStyle(NDCColor.primary)
                 }
                 ToolbarItem(placement: .topBarTrailing) {
-                    Button("Guardar") { save() }
+                    Button(isSaving ? "Guardando…" : "Guardar") { Task { await save() } }
                         .font(NDCFont.labelBold).foregroundStyle(content.isEmpty ? NDCColor.outline : NDCColor.primary)
-                        .disabled(content.isEmpty)
+                        .disabled(content.isEmpty || isSaving)
                 }
             }
         }
@@ -52,10 +58,10 @@ struct AddNoteView: View {
 
     private var athleteHeader: some View {
         HStack(spacing: NDCSpacing.gutter) {
-            NDCAvatarView(urlString: nil, size: 44)
+            NDCAvatarView(urlString: athlete.avatarURL, size: 44)
             VStack(alignment: .leading, spacing: 2) {
-                Text(athleteName).font(NDCFont.headlineSM).foregroundStyle(NDCColor.primary)
-                Text("Atleta RX • Última sesión: Hoy").font(NDCFont.labelSM).foregroundStyle(NDCColor.outline)
+                Text(athlete.fullName).font(NDCFont.headlineSM).foregroundStyle(NDCColor.primary)
+                Text("Atleta \(athlete.level.displayName)").font(NDCFont.labelSM).foregroundStyle(NDCColor.outline)
             }
             Spacer()
         }
@@ -120,13 +126,29 @@ struct AddNoteView: View {
         .frame(maxWidth: .infinity, alignment: .leading)
     }
 
-    private func save() {
-        Haptics.notify(.success)
-        // TODO: insertar en coach_notes
-        dismiss()
+    private func save() async {
+        let trimmed = content.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !trimmed.isEmpty, !isSaving else { return }
+        isSaving = true
+        errorMessage = nil
+        defer { isSaving = false }
+        do {
+            try await CoachRepository().addNote(
+                athleteId: athlete.id,
+                category: category,
+                content: trimmed,
+                visibility: visibility,
+                noteDate: date
+            )
+            Haptics.notify(.success)
+            dismiss()
+        } catch {
+            Haptics.notify(.error)
+            errorMessage = "No se pudo guardar la nota. Revisa tu conexión e inténtalo de nuevo."
+        }
     }
 }
 
 #Preview {
-    AddNoteView(athleteName: "Marcos Rodríguez")
+    AddNoteView(athlete: .preview)
 }

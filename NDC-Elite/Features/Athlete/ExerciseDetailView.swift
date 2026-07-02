@@ -11,10 +11,14 @@ struct LibraryExercise: Identifiable, Hashable {
     /// Enlace de YouTube que sube el coach (cualquier formato).
     let youtubeURL: String
     let summary: String
+    /// En qué se mide la marca de este ejercicio (kg, tiempo, reps…).
+    /// Define la unidad al registrar/corregir PRs (`default_score_type`).
+    let scoreType: ScoreType
     let steps: [Step]
 
     init(id: UUID = UUID(), name: String, subtitle: String, category: ExerciseCategory,
-         level: AthleteLevel, youtubeURL: String, summary: String, steps: [Step]) {
+         level: AthleteLevel, youtubeURL: String, summary: String,
+         scoreType: ScoreType = .peso, steps: [Step]) {
         self.id = id
         self.name = name
         self.subtitle = subtitle
@@ -22,6 +26,7 @@ struct LibraryExercise: Identifiable, Hashable {
         self.level = level
         self.youtubeURL = youtubeURL
         self.summary = summary
+        self.scoreType = scoreType
         self.steps = steps
     }
 

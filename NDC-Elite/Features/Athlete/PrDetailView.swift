@@ -458,14 +458,14 @@ final class PrDetailStore {
     }
 
     private static func buildData(latest: PersonalRecord, exercise: Exercise?, history: [PersonalRecord]) -> PrDetailData {
-        let value = Self.formatValue(latest.value, scoreType: latest.scoreType)
+        let value = latest.scoreType.format(latest.value)
         let delta: String
         let ratioLabel: String
         let ringLabel: String
         if let previous = latest.previousValue, previous > 0 {
             let diff = latest.value - previous
             let sign = diff >= 0 ? "+" : ""
-            delta = "\(sign)\(Self.formatValue(diff, scoreType: latest.scoreType))"
+            delta = "\(sign)\(latest.scoreType.format(diff))"
             let ratio = (latest.value / previous) * 100
             ratioLabel = "\(Int(ratio.rounded()))% del PR previo"
             ringLabel = "\(Int(ratio.rounded()))%"
@@ -500,28 +500,6 @@ final class PrDetailStore {
 
     private static func isToday(_ date: Date) -> Bool {
         Calendar.current.isDateInToday(date)
-    }
-
-    private static func formatValue(_ value: Double, scoreType: ScoreType) -> String {
-        switch scoreType {
-        case .peso:
-            value == value.rounded() ? "\(Int(value))kg" : String(format: "%.1fkg", value)
-        case .tiempo:
-            Self.formatSeconds(value)
-        case .reps:
-            "\(Int(value)) reps"
-        case .rondas:
-            "\(Int(value)) rondas"
-        case .distancia:
-            String(format: "%.1fkm", value)
-        case .calorias:
-            "\(Int(value)) cal"
-        }
-    }
-
-    private static func formatSeconds(_ seconds: Double) -> String {
-        let total = Int(seconds.rounded())
-        return String(format: "%d:%02d", total / 60, total % 60)
     }
 }
 

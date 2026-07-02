@@ -6,15 +6,11 @@ import SwiftUI
 /// Marcas Clave (PR por ejercicio) · FAB registrar PR.
 /// (ver FLOWS.md → PerformanceView)
 ///
-/// Decisión de diseño: añadimos un acceso a la **Biblioteca Técnica** en la
-/// barra superior (junto a la campana) — acción de consulta, no compite con el
-/// FAB (acción primaria: registrar PR). Lleva a `ExerciseLibraryView` (07).
-///
-/// TODO(datos): hoy usa `PerformanceData.sample`. Conectar a Supabase:
-/// personal_records (conteo + recientes + por ejercicio), profiles (membresía).
+/// Datos reales: `personal_records` del atleta (hero, último logro y la marca
+/// más reciente de cada ejercicio), con nombres de `exercises`.
 struct PerformanceView: View {
     let profile: Profile
-    private let data = PerformanceData.sample
+    @State private var store = PerformanceStore()
 
     @State private var showLogPr = false
     @State private var showPrDetail = false
@@ -28,9 +24,28 @@ struct PerformanceView: View {
                     Text("Rendimiento y Ranking")
                         .font(NDCFont.displayLG)
                         .foregroundStyle(NDCColor.primaryDark)
-                    PerformanceHeroCard(state: data.state)
-                    recientesSection
-                    marcasClaveSection
+                    LoadStateView(state: store.state, retry: { Task { await store.load(athleteId: profile.id) } }) { data in
+                        if data.hero.totalPRs == 0 {
+                            ContentUnavailableView(
+                                "Aún sin marcas",
+                                systemImage: "chart.line.uptrend.xyaxis",
+                                description: Text("Registra tu primer PR con el botón + para ver tu progreso aquí.")
+                            )
+                            .padding(.top, NDCSpacing.stackLG)
+                        } else {
+                            PerformanceHeroCard(hero: data.hero)
+                            if let recent = data.recent {
+                                recientesSection(recent)
+                            }
+                            marcasClaveSection(data.keyMarks)
+                        }
+                    } skeleton: {
+                        VStack(spacing: NDCSpacing.stackLG) {
+                            SkeletonCard(lines: 3, height: 150)
+                            SkeletonCard(lines: 2, height: 90)
+                            SkeletonCard(lines: 2, height: 90)
+                        }
+                    }
                 }
                 .padding(.horizontal, NDCSpacing.marginMain)
                 .padding(.top, NDCSpacing.stackSM)
@@ -47,11 +62,17 @@ struct PerformanceView: View {
                 ExerciseLibraryView()
             }
             .toolbar(.hidden, for: .navigationBar)
+            .task { await store.load(athleteId: profile.id) }
+            .refreshable { await store.load(athleteId: profile.id) }
+            .onChange(of: showLogPr) { _, isShowing in
+                // Al cerrar el registro de PR, refresca las marcas.
+                if !isShowing { Task { await store.load(athleteId: profile.id) } }
+            }
         }
         .tint(NDCColor.primary)
     }
 
-    // MARK: - Header del atleta (avatar + nombre · biblioteca + campana)
+    // MARK: - Header del atleta (avatar + nombre · biblioteca)
 
     private var athleteHeader: some View {
         HStack(spacing: NDCSpacing.stackSM) {
@@ -61,7 +82,7 @@ struct PerformanceView: View {
                 Text(profile.fullName)
                     .font(NDCFont.headlineSM)
                     .foregroundStyle(NDCColor.primary)
-                Text(data.membership)
+                Text("Nivel \(profile.level.displayName)")
                     .font(NDCFont.labelSM)
                     .foregroundStyle(NDCColor.onSurfaceVariant)
             }
@@ -82,13 +103,13 @@ struct PerformanceView: View {
         }
     }
 
-    // MARK: - Recientes
+    // MARK: - Recientes (último logro real)
 
-    private var recientesSection: some View {
+    private func recientesSection(_ recent: PerformanceStore.Data.Recent) -> some View {
         VStack(alignment: .leading, spacing: NDCSpacing.stackMD) {
-            sectionHeader("Recientes", action: "Ver todo") {
-                // TODO: → PrHistoryList
-            }
+            Text("Recientes")
+                .font(NDCFont.headlineSM)
+                .foregroundStyle(NDCColor.primary)
             Button {
                 Haptics.impact(.light)
                 showPrDetail = true
@@ -103,16 +124,18 @@ struct PerformanceView: View {
                         Text("ÚLTIMO LOGRO")
                             .font(NDCFont.labelSM)
                             .foregroundStyle(NDCColor.onSurfaceVariant)
-                        Text(data.recent.exercise)
+                        Text(recent.exercise)
                             .font(NDCFont.headlineSM)
                             .foregroundStyle(NDCColor.primary)
                         HStack(spacing: 4) {
-                            Text(data.recent.value)
+                            Text(recent.value)
                                 .font(NDCFont.bodyLG.weight(.bold))
                                 .foregroundStyle(NDCColor.primary)
-                            Text(data.recent.delta)
-                                .font(NDCFont.bodyMD)
-                                .foregroundStyle(NDCColor.error)
+                            if let delta = recent.delta {
+                                Text(delta)
+                                    .font(NDCFont.bodyMD)
+                                    .foregroundStyle(NDCColor.error)
+                            }
                         }
                     }
                     Spacer()
@@ -127,19 +150,19 @@ struct PerformanceView: View {
                 )
                 .shadow(color: NDCColor.primaryDark.opacity(0.06), radius: 6, y: 2)
             }
-            .accessibilityLabel("Último logro: \(data.recent.exercise), \(data.recent.value), \(data.recent.delta)")
+            .accessibilityLabel("Último logro: \(recent.exercise), \(recent.value)")
         }
     }
 
-    // MARK: - Marcas Clave (PR por ejercicio)
+    // MARK: - Marcas Clave (última marca real de cada ejercicio)
 
-    private var marcasClaveSection: some View {
+    private func marcasClaveSection(_ marks: [PerformanceStore.Data.KeyMark]) -> some View {
         VStack(alignment: .leading, spacing: NDCSpacing.stackMD) {
             Text("Marcas Clave")
                 .font(NDCFont.headlineSM)
                 .foregroundStyle(NDCColor.primary)
             VStack(spacing: NDCSpacing.stackMD) {
-                ForEach(data.keyMarks) { mark in
+                ForEach(marks) { mark in
                     KeyMarkRow(mark: mark) {
                         Haptics.impact(.light)
                         showPrDetail = true
@@ -167,29 +190,12 @@ struct PerformanceView: View {
         .padding(.bottom, NDCSpacing.stackLG)
         .accessibilityLabel("Registrar nueva marca")
     }
-
-    // MARK: - Helper de encabezado de sección con acción
-
-    private func sectionHeader(_ title: String, action: String, perform: @escaping () -> Void) -> some View {
-        HStack {
-            Text(title)
-                .font(NDCFont.headlineSM)
-                .foregroundStyle(NDCColor.primary)
-            Spacer()
-            Button(action) {
-                Haptics.impact(.light)
-                perform()
-            }
-            .font(NDCFont.labelBold)
-            .foregroundStyle(NDCColor.primary)
-        }
-    }
 }
 
 // MARK: - Hero "Estado de Rendimiento"
 
 private struct PerformanceHeroCard: View {
-    let state: PerformanceData.State
+    let hero: PerformanceStore.Data.Hero
 
     var body: some View {
         VStack(alignment: .leading, spacing: NDCSpacing.stackMD) {
@@ -211,14 +217,14 @@ private struct PerformanceHeroCard: View {
                     .font(NDCFont.headlineSM)
                     .foregroundStyle(.white.opacity(0.9))
                 HStack(alignment: .firstTextBaseline, spacing: 8) {
-                    Text("\(state.totalPRs) PRs")
+                    Text("\(hero.totalPRs) PRs")
                         .font(NDCFont.statsXL)
                         .foregroundStyle(.white)
-                    Text(state.deltaPercent)
+                    Text(hero.deltaLabel)
                         .font(NDCFont.headlineSM)
                         .foregroundStyle(NDCColor.accent)
                 }
-                Text("este año vs. periodo anterior")
+                Text("marcas registradas · \(hero.validatedCount) validadas por el coach")
                     .font(NDCFont.bodyMD)
                     .foregroundStyle(.white.opacity(0.7))
             }
@@ -226,7 +232,7 @@ private struct PerformanceHeroCard: View {
                 ZStack(alignment: .leading) {
                     Capsule().fill(.white.opacity(0.20))
                     Capsule().fill(NDCColor.accent)
-                        .frame(width: geo.size.width * state.progress)
+                        .frame(width: geo.size.width * hero.progress)
                 }
             }
             .frame(height: 4)
@@ -237,14 +243,14 @@ private struct PerformanceHeroCard: View {
         .background(NDCColor.primary, in: .rect(cornerRadius: NDCRadius.large))
         .shadow(color: NDCColor.primaryDark.opacity(0.15), radius: 10, y: 4)
         .accessibilityElement(children: .ignore)
-        .accessibilityLabel("Estado de rendimiento, activo. \(state.totalPRs) PRs, \(state.deltaPercent) este año vs. periodo anterior")
+        .accessibilityLabel("Estado de rendimiento, activo. \(hero.totalPRs) PRs, \(hero.deltaLabel)")
     }
 }
 
 // MARK: - Fila de PR por ejercicio
 
 private struct KeyMarkRow: View {
-    let mark: PerformanceData.KeyMark
+    let mark: PerformanceStore.Data.KeyMark
     let onTap: () -> Void
 
     var body: some View {
@@ -279,42 +285,102 @@ private struct KeyMarkRow: View {
     }
 }
 
-// MARK: - Datos de muestra (a reemplazar por fetch de Supabase)
+// MARK: - Store (marcas reales del atleta)
 
-private struct PerformanceData {
-    struct State {
-        let totalPRs: Int
-        let deltaPercent: String
-        let progress: Double
-    }
-    struct Recent {
-        let exercise: String
-        let value: String
-        let delta: String
-    }
-    struct KeyMark: Identifiable {
-        let id = UUID()
-        let icon: String
-        let name: String
-        let value: String
-        let tag: String
+@MainActor @Observable
+final class PerformanceStore {
+    struct Data {
+        struct Hero {
+            let totalPRs: Int
+            let deltaLabel: String
+            let validatedCount: Int
+            let progress: Double
+        }
+        struct Recent {
+            let exercise: String
+            let value: String
+            let delta: String?
+        }
+        struct KeyMark: Identifiable {
+            let id: UUID
+            let icon: String
+            let name: String
+            let value: String
+            let tag: String
+        }
+
+        let hero: Hero
+        let recent: Recent?
+        let keyMarks: [KeyMark]
     }
 
-    let membership: String
-    let state: State
-    let recent: Recent
-    let keyMarks: [KeyMark]
+    private(set) var state: LoadState<Data> = .loading
+    private let repo = AthleteRepository()
 
-    static let sample = PerformanceData(
-        membership: "Elite Member",
-        state: State(totalPRs: 24, deltaPercent: "+12%", progress: 0.75),
-        recent: Recent(exercise: "Sentadilla Trasera", value: "145kg", delta: "+5kg"),
-        keyMarks: [
-            KeyMark(icon: "figure.gymnastics", name: "Muscle Ups", value: "12 Reps", tag: "RX"),
-            KeyMark(icon: "timer", name: "Fran", value: "3:12", tag: "Benchmark"),
-            KeyMark(icon: "scalemass.fill", name: "Peso Muerto", value: "180kg", tag: "Máximo")
-        ]
-    )
+    func load(athleteId: UUID) async {
+        state = .loading
+        do {
+            let records = try await repo.personalRecords(athleteId: athleteId)
+            guard !records.isEmpty else {
+                state = .loaded(Data(
+                    hero: .init(totalPRs: 0, deltaLabel: "", validatedCount: 0, progress: 0),
+                    recent: nil, keyMarks: []
+                ))
+                return
+            }
+            let exercises = try await repo.exercises(ids: Array(Set(records.map(\.exerciseId))))
+            let exercisesById = Dictionary(uniqueKeysWithValues: exercises.map { ($0.id, $0) })
+
+            // Hero: total, nuevas en 30 días, % validadas.
+            let since = Calendar.current.date(byAdding: .day, value: -30, to: Date())!
+            let recentCount = records.filter { $0.recordDate >= since }.count
+            let validated = records.filter { $0.status == .validado }.count
+            let hero = Data.Hero(
+                totalPRs: records.count,
+                deltaLabel: recentCount > 0 ? "+\(recentCount) este mes" : "",
+                validatedCount: validated,
+                progress: Double(validated) / Double(records.count)
+            )
+
+            // Último logro (marca más reciente).
+            var recent: Data.Recent?
+            if let latest = records.max(by: { $0.recordDate < $1.recordDate }) {
+                let exercise = exercisesById[latest.exerciseId]
+                var delta: String?
+                if let improvement = latest.improvement, improvement != 0 {
+                    let sign = improvement > 0 ? "+" : ""
+                    delta = "\(sign)\(latest.scoreType.format(improvement))"
+                }
+                recent = Data.Recent(
+                    exercise: exercise?.nameEs ?? exercise?.name ?? "Ejercicio",
+                    value: latest.scoreType.format(latest.value),
+                    delta: delta
+                )
+            }
+
+            // Marcas clave: la última de cada ejercicio, por fecha desc.
+            let grouped = Dictionary(grouping: records, by: \.exerciseId)
+            let marks: [(Date, Data.KeyMark)] = grouped.compactMap { exerciseId, recs in
+                guard let latest = recs.max(by: { $0.recordDate < $1.recordDate }) else { return nil }
+                let exercise = exercisesById[exerciseId]
+                let mark = Data.KeyMark(
+                    id: latest.id,
+                    icon: exercise?.category.symbol ?? "dumbbell.fill",
+                    name: exercise?.nameEs ?? exercise?.name ?? "Ejercicio",
+                    value: latest.scoreType.format(latest.value),
+                    tag: latest.status == .validado ? "Validado" : latest.status.rawValue.capitalized
+                )
+                return (latest.recordDate, mark)
+            }
+            state = .loaded(Data(
+                hero: hero,
+                recent: recent,
+                keyMarks: marks.sorted { $0.0 > $1.0 }.map(\.1)
+            ))
+        } catch {
+            state = .failed("No pudimos cargar tu progreso. Revisa tu conexión e inténtalo de nuevo.")
+        }
+    }
 }
 
 #Preview {

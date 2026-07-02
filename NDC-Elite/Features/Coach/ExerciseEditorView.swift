@@ -15,6 +15,7 @@ struct ExerciseEditorView: View {
     @State private var subtitle: String
     @State private var category: ExerciseCategory
     @State private var level: AthleteLevel
+    @State private var scoreType: ScoreType
     @State private var youtubeURL: String
     @State private var summary: String
     @State private var steps: [LibraryExercise.Step]
@@ -28,6 +29,7 @@ struct ExerciseEditorView: View {
         _subtitle = State(initialValue: exercise?.subtitle ?? "")
         _category = State(initialValue: exercise?.category ?? .fuerza)
         _level = State(initialValue: exercise?.level ?? .basico)
+        _scoreType = State(initialValue: exercise?.scoreType ?? .peso)
         _youtubeURL = State(initialValue: exercise?.youtubeURL ?? "")
         _summary = State(initialValue: exercise?.summary ?? "")
         _steps = State(initialValue: exercise?.steps ?? [])
@@ -46,6 +48,7 @@ struct ExerciseEditorView: View {
                     field("Subtítulo") { TextField("Ej: Sentadilla por detrás", text: $subtitle) }
                     categorySection
                     levelSection
+                    scoreTypeSection
                     field("Enlace de YouTube") {
                         TextField("https://youtube.com/watch?v=...", text: $youtubeURL)
                             .keyboardType(.URL)
@@ -104,6 +107,23 @@ struct ExerciseEditorView: View {
                     chip(lv.displayName, selected: level == lv) { level = lv }
                 }
             }
+        }
+    }
+
+    /// En qué se mide la marca: define la unidad al registrar PRs de este
+    /// ejercicio (kg, mm:ss, reps…). Ej: Back Squat → Peso; Fran → Tiempo.
+    private var scoreTypeSection: some View {
+        VStack(alignment: .leading, spacing: NDCSpacing.stackSM) {
+            Text("SE MIDE EN").font(NDCFont.labelBold).foregroundStyle(NDCColor.outline)
+            ScrollView(.horizontal, showsIndicators: false) {
+                HStack(spacing: NDCSpacing.stackSM) {
+                    ForEach(ScoreType.allCases, id: \.self) { type in
+                        chip(type.displayName, selected: scoreType == type) { scoreType = type }
+                    }
+                }
+            }
+            Text("Define la unidad cuando el atleta registre un PR de este ejercicio.")
+                .font(NDCFont.labelSM).foregroundStyle(NDCColor.outline)
         }
     }
 
@@ -207,6 +227,7 @@ struct ExerciseEditorView: View {
             level: level,
             youtubeURL: "https://www.youtube.com/watch?v=\(videoID)",
             summary: summary.trimmingCharacters(in: .whitespacesAndNewlines),
+            scoreType: scoreType,
             steps: steps.filter { !$0.title.trimmingCharacters(in: .whitespaces).isEmpty }
         )
         isSaving = true

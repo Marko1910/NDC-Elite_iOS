@@ -30,6 +30,16 @@ struct CommunityProgressView: View {
             .scrollIndicators(.hidden)
             .navigationTitle("Progreso Comunitario")
             .navigationBarTitleDisplayMode(.large)
+            .toolbar {
+                ToolbarItem(placement: .topBarTrailing) {
+                    NavigationLink {
+                        CoachPrsView()
+                    } label: {
+                        Image(systemName: "trophy")
+                    }
+                    .accessibilityLabel("PRs de todos los atletas")
+                }
+            }
             .task { await adherenceStore.load() }
             .refreshable { await adherenceStore.load() }
         }
@@ -105,7 +115,12 @@ struct CommunityProgressView: View {
             HStack {
                 Text("PRs Recientes").font(NDCFont.headlineSM).foregroundStyle(NDCColor.primary)
                 Spacer()
-                Label("Ver todo", systemImage: "chevron.right").font(NDCFont.labelSM).foregroundStyle(NDCColor.primary)
+                NavigationLink {
+                    CoachPrsView()
+                } label: {
+                    Label("Ver todo", systemImage: "chevron.right")
+                        .font(NDCFont.labelSM).foregroundStyle(NDCColor.primary)
+                }
             }
             ForEach(data.recentPRs) { pr in
                 HStack(spacing: NDCSpacing.gutter) {

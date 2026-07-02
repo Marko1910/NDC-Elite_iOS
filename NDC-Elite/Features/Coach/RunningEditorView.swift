@@ -5,16 +5,25 @@ import SwiftUI
 /// ruta · distancia objetivo · ruta/mapa · notas. Publicar sesión.
 /// (ver FLOWS.md → RunningEditorSheet)
 ///
-/// TODO(datos): al publicar, insertar en wods (wod_type=running, distance_km,
-/// pace_target, route_url, is_outdoor=true).
+/// Al publicar inserta en `wods` (wod_type = running, status = publicado,
+/// distance_km, is_outdoor = true; la hora de salida viaja en `focus`).
 struct RunningEditorView: View {
+    let profile: Profile
     @Environment(\.dismiss) private var dismiss
 
     @State private var date = Date()
     @State private var startTime = Date()
     @State private var routeName = ""
     @State private var distance = ""
+    @State private var paceTarget = ""
+    @State private var routeURL = ""
     @State private var notes = ""
+    @State private var isSaving = false
+    @State private var errorMessage: String?
+
+    private var canPublish: Bool {
+        !routeName.trimmingCharacters(in: .whitespaces).isEmpty && !isSaving
+    }
 
     var body: some View {
         NavigationStack {
@@ -33,28 +42,24 @@ struct RunningEditorView: View {
                         }
                     }
                     field("Nombre de la Ruta/Desafío") { TextField("Ej: Fondo Dominical", text: $routeName) }
-                    field("Distancia Objetivo (KM)") {
-                        HStack { TextField("10", text: $distance).keyboardType(.decimalPad); Text("KM").foregroundStyle(NDCColor.outline) }
-                    }
-
-                    VStack(alignment: .leading, spacing: NDCSpacing.stackSM) {
-                        Text("RUTA Y UBICACIÓN").font(NDCFont.labelBold).foregroundStyle(NDCColor.outline)
-                        Button {
-                            Haptics.impact(.light)
-                            // TODO: marcar ruta en el mapa (MapKit)
-                        } label: {
-                            ZStack {
-                                LinearGradient(colors: [NDCColor.primary.opacity(0.15), NDCColor.surface], startPoint: .top, endPoint: .bottom)
-                                VStack(spacing: NDCSpacing.stackSM) {
-                                    Image(systemName: "mappin.and.ellipse").font(.system(size: 28)).foregroundStyle(NDCColor.primary)
-                                    Text("Marcar Ruta en el Mapa").font(NDCFont.labelBold).foregroundStyle(NDCColor.primary)
-                                }
-                            }
-                            .frame(height: 120)
-                            .clipShape(.rect(cornerRadius: NDCRadius.large))
+                    HStack(alignment: .top, spacing: NDCSpacing.gutter) {
+                        field("Distancia (KM)") {
+                            HStack { TextField("10", text: $distance).keyboardType(.decimalPad); Text("KM").foregroundStyle(NDCColor.outline) }
+                        }
+                        field("Ritmo Objetivo") {
+                            HStack { TextField("5:30", text: $paceTarget); Text("MIN/KM").foregroundStyle(NDCColor.outline) }
                         }
                     }
-                    field("Notas Adicionales") { TextField("Ritmo objetivo, hidratación...", text: $notes) }
+                    field("Enlace de la Ruta (opcional)") {
+                        TextField("Strava, Google Maps...", text: $routeURL)
+                            .keyboardType(.URL)
+                            .textInputAutocapitalization(.never)
+                            .autocorrectionDisabled()
+                    }
+                    field("Notas Adicionales") { TextField("Hidratación, punto de encuentro...", text: $notes) }
+                    if let errorMessage {
+                        Text(errorMessage).font(NDCFont.labelBold).foregroundStyle(NDCColor.error)
+                    }
                 }
                 .padding(NDCSpacing.marginMain)
                 .padding(.bottom, 80)
@@ -66,16 +71,22 @@ struct RunningEditorView: View {
             .toolbar {
                 ToolbarItem(placement: .topBarLeading) { Button { dismiss() } label: { Image(systemName: "xmark") } }
                 ToolbarItem(placement: .topBarTrailing) {
-                    Button("Guardar") { save() }.font(NDCFont.labelBold).foregroundStyle(NDCColor.primary)
+                    Button(isSaving ? "Guardando…" : "Guardar") { Task { await save() } }
+                        .font(NDCFont.labelBold).foregroundStyle(NDCColor.primary)
+                        .disabled(!canPublish)
                 }
             }
             .safeAreaInset(edge: .bottom) {
-                Button(action: save) {
-                    Label("Publicar Sesión", systemImage: "checkmark.circle.fill")
+                Button {
+                    Task { await save() }
+                } label: {
+                    Label(isSaving ? "Publicando…" : "Publicar Sesión", systemImage: "checkmark.circle.fill")
                         .font(NDCFont.headlineSM).foregroundStyle(.white)
                         .frame(maxWidth: .infinity, minHeight: 52)
                         .background(NDCColor.primary, in: .rect(cornerRadius: NDCRadius.large))
                 }
+                .disabled(!canPublish)
+                .opacity(canPublish || isSaving ? 1 : 0.5)
                 .padding(.horizontal, NDCSpacing.marginMain).padding(.bottom, NDCSpacing.stackSM)
                 .background(.ultraThinMaterial)
             }
@@ -94,12 +105,34 @@ struct RunningEditorView: View {
         .frame(maxWidth: .infinity, alignment: .leading)
     }
 
-    private func save() {
-        Haptics.notify(.success)
-        dismiss()
+    private func save() async {
+        guard canPublish else { return }
+        isSaving = true
+        errorMessage = nil
+        defer { isSaving = false }
+        let trimmedNotes = notes.trimmingCharacters(in: .whitespacesAndNewlines)
+        let trimmedPace = paceTarget.trimmingCharacters(in: .whitespaces)
+        let trimmedURL = routeURL.trimmingCharacters(in: .whitespaces)
+        do {
+            try await WodRepository().publishRunning(
+                title: routeName.trimmingCharacters(in: .whitespaces),
+                scheduledDate: date,
+                startLabel: startTime.formatted(date: .omitted, time: .shortened),
+                distanceKm: Double(distance.replacingOccurrences(of: ",", with: ".")),
+                paceTarget: trimmedPace.isEmpty ? nil : "\(trimmedPace) min/km",
+                routeURL: trimmedURL.isEmpty ? nil : trimmedURL,
+                notes: trimmedNotes.isEmpty ? nil : trimmedNotes,
+                createdBy: profile.id
+            )
+            Haptics.notify(.success)
+            dismiss()
+        } catch {
+            Haptics.notify(.error)
+            errorMessage = "No se pudo publicar la sesión. Revisa tu conexión e inténtalo de nuevo."
+        }
     }
 }
 
 #Preview {
-    RunningEditorView()
+    RunningEditorView(profile: .preview)
 }

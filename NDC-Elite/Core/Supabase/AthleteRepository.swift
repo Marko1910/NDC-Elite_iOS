@@ -136,6 +136,156 @@ struct AthleteRepository {
             .value
     }
 
+    /// Biblioteca completa (para el picker de "Registrar Nueva Marca").
+    func allExercises() async throws -> [Exercise] {
+        try await client
+            .from("exercises")
+            .select()
+            .order("name", ascending: true)
+            .execute()
+            .value
+    }
+
+    // MARK: - Registros del atleta (inserts)
+
+    /// Resultado del WOD del día (status = pendiente, lo pone la BD). Si el
+    /// atleta ya había registrado uno para ese WOD, lo reemplaza (único por
+    /// wod+atleta; RLS solo permite reemplazar mientras siga pendiente).
+    /// El nivel del grupo (Principiante/Intermedio/Avanzado) viaja en
+    /// `intensity`; `rx_level` queda en su default de BD (el grupo no usa RX).
+    func logWodResult(wodId: UUID, timeSeconds: Int?, weightUsedKg: Double?,
+                      intensity: AthleteLevel?, notes: String?) async throws {
+        struct Row: Encodable {
+            let wodId: UUID
+            let athleteId: UUID
+            let timeSeconds: Int?
+            let weightUsedKg: Double?
+            let intensity: AthleteLevel?
+            let athleteNotes: String?
+
+            enum CodingKeys: String, CodingKey {
+                case intensity
+                case wodId = "wod_id"
+                case athleteId = "athlete_id"
+                case timeSeconds = "time_seconds"
+                case weightUsedKg = "weight_used_kg"
+                case athleteNotes = "athlete_notes"
+            }
+        }
+        try await client.from("wod_results")
+            .upsert(Row(wodId: wodId, athleteId: try currentUserId(),
+                        timeSeconds: timeSeconds, weightUsedKg: weightUsedKg,
+                        intensity: intensity, athleteNotes: notes),
+                    onConflict: "wod_id,athlete_id")
+            .execute()
+    }
+
+    /// Nueva marca personal (status = pendiente). Busca la marca previa del
+    /// mismo ejercicio para poblar `previous_value` ("+5kg", "% del PR previo").
+    func logPersonalRecord(exerciseId: UUID, value: Double, scoreType: ScoreType,
+                           recordDate: Date, notes: String?) async throws {
+        let athleteId = try currentUserId()
+        let previous: [PersonalRecord] = try await client
+            .from("personal_records")
+            .select()
+            .eq("athlete_id", value: athleteId)
+            .eq("exercise_id", value: exerciseId)
+            .order("record_date", ascending: false)
+            .limit(1)
+            .execute()
+            .value
+
+        struct Row: Encodable {
+            let athleteId: UUID
+            let exerciseId: UUID
+            let value: Double
+            let scoreType: ScoreType
+            let recordDate: String
+            let athleteNotes: String?
+            let previousValue: Double?
+
+            enum CodingKeys: String, CodingKey {
+                case value
+                case athleteId = "athlete_id"
+                case exerciseId = "exercise_id"
+                case scoreType = "score_type"
+                case recordDate = "record_date"
+                case athleteNotes = "athlete_notes"
+                case previousValue = "previous_value"
+            }
+        }
+        try await client.from("personal_records")
+            .insert(Row(athleteId: athleteId, exerciseId: exerciseId, value: value,
+                        scoreType: scoreType, recordDate: Self.isoDate(recordDate),
+                        athleteNotes: notes, previousValue: previous.first?.value))
+            .execute()
+    }
+
+    /// Lesión reportada por el propio atleta (status = activa, lo pone la BD).
+    func logInjury(bodyZone: BodyZone, severity: InjurySeverity,
+                   description: String?, incidentDate: Date) async throws {
+        let athleteId = try currentUserId()
+        struct Row: Encodable {
+            let athleteId: UUID
+            let bodyZone: BodyZone
+            let severity: InjurySeverity
+            let description: String?
+            let incidentDate: String
+            let reportedBy: UUID
+
+            enum CodingKeys: String, CodingKey {
+                case severity, description
+                case athleteId = "athlete_id"
+                case bodyZone = "body_zone"
+                case incidentDate = "incident_date"
+                case reportedBy = "reported_by"
+            }
+        }
+        try await client.from("injuries")
+            .insert(Row(athleteId: athleteId, bodyZone: bodyZone, severity: severity,
+                        description: description, incidentDate: Self.isoDate(incidentDate),
+                        reportedBy: athleteId))
+            .execute()
+    }
+
+    /// Check-in de asistencia al escanear el QR de la clase. Lanza error de
+    /// duplicado (ver `isDuplicate`) si ya hizo check-in en esa sesión.
+    func checkIn(sessionId: UUID) async throws {
+        let athleteId = try currentUserId()
+        struct Row: Encodable {
+            let sessionId: UUID
+            let athleteId: UUID
+            let status: AttendanceStatus
+            let checkedInAt: Date
+            let checkInMethod: String
+
+            enum CodingKeys: String, CodingKey {
+                case status
+                case sessionId = "session_id"
+                case athleteId = "athlete_id"
+                case checkedInAt = "checked_in_at"
+                case checkInMethod = "check_in_method"
+            }
+        }
+        try await client.from("attendance")
+            .insert(Row(sessionId: sessionId, athleteId: athleteId, status: .presente,
+                        checkedInAt: Date(), checkInMethod: "qr"))
+            .execute()
+    }
+
+    /// true si el error es "fila duplicada" (unique violation de Postgres).
+    static func isDuplicate(_ error: Error) -> Bool {
+        (error as? PostgrestError)?.code == "23505"
+    }
+
+    /// RLS exige que los registros sean del usuario autenticado.
+    private func currentUserId() throws -> UUID {
+        guard let id = client.auth.currentSession?.user.id else {
+            throw URLError(.userAuthenticationRequired)
+        }
+        return id
+    }
+
     // MARK: - Helpers
 
     private static func isoDate(_ date: Date) -> String {

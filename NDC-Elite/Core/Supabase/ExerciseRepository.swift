@@ -34,6 +34,7 @@ struct ExerciseRepository {
                 level: ex.difficulty,
                 youtubeURL: ex.videoURL ?? "",
                 summary: ex.description ?? "",
+                scoreType: ex.defaultScoreType,
                 steps: (stepsByExercise[ex.id] ?? []).map { .init(title: $0.title, detail: $0.description ?? "") }
             )
         }
@@ -51,6 +52,7 @@ struct ExerciseRepository {
             difficulty: exercise.level,
             description: exercise.summary,
             videoURL: exercise.youtubeURL,
+            defaultScoreType: exercise.scoreType,
             createdBy: createdBy
         )).execute()
 
@@ -85,12 +87,14 @@ private struct ExerciseUpsertRow: Encodable {
     let difficulty: AthleteLevel
     let description: String
     let videoURL: String
+    let defaultScoreType: ScoreType
     let createdBy: UUID
 
     enum CodingKeys: String, CodingKey {
         case id, name, category, difficulty, description
         case nameEs = "name_es"
         case videoURL = "video_url"
+        case defaultScoreType = "default_score_type"
         case createdBy = "created_by"
     }
 }

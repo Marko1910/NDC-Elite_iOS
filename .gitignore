@@ -20,3 +20,7 @@ skills-lock.json
 # Secretos — nunca subir claves de Supabase
 Secrets.plist
 *.env
+
+# Config local de Claude Code / artefactos de Windows
+.claude/
+nul

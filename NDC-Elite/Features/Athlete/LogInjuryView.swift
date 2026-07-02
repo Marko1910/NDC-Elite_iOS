@@ -5,8 +5,7 @@ import SwiftUI
 /// Guardar. Zona del cuerpo (grid) · nivel de dolor · descripción · fecha.
 /// (ver FLOWS.md → LogInjurySheet)
 ///
-/// Mapea directo al modelo `Injury` (bodyZone, severity, description, incidentDate).
-/// TODO(datos): al guardar, insertar en `injuries` (reported_by = atleta).
+/// Al guardar inserta en `injuries` (reported_by = atleta, status = activa).
 struct LogInjuryView: View {
     @Environment(\.dismiss) private var dismiss
 
@@ -14,6 +13,8 @@ struct LogInjuryView: View {
     @State private var severity: InjurySeverity = .leve
     @State private var detail = ""
     @State private var incidentDate = Date()
+    @State private var isSaving = false
+    @State private var errorMessage: String?
 
     private let columns = [GridItem(.flexible()), GridItem(.flexible()), GridItem(.flexible())]
 
@@ -24,6 +25,11 @@ struct LogInjuryView: View {
                 painLevelSection
                 descriptionSection
                 dateSection
+                if let errorMessage {
+                    Text(errorMessage)
+                        .font(NDCFont.labelBold)
+                        .foregroundStyle(NDCColor.error)
+                }
                 saveButton
             }
             .padding(.horizontal, NDCSpacing.marginMain)
@@ -47,10 +53,10 @@ struct LogInjuryView: View {
                 .accessibilityLabel("Cerrar")
             }
             ToolbarItem(placement: .topBarTrailing) {
-                Button("Guardar") { save() }
+                Button(isSaving ? "Guardando…" : "Guardar") { Task { await save() } }
                     .font(NDCFont.labelBold)
                     .foregroundStyle(zone == nil ? NDCColor.outline : NDCColor.primary)
-                    .disabled(zone == nil)
+                    .disabled(zone == nil || isSaving)
             }
         }
     }
@@ -155,15 +161,17 @@ struct LogInjuryView: View {
     // MARK: - Guardar
 
     private var saveButton: some View {
-        Button(action: save) {
-            Text("Guardar Registro")
+        Button {
+            Task { await save() }
+        } label: {
+            Text(isSaving ? "Guardando…" : "Guardar Registro")
                 .font(NDCFont.headlineSM)
                 .foregroundStyle(.white)
                 .frame(maxWidth: .infinity, minHeight: 52)
                 .background(NDCColor.primary, in: .rect(cornerRadius: NDCRadius.large))
                 .shadow(color: NDCColor.primaryDark.opacity(0.2), radius: 8, y: 4)
         }
-        .disabled(zone == nil)
+        .disabled(zone == nil || isSaving)
         .opacity(zone == nil ? 0.6 : 1)
         .padding(.top, NDCSpacing.stackSM)
         .accessibilityHint("Guarda la lesión en tu historial médico")
@@ -175,11 +183,25 @@ struct LogInjuryView: View {
             .foregroundStyle(NDCColor.outline)
     }
 
-    private func save() {
-        guard zone != nil else { return }
-        Haptics.notify(.success)
-        // TODO: insertar en injuries (body_zone, severity, description, incident_date)
-        dismiss()
+    private func save() async {
+        guard let zone, !isSaving else { return }
+        isSaving = true
+        errorMessage = nil
+        defer { isSaving = false }
+        let trimmed = detail.trimmingCharacters(in: .whitespacesAndNewlines)
+        do {
+            try await AthleteRepository().logInjury(
+                bodyZone: zone,
+                severity: severity,
+                description: trimmed.isEmpty ? nil : trimmed,
+                incidentDate: incidentDate
+            )
+            Haptics.notify(.success)
+            dismiss()
+        } catch {
+            Haptics.notify(.error)
+            errorMessage = "No se pudo guardar la lesión. Revisa tu conexión e inténtalo de nuevo."
+        }
     }
 }
 

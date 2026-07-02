@@ -3,31 +3,45 @@ import CoreImage.CIFilterBuiltins
 
 /// Generar QR de Asistencia (coach) — diseño Stitch "Generar QR de Asistencia".
 /// El coach muestra este QR en el box; los atletas lo escanean con su app
-/// (AttendanceScannerView) para registrar asistencia. El QR codifica el id de la
-/// clase actual. (ver FLOWS.md → AttendanceView / QrScannerView)
+/// (AttendanceScannerView) para registrar asistencia.
 ///
-/// TODO(datos): el payload debe ser el id real de la `class_sessions` actual,
-/// firmado/temporal para evitar reusos. Hoy usa un payload de muestra.
+/// El QR codifica el id real de la `class_sessions` de hoy a la hora actual
+/// (se crea si no existe; única por fecha+hora).
 struct GenerateQRView: View {
     @Environment(\.dismiss) private var dismiss
-    let classLabel: String
-    let payload: String
+    @State private var store = GenerateQRStore()
+    /// Sesión ya resuelta por la pantalla anterior (Control de Asistencia);
+    /// garantiza que el QR y el toggle manual escriben en la MISMA clase.
+    /// Si es nil, se busca/crea la clase de hoy a la hora actual.
+    private let presetSession: ClassSession?
 
-    init(classLabel: String = "07:00 AM - El Titán",
-         payload: String = "ndc-attendance://session/demo-\(UUID().uuidString.prefix(8))") {
-        self.classLabel = classLabel
-        self.payload = payload
+    init(presetSession: ClassSession? = nil) {
+        self.presetSession = presetSession
     }
+
+    /// Prefijo compartido con `AttendanceScannerView` para validar el escaneo.
+    static let payloadPrefix = "ndc-attendance://session/"
 
     var body: some View {
         NavigationStack {
-            VStack(spacing: NDCSpacing.stackLG) {
-                classBanner
-                qrCard
-                Spacer()
-                actions
+            LoadStateView(state: store.state, retry: { Task { await store.load() } }) { session in
+                let payload = Self.payloadPrefix + session.id.uuidString
+                VStack(spacing: NDCSpacing.stackLG) {
+                    classBanner(session)
+                    qrCard(payload: payload, session: session)
+                    Spacer()
+                    actions(payload: payload)
+                }
+                .padding(NDCSpacing.marginMain)
+            } skeleton: {
+                VStack(spacing: NDCSpacing.stackLG) {
+                    SkeletonCard(lines: 1, height: 76)
+                    SkeletonBlock(height: 300, cornerRadius: NDCRadius.large)
+                    Spacer()
+                }
+                .padding(NDCSpacing.marginMain)
             }
-            .padding(NDCSpacing.marginMain)
+            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
             .background(NDCColor.background)
             .navigationTitle("Generar QR de Asistencia")
             .navigationBarTitleDisplayMode(.inline)
@@ -37,11 +51,18 @@ struct GenerateQRView: View {
                         .accessibilityLabel("Volver")
                 }
             }
+            .task {
+                if let presetSession {
+                    store.use(presetSession)
+                } else {
+                    await store.load()
+                }
+            }
         }
         .tint(NDCColor.primary)
     }
 
-    private var classBanner: some View {
+    private func classBanner(_ session: ClassSession) -> some View {
         HStack(spacing: NDCSpacing.gutter) {
             Image(systemName: "timer")
                 .font(.system(size: 22)).foregroundStyle(NDCColor.onAccent)
@@ -49,7 +70,8 @@ struct GenerateQRView: View {
                 .background(NDCColor.accent, in: .circle)
             VStack(alignment: .leading, spacing: 2) {
                 Text("CLASE ACTUAL").font(NDCFont.labelSM).foregroundStyle(NDCColor.outline)
-                Text(classLabel).font(NDCFont.headlineSM).foregroundStyle(NDCColor.primary)
+                Text("\(session.formattedStartTime) · \(session.title ?? "Clase de hoy")")
+                    .font(NDCFont.headlineSM).foregroundStyle(NDCColor.primary)
             }
             Spacer()
         }
@@ -58,7 +80,7 @@ struct GenerateQRView: View {
         .background(NDCColor.surface, in: .rect(cornerRadius: NDCRadius.large))
     }
 
-    private var qrCard: some View {
+    private func qrCard(payload: String, session: ClassSession) -> some View {
         VStack(spacing: NDCSpacing.stackLG) {
             Text("Los atletas deben escanear este código desde su app NDC para registrar su asistencia automáticamente.")
                 .font(NDCFont.bodyMD).foregroundStyle(NDCColor.onSurfaceVariant)
@@ -71,7 +93,7 @@ struct GenerateQRView: View {
                     .frame(width: 220, height: 220)
                     .padding(NDCSpacing.gutter)
                     .background(.white, in: .rect(cornerRadius: NDCRadius.large))
-                    .accessibilityLabel("Código QR de asistencia para \(classLabel)")
+                    .accessibilityLabel("Código QR de asistencia para la clase de las \(session.formattedStartTime)")
             }
             Label("Código activo y listo", systemImage: "checkmark.seal.fill")
                 .font(NDCFont.labelBold).foregroundStyle(.green)
@@ -81,7 +103,7 @@ struct GenerateQRView: View {
         .background(NDCColor.surface, in: .rect(cornerRadius: NDCRadius.large))
     }
 
-    private var actions: some View {
+    private func actions(payload: String) -> some View {
         VStack(spacing: NDCSpacing.stackMD) {
             Button {
                 Haptics.impact()
@@ -113,6 +135,34 @@ struct GenerateQRView: View {
         guard let output = filter.outputImage?.transformed(by: CGAffineTransform(scaleX: 10, y: 10)),
               let cg = context.createCGImage(output, from: output.extent) else { return nil }
         return UIImage(cgImage: cg)
+    }
+}
+
+// MARK: - Store (sesión de clase real de hoy)
+
+@MainActor @Observable
+final class GenerateQRStore {
+    private(set) var state: LoadState<ClassSession> = .loading
+    private let repo = CoachRepository()
+
+    /// Usa una sesión ya resuelta (sin ir a la red).
+    func use(_ session: ClassSession) {
+        state = .loaded(session)
+    }
+
+    func load() async {
+        state = .loading
+        do {
+            // Sesión de hoy en la hora en curso (18:37 → clase de las 18:00).
+            let hour = Calendar.current.component(.hour, from: Date())
+            let session = try await repo.findOrCreateSession(
+                date: Date(),
+                startTime: String(format: "%02d:00", hour)
+            )
+            state = .loaded(session)
+        } catch {
+            state = .failed("No se pudo preparar la clase de hoy. Revisa tu conexión.")
+        }
     }
 }
 

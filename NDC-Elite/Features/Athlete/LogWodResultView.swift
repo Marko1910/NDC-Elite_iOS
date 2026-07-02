@@ -5,31 +5,58 @@ import SwiftUI
 /// permanece visible). Header: ✕ · "Registrar Resultado" · Guardar.
 /// (ver FLOWS.md → LogWodResultSheet)
 ///
-/// TODO(datos): hoy usa `LogResultData.sample`. Al confirmar, insertar en
-/// `wod_results` (status = pendiente) para el WOD seleccionado.
+/// Carga el WOD del día publicado y, al confirmar, inserta en `wod_results`
+/// (status = pendiente; si ya había un resultado pendiente lo reemplaza).
 struct LogWodResultView: View {
     @Environment(\.dismiss) private var dismiss
-    private let data = LogResultData.sample
+    @State private var store = LogWodResultStore()
 
     @State private var doneTasks: Set<Int> = [0]
+    @State private var level: AthleteLevel = .intermedio
     @State private var minutes = ""
     @State private var seconds = ""
     @State private var weight = ""
     @State private var unit: WeightUnit = .lbs
     @State private var rpe = 7
     @State private var notes = ""
+    @State private var isSaving = false
+    @State private var errorMessage: String?
 
     enum WeightUnit: String, CaseIterable { case lbs = "Lbs", kg = "Kg" }
 
     var body: some View {
         ScrollView {
-            VStack(alignment: .leading, spacing: NDCSpacing.stackLG) {
-                wodCard
-                tasksSection
-                metconResultSection
-                rpeSection
-                notesSection
-                confirmButton
+            LoadStateView(state: store.state, retry: { Task { await store.load() } }) { info in
+                if let info {
+                    VStack(alignment: .leading, spacing: NDCSpacing.stackLG) {
+                        wodCard(info)
+                        levelSection
+                        tasksSection(info.blockTitles)
+                        metconResultSection
+                        rpeSection
+                        notesSection
+                        if let errorMessage {
+                            Text(errorMessage)
+                                .font(NDCFont.labelBold)
+                                .foregroundStyle(NDCColor.error)
+                                .frame(maxWidth: .infinity, alignment: .leading)
+                        }
+                        confirmButton
+                    }
+                } else {
+                    ContentUnavailableView(
+                        "Sin WOD publicado",
+                        systemImage: "calendar.badge.exclamationmark",
+                        description: Text("Cuando el coach publique el WOD del día podrás registrar tu resultado aquí.")
+                    )
+                    .padding(.top, NDCSpacing.stackLG)
+                }
+            } skeleton: {
+                VStack(spacing: NDCSpacing.stackLG) {
+                    SkeletonCard(lines: 2, height: 100)
+                    SkeletonCard(lines: 3, height: 140)
+                    SkeletonCard(lines: 2, height: 120)
+                }
             }
             .padding(.horizontal, NDCSpacing.marginMain)
             .padding(.top, NDCSpacing.gutter)
@@ -52,30 +79,23 @@ struct LogWodResultView: View {
                 .accessibilityLabel("Cerrar")
             }
             ToolbarItem(placement: .topBarTrailing) {
-                Button("Guardar") { save() }
+                Button(isSaving ? "Guardando…" : "Guardar") { Task { await save() } }
                     .font(NDCFont.labelBold)
                     .foregroundStyle(NDCColor.primary)
+                    .disabled(isSaving || store.state.value??.wod == nil)
             }
         }
+        .task { await store.load() }
     }
 
     // MARK: - Card del WOD
 
-    private var wodCard: some View {
+    private func wodCard(_ info: LogWodResultStore.Info) -> some View {
         VStack(alignment: .leading, spacing: NDCSpacing.stackSM) {
-            HStack(alignment: .top) {
-                Text(data.wodTitle)
-                    .font(NDCFont.headlineMD)
-                    .foregroundStyle(.white)
-                Spacer()
-                Text(data.rxLevel)
-                    .font(NDCFont.labelSM)
-                    .foregroundStyle(.white)
-                    .padding(.horizontal, 12)
-                    .padding(.vertical, 4)
-                    .background(.white.opacity(0.20), in: .capsule)
-            }
-            Text(data.subtitle)
+            Text(info.wod.title)
+                .font(NDCFont.headlineMD)
+                .foregroundStyle(.white)
+            Text(info.subtitle)
                 .font(NDCFont.labelSM)
                 .foregroundStyle(.white.opacity(0.9))
         }
@@ -86,13 +106,39 @@ struct LogWodResultView: View {
         .accessibilityElement(children: .combine)
     }
 
-    // MARK: - Tareas completadas
+    // MARK: - Nivel al que se hizo el WOD (Principiante/Intermedio/Avanzado)
 
-    private var tasksSection: some View {
+    private var levelSection: some View {
+        VStack(alignment: .leading, spacing: NDCSpacing.stackSM) {
+            sectionHeader("Nivel del WOD")
+            HStack(spacing: NDCSpacing.stackSM) {
+                ForEach(AthleteLevel.allCases, id: \.self) { lv in
+                    Button {
+                        Haptics.selection()
+                        level = lv
+                    } label: {
+                        Text(lv.displayName)
+                            .font(NDCFont.labelBold)
+                            .lineLimit(1)
+                            .minimumScaleFactor(0.8)
+                            .foregroundStyle(level == lv ? .white : NDCColor.onSurface)
+                            .frame(maxWidth: .infinity, minHeight: 44)
+                            .background(level == lv ? NDCColor.primary : NDCColor.surface,
+                                        in: .rect(cornerRadius: NDCRadius.standard))
+                    }
+                    .accessibilityAddTraits(level == lv ? .isSelected : [])
+                }
+            }
+        }
+    }
+
+    // MARK: - Tareas completadas (bloques del WOD)
+
+    private func tasksSection(_ tasks: [String]) -> some View {
         VStack(alignment: .leading, spacing: NDCSpacing.stackSM) {
             sectionHeader("Tareas Completadas")
             VStack(spacing: 0) {
-                ForEach(Array(data.tasks.enumerated()), id: \.offset) { index, task in
+                ForEach(Array(tasks.enumerated()), id: \.offset) { index, task in
                     Button {
                         Haptics.selection()
                         if doneTasks.contains(index) { doneTasks.remove(index) }
@@ -110,7 +156,7 @@ struct LogWodResultView: View {
                         .padding(NDCSpacing.gutter)
                     }
                     .accessibilityAddTraits(doneTasks.contains(index) ? .isSelected : [])
-                    if index < data.tasks.count - 1 {
+                    if index < tasks.count - 1 {
                         Divider().overlay(NDCColor.outline.opacity(0.20))
                     }
                 }
@@ -274,14 +320,17 @@ struct LogWodResultView: View {
     // MARK: - Confirmar
 
     private var confirmButton: some View {
-        Button(action: save) {
-            Label("CONFIRMAR RESULTADO", systemImage: "checkmark.circle.fill")
+        Button {
+            Task { await save() }
+        } label: {
+            Label(isSaving ? "GUARDANDO…" : "CONFIRMAR RESULTADO", systemImage: "checkmark.circle.fill")
                 .font(NDCFont.headlineSM)
                 .foregroundStyle(.white)
                 .frame(maxWidth: .infinity, minHeight: 52)
                 .background(NDCColor.primary, in: .rect(cornerRadius: NDCRadius.large))
                 .shadow(color: NDCColor.primaryDark.opacity(0.2), radius: 8, y: 4)
         }
+        .disabled(isSaving)
         .padding(.top, NDCSpacing.stackSM)
         .accessibilityHint("Guarda tu resultado para validación del coach")
     }
@@ -295,10 +344,37 @@ struct LogWodResultView: View {
             .frame(maxWidth: .infinity, alignment: .leading)
     }
 
-    private func save() {
-        Haptics.notify(.success)
-        // TODO: insertar en wod_results (status = pendiente)
-        dismiss()
+    private func save() async {
+        guard let wod = store.state.value??.wod, !isSaving else { return }
+        isSaving = true
+        errorMessage = nil
+        defer { isSaving = false }
+
+        let mins = Int(minutes) ?? 0
+        let secs = Int(seconds) ?? 0
+        let timeSeconds: Int? = (mins == 0 && secs == 0) ? nil : mins * 60 + secs
+        var weightKg = Double(weight.replacingOccurrences(of: ",", with: "."))
+        if unit == .lbs, let w = weightKg {
+            weightKg = (w * 0.45359237 * 10).rounded() / 10
+        }
+        // El RPE viaja en las notas (no hay columna dedicada; el coach lo lee ahí).
+        let trimmedNotes = notes.trimmingCharacters(in: .whitespacesAndNewlines)
+        let notesWithRpe = trimmedNotes.isEmpty ? "RPE \(rpe)/10" : "RPE \(rpe)/10 · \(trimmedNotes)"
+
+        do {
+            try await AthleteRepository().logWodResult(
+                wodId: wod.id,
+                timeSeconds: timeSeconds,
+                weightUsedKg: weightKg,
+                intensity: level,
+                notes: notesWithRpe
+            )
+            Haptics.notify(.success)
+            dismiss()
+        } catch {
+            Haptics.notify(.error)
+            errorMessage = "No se pudo guardar tu resultado. Revisa tu conexión e inténtalo de nuevo."
+        }
     }
 
     private static func rpeDescription(_ value: Int) -> String {
@@ -314,32 +390,43 @@ struct LogWodResultView: View {
     }
 }
 
-// MARK: - Datos de muestra (a reemplazar por fetch de Supabase)
+// MARK: - Store (WOD del día real + títulos de sus bloques)
 
-private struct LogResultData {
-    let wodTitle: String
-    let rxLevel: String
-    let subtitle: String
-    let tasks: [String]
+@MainActor @Observable
+final class LogWodResultStore {
+    struct Info {
+        let wod: Wod
+        let blockTitles: [String]
 
-    static var sample: LogResultData {
-        LogResultData(
-            wodTitle: "El Desafío Híbrido",
-            rxLevel: "RX",
-            subtitle: "\(Self.todayLabel) • Fuerza & Metcon",
-            tasks: [
-                "Calentamiento (3 Rondas)",
-                "Back Squat (5 Sets de 3 Reps)",
-                "Metcon: El Desafío Híbrido"
-            ]
-        )
+        /// "Hoy, Martes 1 de Julio • Fuerza & Metcon"
+        var subtitle: String {
+            let f = DateFormatter()
+            f.locale = Locale(identifier: "es_ES")
+            f.dateFormat = "EEEE d 'de' MMMM"
+            var label = f.string(from: wod.scheduledDate).capitalized
+            if Calendar.current.isDateInToday(wod.scheduledDate) { label = "Hoy, \(label)" }
+            if let focus = wod.focus { label += " • \(focus)" }
+            return label
+        }
     }
 
-    private static var todayLabel: String {
-        let f = DateFormatter()
-        f.locale = Locale(identifier: "es_ES")
-        f.dateFormat = "EEEE d 'de' MMMM"
-        return "Hoy, \(f.string(from: Date()).capitalized)"
+    /// `.loaded(nil)` = no hay WOD publicado para hoy o próximo.
+    private(set) var state: LoadState<Info?> = .loading
+    private let repo = AthleteRepository()
+
+    func load() async {
+        state = .loading
+        do {
+            guard let wod = try await repo.nextWod() else {
+                state = .loaded(nil)
+                return
+            }
+            let blocks = try await repo.blocks(for: wod.id)
+            let titles = blocks.map { $0.title ?? $0.blockType.displayName }
+            state = .loaded(Info(wod: wod, blockTitles: titles.isEmpty ? [wod.title] : titles))
+        } catch {
+            state = .failed("No pudimos cargar el WOD de hoy.")
+        }
     }
 }
 

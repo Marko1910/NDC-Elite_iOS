@@ -5,21 +5,22 @@ import SwiftUI
 /// Progreso. Campos: ejercicio · resultado + fecha · notas · Guardar / Cancelar.
 /// (ver FLOWS.md → LogPrSheet)
 ///
-/// TODO(datos): hoy usa una lista de ejercicios de muestra. Al guardar, insertar
-/// en `personal_records` (status = pendiente) con el ejercicio elegido.
+/// El picker lista los `exercises` reales de la Biblioteca Técnica y al guardar
+/// inserta en `personal_records` (status = pendiente, con `previous_value`).
 struct LogPrSheet: View {
     @Environment(\.dismiss) private var dismiss
 
-    @State private var exercise: String?
+    @State private var exercises: LoadState<[Exercise]> = .loading
+    @State private var exercise: Exercise?
     @State private var result = ""
     @State private var date = Date()
     @State private var notes = ""
+    @State private var isSaving = false
+    @State private var errorMessage: String?
 
-    // TODO: reemplazar por `exercises` de Supabase (búsqueda + categoría).
-    private let exercises = [
-        "Back Squat", "Clean & Jerk", "Peso Muerto", "Snatch", "Press Banca",
-        "Fran (Time)", "Muscle Ups"
-    ]
+    private var resultValue: Double? {
+        Double(result.replacingOccurrences(of: ",", with: "."))
+    }
 
     var body: some View {
         VStack(spacing: 0) {
@@ -32,6 +33,11 @@ struct LogPrSheet: View {
                         dateField
                     }
                     notesField
+                    if let errorMessage {
+                        Text(errorMessage)
+                            .font(NDCFont.labelBold)
+                            .foregroundStyle(NDCColor.error)
+                    }
                     actions
                 }
                 .padding(NDCSpacing.marginMain)
@@ -42,6 +48,7 @@ struct LogPrSheet: View {
         .presentationDetents([.large])
         .presentationDragIndicator(.visible)
         .presentationCornerRadius(24)
+        .task { await loadExercises() }
     }
 
     // MARK: - Header
@@ -67,23 +74,25 @@ struct LogPrSheet: View {
         .padding(.bottom, NDCSpacing.stackSM)
     }
 
-    // MARK: - Ejercicio (picker)
+    // MARK: - Ejercicio (picker de la biblioteca real)
 
     private var exerciseField: some View {
         VStack(alignment: .leading, spacing: 4) {
             fieldLabel("Ejercicio")
             Menu {
-                ForEach(exercises, id: \.self) { ex in
-                    Button(ex) {
-                        Haptics.selection()
-                        exercise = ex
+                if case .loaded(let all) = exercises {
+                    ForEach(all) { ex in
+                        Button(ex.nameEs ?? ex.name) {
+                            Haptics.selection()
+                            exercise = ex
+                        }
                     }
                 }
             } label: {
                 HStack(spacing: NDCSpacing.stackSM) {
                     Image(systemName: "magnifyingglass")
                         .foregroundStyle(NDCColor.outline)
-                    Text(exercise ?? "Buscar ejercicio (ej. Back Squat)")
+                    Text(exerciseFieldText)
                         .font(NDCFont.bodyLG)
                         .foregroundStyle(exercise == nil ? NDCColor.outline : NDCColor.onSurface)
                     Spacer()
@@ -95,8 +104,21 @@ struct LogPrSheet: View {
                 .background(NDCColor.surfaceStrong, in: .rect(cornerRadius: NDCRadius.standard))
             }
             .accessibilityLabel("Ejercicio")
-            .accessibilityValue(exercise ?? "Sin seleccionar")
+            .accessibilityValue(exercise.map { $0.nameEs ?? $0.name } ?? "Sin seleccionar")
+
+            if case .failed = exercises {
+                Button("No se pudo cargar la biblioteca. Reintentar") {
+                    Task { await loadExercises() }
+                }
+                .font(NDCFont.labelSM)
+                .foregroundStyle(NDCColor.error)
+            }
         }
+    }
+
+    private var exerciseFieldText: String {
+        if let exercise { return exercise.nameEs ?? exercise.name }
+        return exercises.isLoading ? "Cargando ejercicios…" : "Buscar ejercicio (ej. Back Squat)"
     }
 
     // MARK: - Resultado + Fecha
@@ -108,7 +130,7 @@ struct LogPrSheet: View {
                 TextField("0.0", text: $result)
                     .keyboardType(.decimalPad)
                     .font(NDCFont.bodyLG)
-                Text("KG")
+                Text(unitLabel)
                     .font(NDCFont.labelBold)
                     .foregroundStyle(NDCColor.outline)
             }
@@ -118,13 +140,25 @@ struct LogPrSheet: View {
         }
     }
 
+    /// La unidad sigue al tipo de marca del ejercicio elegido.
+    private var unitLabel: String {
+        switch exercise?.defaultScoreType {
+        case .tiempo: "SEG"
+        case .reps: "REPS"
+        case .rondas: "RONDAS"
+        case .distancia: "KM"
+        case .calorias: "CAL"
+        case .peso, nil: "KG"
+        }
+    }
+
     private var dateField: some View {
         VStack(alignment: .leading, spacing: 4) {
             fieldLabel("Fecha")
             HStack {
                 Image(systemName: "calendar")
                     .foregroundStyle(NDCColor.outline)
-                DatePicker("", selection: $date, displayedComponents: .date)
+                DatePicker("", selection: $date, in: ...Date(), displayedComponents: .date)
                     .labelsHidden()
                     .tint(NDCColor.primary)
                 Spacer(minLength: 0)
@@ -162,16 +196,18 @@ struct LogPrSheet: View {
 
     private var actions: some View {
         VStack(spacing: NDCSpacing.stackMD) {
-            Button(action: save) {
-                Label("Guardar Marca", systemImage: "square.and.arrow.down")
+            Button {
+                Task { await save() }
+            } label: {
+                Label(isSaving ? "Guardando…" : "Guardar Marca", systemImage: "square.and.arrow.down")
                     .font(NDCFont.headlineSM)
                     .foregroundStyle(NDCColor.onAccent)
                     .frame(maxWidth: .infinity, minHeight: 56)
                     .background(NDCColor.accent, in: .rect(cornerRadius: NDCRadius.large))
                     .shadow(color: .black.opacity(0.1), radius: 6, y: 3)
             }
-            .disabled(exercise == nil || result.isEmpty)
-            .opacity(exercise == nil || result.isEmpty ? 0.6 : 1)
+            .disabled(exercise == nil || resultValue == nil || isSaving)
+            .opacity(exercise == nil || resultValue == nil ? 0.6 : 1)
             .accessibilityHint("Guarda la marca para validación del coach")
 
             Button("Cancelar") {
@@ -193,10 +229,35 @@ struct LogPrSheet: View {
             .foregroundStyle(NDCColor.onSurfaceVariant)
     }
 
-    private func save() {
-        Haptics.notify(.success)
-        // TODO: insertar en personal_records (status = pendiente)
-        dismiss()
+    private func loadExercises() async {
+        exercises = .loading
+        do {
+            exercises = .loaded(try await AthleteRepository().allExercises())
+        } catch {
+            exercises = .failed(error.localizedDescription)
+        }
+    }
+
+    private func save() async {
+        guard let exercise, let value = resultValue, !isSaving else { return }
+        isSaving = true
+        errorMessage = nil
+        defer { isSaving = false }
+        let trimmedNotes = notes.trimmingCharacters(in: .whitespacesAndNewlines)
+        do {
+            try await AthleteRepository().logPersonalRecord(
+                exerciseId: exercise.id,
+                value: value,
+                scoreType: exercise.defaultScoreType,
+                recordDate: date,
+                notes: trimmedNotes.isEmpty ? nil : trimmedNotes
+            )
+            Haptics.notify(.success)
+            dismiss()
+        } catch {
+            Haptics.notify(.error)
+            errorMessage = "No se pudo guardar la marca. Revisa tu conexión e inténtalo de nuevo."
+        }
     }
 }
 

@@ -5,29 +5,47 @@ import SwiftUI
 /// fuerza/técnica, metcon) con "ojo" para ver técnica · CTA registrar resultado.
 /// (ver FLOWS.md → WodDetailView)
 ///
-/// TODO(datos): hoy usa `WodDetailData.sample`. Conectar a Supabase:
-/// wods + wod_blocks + wod_block_exercises (del WOD del día / seleccionado).
+/// Datos reales: el próximo WOD publicado (`wods` + `wod_blocks` +
+/// `wod_block_exercises`), con los nombres/videos de la Biblioteca Técnica.
 struct WodDetailView: View {
     let profile: Profile
-    private let data = WodDetailData.sample
+    @State private var store = WodDetailStore()
 
     @State private var search = ""
     @State private var showLogResult = false
     @State private var showHistory = false
+    @State private var showLibrary = false
+    @State private var techniqueExercise: LibraryExercise?
 
     var body: some View {
         NavigationStack {
             ScrollView {
                 VStack(alignment: .leading, spacing: NDCSpacing.stackLG) {
                     searchField
-                    hero
-                    ForEach(data.blocks) { block in
-                        WodBlockCard(block: block, onTechnique: { _ in
-                            Haptics.impact(.light)
-                            // TODO: → ExerciseDetailView
-                        })
+                    LoadStateView(state: store.state, retry: { Task { await store.load() } }) { data in
+                        if let data {
+                            hero(data)
+                            ForEach(data.blocks) { block in
+                                WodBlockCard(block: block) { movement in
+                                    openTechnique(movement)
+                                }
+                            }
+                            registerCTA
+                        } else {
+                            ContentUnavailableView(
+                                "Sin WOD publicado",
+                                systemImage: "calendar.badge.exclamationmark",
+                                description: Text("Cuando el coach publique el próximo WOD lo verás aquí.")
+                            )
+                            .padding(.top, NDCSpacing.stackLG)
+                        }
+                    } skeleton: {
+                        VStack(spacing: NDCSpacing.stackLG) {
+                            SkeletonCard(lines: 2, height: 110)
+                            SkeletonCard(lines: 3, height: 160)
+                            SkeletonCard(lines: 4, height: 200)
+                        }
                     }
-                    registerCTA
                 }
                 .padding(.horizontal, NDCSpacing.marginMain)
                 .padding(.top, NDCSpacing.gutter)
@@ -40,6 +58,12 @@ struct WodDetailView: View {
             }
             .navigationDestination(isPresented: $showHistory) {
                 WodHistoryView()
+            }
+            .navigationDestination(isPresented: $showLibrary) {
+                ExerciseLibraryView()
+            }
+            .navigationDestination(item: $techniqueExercise) { exercise in
+                ExerciseDetailView(exercise: exercise)
             }
             .toolbar {
                 ToolbarItem(placement: .topBarLeading) {
@@ -55,16 +79,27 @@ struct WodDetailView: View {
                     }
                     .accessibilityLabel("Historial de WODs")
 
-                    NDCBellButton(unreadCount: data.unreadCount) {
+                    NDCBellButton(unreadCount: 0) {
                         // TODO: → AthleteNotificationsView
                     }
                 }
             }
+            .task { await store.load() }
+            .refreshable { await store.load() }
         }
         .tint(NDCColor.primary)
     }
 
-    // MARK: - Búsqueda de técnica
+    /// El "ojo" abre la técnica del ejercicio en la Biblioteca real.
+    private func openTechnique(_ movement: WodDetailStore.Movement) {
+        guard let exerciseId = movement.exerciseId,
+              let exercise = ExerciseLibraryStore.shared.state.value?.first(where: { $0.id == exerciseId })
+        else { return }
+        Haptics.impact(.light)
+        techniqueExercise = exercise
+    }
+
+    // MARK: - Búsqueda de técnica (lleva a la Biblioteca)
 
     private var searchField: some View {
         HStack(spacing: NDCSpacing.stackMD) {
@@ -73,15 +108,13 @@ struct WodDetailView: View {
             TextField("Buscar técnica de movimientos", text: $search)
                 .font(NDCFont.bodyMD)
                 .submitLabel(.search)
-                .onSubmit { /* TODO: → ExerciseLibraryView con filtro */ }
-            if !search.isEmpty {
-                Button("Ir") {
-                    Haptics.impact(.light)
-                    // TODO: → ExerciseLibraryView
-                }
-                .font(NDCFont.labelBold)
-                .foregroundStyle(NDCColor.primary)
+                .onSubmit { showLibrary = true }
+            Button("Ir") {
+                Haptics.impact(.light)
+                showLibrary = true
             }
+            .font(NDCFont.labelBold)
+            .foregroundStyle(NDCColor.primary)
         }
         .padding(.horizontal, NDCSpacing.gutter)
         .padding(.vertical, 12)
@@ -94,55 +127,50 @@ struct WodDetailView: View {
 
     // MARK: - Héroe (fecha + título + chips)
 
-    private var hero: some View {
+    private func hero(_ data: WodDetailStore.Data) -> some View {
         VStack(alignment: .leading, spacing: NDCSpacing.stackSM) {
             Text(data.dateLabel.uppercased())
                 .font(NDCFont.labelBold)
                 .foregroundStyle(NDCColor.outline)
                 .tracking(0.5)
-            Text(data.title)
+            Text(data.wod.title)
                 .font(NDCFont.displayLG)
                 .foregroundStyle(NDCColor.primaryDark)
             HStack(spacing: NDCSpacing.stackSM) {
-                NDCChip(text: data.rxLevel)
-                NDCChip(text: data.focus, color: NDCColor.onSurfaceVariant)
+                NDCChip(text: data.wod.wodType.displayName)
+                if let focus = data.wod.focus {
+                    NDCChip(text: focus, color: NDCColor.onSurfaceVariant)
+                }
             }
         }
+        .frame(maxWidth: .infinity, alignment: .leading)
         .accessibilityElement(children: .combine)
     }
 
     // MARK: - CTA registrar resultado
 
     private var registerCTA: some View {
-        VStack(spacing: NDCSpacing.stackMD) {
-            Button {
-                Haptics.impact()
-                showLogResult = true
-            } label: {
-                Label("Registrar mi Resultado", systemImage: "square.and.pencil")
-                    .font(NDCFont.headlineSM)
-                    .foregroundStyle(.white)
-                    .frame(maxWidth: .infinity, minHeight: 52)
-                    .background(NDCColor.secondary, in: .rect(cornerRadius: NDCRadius.large))
-                    .shadow(color: NDCColor.secondary.opacity(0.25), radius: 8, y: 4)
-            }
-            .accessibilityHint("Registra tu tiempo o marca en este WOD")
-
-            if let count = data.registeredCount {
-                Label("\(count) atletas ya registraron su tiempo hoy", systemImage: "person.2.fill")
-                    .font(NDCFont.labelSM)
-                    .foregroundStyle(NDCColor.outline)
-            }
+        Button {
+            Haptics.impact()
+            showLogResult = true
+        } label: {
+            Label("Registrar mi Resultado", systemImage: "square.and.pencil")
+                .font(NDCFont.headlineSM)
+                .foregroundStyle(.white)
+                .frame(maxWidth: .infinity, minHeight: 52)
+                .background(NDCColor.secondary, in: .rect(cornerRadius: NDCRadius.large))
+                .shadow(color: NDCColor.secondary.opacity(0.25), radius: 8, y: 4)
         }
         .padding(.top, NDCSpacing.stackSM)
+        .accessibilityHint("Registra tu tiempo o marca en este WOD")
     }
 }
 
 // MARK: - Tarjeta de bloque (calentamiento / fuerza / metcon)
 
 private struct WodBlockCard: View {
-    let block: WodDetailData.Block
-    let onTechnique: (WodDetailData.Movement) -> Void
+    let block: WodDetailStore.Block
+    let onTechnique: (WodDetailStore.Movement) -> Void
 
     var body: some View {
         VStack(alignment: .leading, spacing: NDCSpacing.stackMD) {
@@ -232,7 +260,7 @@ private struct WodBlockCard: View {
 // MARK: - Fila de movimiento (con "ojo" de técnica)
 
 private struct MovementRow: View {
-    let movement: WodDetailData.Movement
+    let movement: WodDetailStore.Movement
     let showDivider: Bool
     let onTechnique: () -> Void
 
@@ -268,87 +296,104 @@ private struct MovementRow: View {
     }
 }
 
-// MARK: - Datos de muestra (a reemplazar por fetch de Supabase)
+// MARK: - Store (WOD publicado real + bloques + ejercicios de la biblioteca)
 
-private struct WodDetailData {
+@MainActor @Observable
+final class WodDetailStore {
     struct Movement: Identifiable {
-        let id = UUID()
+        let id: UUID
         let name: String
-        var detail: String? = nil
-        var hasTechnique: Bool = true
+        let detail: String?
+        let exerciseId: UUID?
+        var hasTechnique: Bool { exerciseId != nil }
     }
+
     struct Block: Identifiable {
-        let id = UUID()
+        let id: UUID
         let icon: String
         let title: String
-        var scheme: String? = nil
-        var trailingLabel: String? = nil
-        var badge: String? = nil
-        var coachCue: String? = nil
-        var emphasized: Bool = false
+        let scheme: String?
+        let trailingLabel: String?
+        let badge: String?
+        let coachCue: String?
+        let emphasized: Bool
         let movements: [Movement]
     }
 
-    let dateLabel: String
-    let title: String
-    let rxLevel: String
-    let focus: String
-    let blocks: [Block]
-    let registeredCount: Int?
-    let unreadCount: Int
+    struct Data {
+        let wod: Wod
+        let blocks: [Block]
 
-    static var sample: WodDetailData {
-        WodDetailData(
-            dateLabel: todayLabel,
-            title: "El Desafío Híbrido",
-            rxLevel: "RX",
-            focus: "Fuerza & Metcon",
-            blocks: [
-                Block(
-                    icon: "leaf.fill",
-                    title: "Calentamiento",
-                    scheme: "3 Rondas de:",
-                    trailingLabel: "12 Minutos",
-                    movements: [
-                        Movement(name: "200m Trote suave"),
-                        Movement(name: "15 Air Squats", detail: "Controlados"),
-                        Movement(name: "10 Scapular Pull-ups")
-                    ]
-                ),
-                Block(
-                    icon: "dumbbell.fill",
-                    title: "Fuerza / Técnica",
-                    coachCue: "Enfócate en la estabilidad del core durante la pausa.",
-                    movements: [
-                        Movement(name: "Back Squat (Tempo)",
-                                 detail: "5 Sets de 3 Reps al 75% RM. Tempo 3-2-X-1")
-                    ]
-                ),
-                Block(
-                    icon: "timer",
-                    title: "Metcon",
-                    trailingLabel: "20:00",
-                    badge: "POR TIEMPO",
-                    emphasized: true,
-                    movements: [
-                        Movement(name: "50 Saltos Dobles", detail: "Saltos dobles de comba"),
-                        Movement(name: "40 Lanzamientos de Balón", detail: "Balón 20/14 lbs"),
-                        Movement(name: "30 Cargadas de Potencia", detail: "Barra 135/95 lbs"),
-                        Movement(name: "20 Burpees sobre la Barra", detail: "Salto lateral")
-                    ]
-                )
-            ],
-            registeredCount: 14,
-            unreadCount: 2
-        )
+        /// "Hoy, martes 1 de julio" (o la fecha del WOD si no es hoy).
+        var dateLabel: String {
+            let f = DateFormatter()
+            f.locale = Locale(identifier: "es_ES")
+            f.dateFormat = "EEEE, d 'de' MMMM"
+            let label = f.string(from: wod.scheduledDate)
+            return Calendar.current.isDateInToday(wod.scheduledDate) ? "Hoy, \(label)" : label
+        }
     }
 
-    /// "Hoy, sábado, 23 de mayo" con la fecha actual en español.
-    private static var todayLabel: String {
-        let f = DateFormatter()
-        f.locale = Locale(identifier: "es_ES")
-        f.dateFormat = "EEEE, d 'de' MMMM"
-        return "Hoy, \(f.string(from: Date()))"
+    /// `.loaded(nil)` = no hay WOD publicado próximo.
+    private(set) var state: LoadState<Data?> = .loading
+    private let repo = AthleteRepository()
+
+    func load() async {
+        state = .loading
+        do {
+            // La biblioteca da nombre y video a cada ejercicio del WOD.
+            await ExerciseLibraryStore.shared.load()
+            let library = ExerciseLibraryStore.shared.state.value ?? []
+            let namesById = Dictionary(uniqueKeysWithValues: library.map { ($0.id, $0.name) })
+
+            guard let wod = try await repo.nextWod() else {
+                state = .loaded(nil)
+                return
+            }
+            let blocks = try await repo.blocks(for: wod.id)
+            var blockVMs: [Block] = []
+            for block in blocks {
+                let rows = try await repo.blockExercises(for: block.id)
+                let movements = rows.map { row -> Movement in
+                    if let exerciseId = row.exerciseId, let name = namesById[exerciseId] {
+                        return Movement(id: row.id, name: name, detail: row.prescription, exerciseId: exerciseId)
+                    }
+                    return Movement(id: row.id, name: row.prescription, detail: nil, exerciseId: nil)
+                }
+                blockVMs.append(Self.blockVM(block, wod: wod, movements: movements))
+            }
+            state = .loaded(Data(wod: wod, blocks: blockVMs))
+        } catch {
+            state = .failed("No pudimos cargar el WOD. Revisa tu conexión e inténtalo de nuevo.")
+        }
+    }
+
+    private static func blockVM(_ block: WodBlock, wod: Wod, movements: [Movement]) -> Block {
+        let icon: String = switch block.blockType {
+        case .calentamiento: "leaf.fill"
+        case .fuerza: "dumbbell.fill"
+        case .metcon: "timer"
+        case .skill: "figure.gymnastics"
+        case .accesorio: "plus.circle"
+        }
+        let emphasized = block.blockType == .metcon
+        var trailing: String?
+        if let cap = block.timeCapMinutes ?? (emphasized ? wod.timeCapMinutes : nil) {
+            trailing = String(format: "%d:00", cap)
+        } else if let duration = block.durationMinutes {
+            trailing = "\(duration) Minutos"
+        }
+        return Block(
+            id: block.id,
+            icon: icon,
+            title: block.title ?? block.blockType.displayName,
+            scheme: block.rounds.map { "\($0) Rondas de:" },
+            trailingLabel: trailing,
+            badge: emphasized ? wod.wodType.displayName : nil,
+            coachCue: block.notes,
+            emphasized: emphasized,
+            movements: movements
+        )
     }
 }
 

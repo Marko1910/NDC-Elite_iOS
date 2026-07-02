@@ -4,11 +4,13 @@ import SwiftUI
 /// Estructura: saludo · logro desbloqueado · WOD del día · stats (asistencia/récords)
 /// · próximo objetivo · tip del coach. (ver FLOWS.md → AthleteDashboardView)
 ///
-/// TODO(datos): hoy usa `DashboardData.sample`. Conectar a Supabase:
-/// wods (próximo), attendance (resumen mes), personal_records (conteo + último),
-/// athlete_goals (objetivo principal), coach_tips (último tip).
+/// Datos reales de Supabase: wods (próximo publicado + su metcon), attendance
+/// (mes en curso), personal_records (últimos 30 días), athlete_goals,
+/// coach_tips y notifications (badge). Secciones sin datos se ocultan solas.
 struct AthleteDashboardView: View {
     let profile: Profile
+    /// Lleva al tab WOD (lo inyecta AthleteTabView).
+    var openWod: () -> Void = {}
     @State private var store = AthleteDashboardStore()
 
     var body: some View {
@@ -22,7 +24,7 @@ struct AthleteDashboardView: View {
                                 PRAlertCard(text: achievement)
                             }
                             if let wod = data.wod {
-                                WODCard(wod: wod, onOpen: { /* TODO: → WodDetailView */ })
+                                WODCard(wod: wod, onOpen: openWod)
                             }
                             StatsRow(
                                 attended: data.attendedSessions,
@@ -426,11 +428,6 @@ final class AthleteDashboardStore {
     private let repo = AthleteRepository()
 
     func load(profile: Profile) async {
-        // BASE DE DATOS COMENTADA (se conectará después). Mientras, datos de muestra.
-        state = .loaded(.sample)
-        return
-        // swiftlint:disable:next unreachable_code
-        #if NDC_SUPABASE_WIRED
         state = .loading
         do {
             async let attendanceTask = repo.monthlyAttendance(athleteId: profile.id)
@@ -479,7 +476,6 @@ final class AthleteDashboardStore {
         } catch {
             state = .failed("No pudimos cargar tu inicio. Revisa tu conexión e inténtalo de nuevo.")
         }
-        #endif
     }
 }
 

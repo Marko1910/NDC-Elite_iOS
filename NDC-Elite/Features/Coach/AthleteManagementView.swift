@@ -4,30 +4,38 @@ import SwiftUI
 /// CTA tomar asistencia · búsqueda · filtro por nivel/lesión · lista de miembros
 /// activos con acceso al perfil. (ver FLOWS.md → AthleteManagementView)
 ///
-/// TODO(datos): hoy usa `AthleteListData.sample`. Conectar a Supabase:
-/// profiles (atletas, filtros nivel) + injuries (lesión activa).
+/// Lista real: `profiles` (role = atleta, activos) + `injuries` sin resolver
+/// para el indicador y el filtro "Con Lesión".
 struct AthleteManagementView: View {
     let profile: Profile
-    private let all = AthleteListData.sample
+    @State private var store = AthleteManagementStore()
     @State private var query = ""
     @State private var filter: AthleteFilter = .todos
     @State private var showAttendance = false
-    @State private var selectedAthlete: String?
+    @State private var selectedAthlete: Profile?
     @State private var showInvite = false
 
     enum AthleteFilter: String, CaseIterable {
-        case todos = "Todos", basico = "Básico", intermedio = "Intermedio"
+        case todos = "Todos", basico = "Principiante", intermedio = "Intermedio"
         case avanzado = "Avanzado", lesion = "Con Lesión"
+
+        var level: AthleteLevel? {
+            switch self {
+            case .basico: .basico
+            case .intermedio: .intermedio
+            case .avanzado: .avanzado
+            case .todos, .lesion: nil
+            }
+        }
     }
 
-    private var filtered: [AthleteListData.Member] {
-        all.filter { m in
-            let matchesQuery = query.isEmpty || m.name.localizedCaseInsensitiveContains(query)
-            let matchesFilter: Bool
-            switch filter {
-            case .todos: matchesFilter = true
-            case .lesion: matchesFilter = m.injury != nil
-            default: matchesFilter = m.level.lowercased() == filter.rawValue.lowercased()
+    private func filtered(_ data: AthleteManagementStore.Data) -> [Profile] {
+        data.athletes.filter { athlete in
+            let matchesQuery = query.isEmpty || athlete.fullName.localizedCaseInsensitiveContains(query)
+            let matchesFilter: Bool = switch filter {
+            case .todos: true
+            case .lesion: data.injured.contains(athlete.id)
+            default: athlete.level == filter.level
             }
             return matchesQuery && matchesFilter
         }
@@ -39,18 +47,29 @@ struct AthleteManagementView: View {
                 VStack(alignment: .leading, spacing: NDCSpacing.stackMD) {
                     takeAttendanceCTA
                     filterChips
-                    HStack {
-                        Text("MIEMBROS ACTIVOS").font(NDCFont.labelBold).foregroundStyle(NDCColor.outline)
-                        Spacer()
-                        Text("\(all.count) Total").font(NDCFont.labelSM).foregroundStyle(NDCColor.outline)
-                    }
-                    if filtered.isEmpty {
-                        ContentUnavailableView("Sin atletas", systemImage: "person.slash",
-                                               description: Text("No hay atletas en este filtro."))
-                            .padding(.top, NDCSpacing.stackLG)
-                    } else {
-                        ForEach(filtered) { member in
-                            MemberRow(member: member) { selectedAthlete = member.name }
+                    LoadStateView(state: store.state, retry: { Task { await store.load() } }) { data in
+                        let visible = filtered(data)
+                        HStack {
+                            Text("MIEMBROS ACTIVOS").font(NDCFont.labelBold).foregroundStyle(NDCColor.outline)
+                            Spacer()
+                            Text("\(data.athletes.count) Total").font(NDCFont.labelSM).foregroundStyle(NDCColor.outline)
+                        }
+                        if visible.isEmpty {
+                            ContentUnavailableView("Sin atletas", systemImage: "person.slash",
+                                                   description: Text("No hay atletas en este filtro."))
+                                .padding(.top, NDCSpacing.stackLG)
+                        } else {
+                            ForEach(visible) { athlete in
+                                MemberRow(athlete: athlete, hasInjury: data.injured.contains(athlete.id)) {
+                                    selectedAthlete = athlete
+                                }
+                            }
+                        }
+                    } skeleton: {
+                        VStack(spacing: NDCSpacing.stackSM) {
+                            SkeletonCard(lines: 2, height: 76)
+                            SkeletonCard(lines: 2, height: 76)
+                            SkeletonCard(lines: 2, height: 76)
                         }
                     }
                 }
@@ -65,17 +84,26 @@ struct AthleteManagementView: View {
             .searchable(text: $query, prompt: "Buscar atletas por nombre...")
             .sheet(isPresented: $showAttendance) { AttendanceControlView() }
             .sheet(isPresented: $showInvite) { GenerateInviteCodeView() }
-            .navigationDestination(item: $selectedAthlete) { name in
-                CoachAthleteProfileView(athleteName: name)
+            .navigationDestination(item: $selectedAthlete) { athlete in
+                CoachAthleteProfileView(athlete: athlete)
             }
             .toolbar {
-                ToolbarItem(placement: .topBarTrailing) {
+                ToolbarItemGroup(placement: .topBarTrailing) {
+                    NavigationLink {
+                        ClassScheduleView()
+                    } label: {
+                        Image(systemName: "calendar")
+                    }
+                    .accessibilityLabel("Horario de clases")
+
                     Button { Haptics.impact(); showInvite = true } label: {
                         Image(systemName: "person.badge.plus")
                     }
                     .accessibilityLabel("Invitar atleta")
                 }
             }
+            .task { await store.load() }
+            .refreshable { await store.load() }
         }
         .tint(NDCColor.primary)
     }
@@ -125,27 +153,56 @@ struct AthleteManagementView: View {
     }
 }
 
+// MARK: - Store (atletas reales + lesiones activas)
+
+@MainActor @Observable
+final class AthleteManagementStore {
+    struct Data {
+        let athletes: [Profile]
+        let injured: Set<UUID>
+    }
+
+    private(set) var state: LoadState<Data> = .loading
+    private let repo = CoachRepository()
+
+    func load() async {
+        state = .loading
+        do {
+            async let athletesTask = repo.athletes()
+            async let injuredTask = repo.athletesWithActiveInjury()
+            state = .loaded(Data(athletes: try await athletesTask, injured: try await injuredTask))
+        } catch {
+            state = .failed("No se pudo cargar la lista de atletas.")
+        }
+    }
+}
+
 // MARK: - Fila de miembro
 
 private struct MemberRow: View {
-    let member: AthleteListData.Member
+    let athlete: Profile
+    let hasInjury: Bool
     let onProfile: () -> Void
+
+    private var sinceLabel: String {
+        "Desde \(athlete.memberSince.formatted(.dateTime.month(.wide).year()).capitalized)"
+    }
 
     var body: some View {
         HStack(spacing: NDCSpacing.gutter) {
-            NDCAvatarView(urlString: member.avatarURL, size: 52)
+            NDCAvatarView(urlString: athlete.avatarURL, size: 52)
             VStack(alignment: .leading, spacing: 4) {
-                Text(member.name).font(NDCFont.bodyLG.weight(.bold)).foregroundStyle(NDCColor.onSurface)
+                Text(athlete.fullName).font(NDCFont.bodyLG.weight(.bold)).foregroundStyle(NDCColor.onSurface)
                 HStack(spacing: NDCSpacing.stackSM) {
-                    Text(member.level.uppercased())
+                    Text(athlete.level.displayName.uppercased())
                         .font(NDCFont.labelSM).foregroundStyle(NDCColor.primary)
                         .fixedSize()
-                    if let injury = member.injury {
-                        Label(injury, systemImage: "exclamationmark.triangle.fill")
+                    if hasInjury {
+                        Label("Lesión activa", systemImage: "exclamationmark.triangle.fill")
                             .font(NDCFont.labelSM).foregroundStyle(NDCColor.error)
                             .lineLimit(1)
                     } else {
-                        Text(member.since).font(NDCFont.labelSM).foregroundStyle(NDCColor.outline)
+                        Text(sinceLabel).font(NDCFont.labelSM).foregroundStyle(NDCColor.outline)
                             .lineLimit(1)
                     }
                 }
@@ -160,33 +217,13 @@ private struct MemberRow: View {
                     .padding(.horizontal, 14).padding(.vertical, 8)
                     .background(NDCColor.surface, in: .capsule)
             }
-            .accessibilityLabel("Ver perfil de \(member.name)")
+            .accessibilityLabel("Ver perfil de \(athlete.fullName)")
         }
         .padding(NDCSpacing.gutter)
         .background(NDCColor.background, in: .rect(cornerRadius: NDCRadius.large))
         .overlay(RoundedRectangle(cornerRadius: NDCRadius.large).stroke(NDCColor.outline.opacity(0.2), lineWidth: 1))
         .accessibilityElement(children: .combine)
     }
-}
-
-// MARK: - Datos de muestra
-
-private enum AthleteListData {
-    struct Member: Identifiable {
-        let id = UUID()
-        let name, level, since: String
-        var injury: String? = nil
-        var avatarURL: String? = nil
-    }
-
-    static let sample: [Member] = [
-        Member(name: "Sofía Martínez", level: "Avanzado", since: "Desde Mayo 2023"),
-        Member(name: "Carlos Rivera", level: "Intermedio", since: "Desde Marzo 2023", injury: "Lesión de Hombro"),
-        Member(name: "Lucía Gómez", level: "Básico", since: "Desde Enero 2024"),
-        Member(name: "Mateo Santos", level: "Avanzado", since: "Desde Octubre 2022"),
-        Member(name: "Elena Ruiz", level: "Intermedio", since: "Desde Julio 2023"),
-        Member(name: "Diego Flores", level: "Básico", since: "Desde Febrero 2024")
-    ]
 }
 
 #Preview {

@@ -82,7 +82,7 @@ struct WodManagementView: View {
             .navigationDestination(isPresented: $showWodEditor) {
                 WodEditorView(profile: profile, existingWod: editingWod)
             }
-            .sheet(isPresented: $showRunningEditor) { RunningEditorView() }
+            .sheet(isPresented: $showRunningEditor) { RunningEditorView(profile: profile) }
             .confirmationDialog(
                 "¿Eliminar \(wodPendingDelete?.title ?? "este WOD")?",
                 isPresented: Binding(get: { wodPendingDelete != nil }, set: { if !$0 { wodPendingDelete = nil } }),
@@ -98,6 +98,9 @@ struct WodManagementView: View {
             .refreshable { await load() }
             .onChange(of: showWodEditor) { _, isShowing in
                 if !isShowing { editingWod = nil; Task { await load() } }
+            }
+            .onChange(of: showRunningEditor) { _, isShowing in
+                if !isShowing { Task { await load() } }
             }
         }
         .tint(NDCColor.primary)

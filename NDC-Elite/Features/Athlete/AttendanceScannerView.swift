@@ -4,13 +4,20 @@ import SwiftUI
 /// El atleta, al llegar al gym, escanea el QR que muestra el coach y su
 /// asistencia se registra. Reemplaza la campana en el perfil del atleta.
 ///
-/// Flujo: pide permiso de cámara → escanea el QR → confirma "¡Asistencia
-/// registrada!". TODO(datos): validar el QR e insertar en `attendance`
-/// (check_in_method = 'qr') para la clase actual.
+/// Flujo: pide permiso de cámara → escanea el QR del coach (id de la
+/// `class_sessions` actual) → inserta en `attendance` (check_in_method = 'qr').
+/// Si ya había hecho check-in en esa clase, lo confirma sin duplicar.
 struct AttendanceScannerView: View {
     @Environment(\.dismiss) private var dismiss
     @State private var permission = CameraPermission.status
-    @State private var scanned: String?
+    @State private var phase: Phase = .scanning
+
+    enum Phase {
+        case scanning
+        case registering
+        case success(String)
+        case failed(String)
+    }
 
     var body: some View {
         ZStack {
@@ -18,10 +25,11 @@ struct AttendanceScannerView: View {
 
             switch permission {
             case .authorized:
-                if let scanned {
-                    successView(code: scanned)
-                } else {
-                    scannerView
+                switch phase {
+                case .scanning: scannerView
+                case .registering: registeringView
+                case .success(let message): successView(message: message)
+                case .failed(let message): failedView(message: message)
                 }
             case .denied:
                 deniedView
@@ -36,12 +44,47 @@ struct AttendanceScannerView: View {
         .statusBarHidden()
     }
 
+    // MARK: - Registro en Supabase
+
+    /// Valida el payload del QR y hace el check-in.
+    private func handleScan(_ value: String) {
+        guard case .scanning = phase else { return }
+        guard value.hasPrefix(GenerateQRView.payloadPrefix),
+              let sessionId = UUID(uuidString: String(value.dropFirst(GenerateQRView.payloadPrefix.count))) else {
+            Haptics.notify(.error)
+            withAnimation(.spring(response: 0.4, dampingFraction: 0.7)) {
+                phase = .failed("Ese código no es un QR de asistencia NDC. Pídele al coach el QR de la clase.")
+            }
+            return
+        }
+        phase = .registering
+        Task {
+            do {
+                try await AthleteRepository().checkIn(sessionId: sessionId)
+                Haptics.notify(.success)
+                withAnimation(.spring(response: 0.4, dampingFraction: 0.7)) {
+                    phase = .success("Nos vemos en el box. ¡A entrenar! 💪")
+                }
+            } catch let error where AthleteRepository.isDuplicate(error) {
+                Haptics.notify(.success)
+                withAnimation(.spring(response: 0.4, dampingFraction: 0.7)) {
+                    phase = .success("Tu asistencia de esta clase ya estaba registrada. 💪")
+                }
+            } catch {
+                Haptics.notify(.error)
+                withAnimation(.spring(response: 0.4, dampingFraction: 0.7)) {
+                    phase = .failed("No se pudo registrar tu asistencia. Revisa tu conexión e inténtalo de nuevo.")
+                }
+            }
+        }
+    }
+
     // MARK: - Cámara + marco
 
     private var scannerView: some View {
         ZStack {
             QRCameraView { value in
-                withAnimation(.spring(response: 0.4, dampingFraction: 0.7)) { scanned = value }
+                handleScan(value)
             }
             .ignoresSafeArea()
 
@@ -74,9 +117,23 @@ struct AttendanceScannerView: View {
         }
     }
 
+    // MARK: - Registrando (insert en curso)
+
+    private var registeringView: some View {
+        VStack(spacing: NDCSpacing.stackLG) {
+            ProgressView()
+                .controlSize(.large)
+                .tint(NDCColor.accent)
+            Text("Registrando tu asistencia…")
+                .font(NDCFont.headlineSM)
+                .foregroundStyle(.white)
+        }
+        .padding(NDCSpacing.marginMain * 2)
+    }
+
     // MARK: - Éxito
 
-    private func successView(code: String) -> some View {
+    private func successView(message: String) -> some View {
         VStack(spacing: NDCSpacing.stackLG) {
             Image(systemName: "checkmark.circle.fill")
                 .font(.system(size: 96))
@@ -86,7 +143,7 @@ struct AttendanceScannerView: View {
                 Text("¡Asistencia registrada!")
                     .font(NDCFont.headlineMD)
                     .foregroundStyle(.white)
-                Text("Nos vemos en el box. ¡A entrenar! 💪")
+                Text(message)
                     .font(NDCFont.bodyLG)
                     .foregroundStyle(.white.opacity(0.8))
             }
@@ -104,9 +161,38 @@ struct AttendanceScannerView: View {
             .padding(.top, NDCSpacing.stackMD)
         }
         .padding(NDCSpacing.marginMain * 2)
-        .onAppear {
-            // TODO: insertar en attendance (check_in_method='qr') usando `code`.
+    }
+
+    // MARK: - Error (QR ajeno o sin conexión)
+
+    private func failedView(message: String) -> some View {
+        VStack(spacing: NDCSpacing.stackLG) {
+            Image(systemName: "xmark.circle.fill")
+                .font(.system(size: 96))
+                .foregroundStyle(NDCColor.error)
+                .transition(.scale.combined(with: .opacity))
+            VStack(spacing: NDCSpacing.stackSM) {
+                Text("No se pudo registrar")
+                    .font(NDCFont.headlineMD)
+                    .foregroundStyle(.white)
+                Text(message)
+                    .font(NDCFont.bodyLG)
+                    .foregroundStyle(.white.opacity(0.8))
+            }
+            .multilineTextAlignment(.center)
+            Button {
+                Haptics.impact()
+                withAnimation { phase = .scanning }
+            } label: {
+                Text("Escanear de nuevo")
+                    .font(NDCFont.headlineSM)
+                    .foregroundStyle(NDCColor.primary)
+                    .frame(maxWidth: .infinity, minHeight: 52)
+                    .background(NDCColor.accent, in: .rect(cornerRadius: NDCRadius.large))
+            }
+            .padding(.top, NDCSpacing.stackMD)
         }
+        .padding(NDCSpacing.marginMain * 2)
     }
 
     // MARK: - Permiso denegado
