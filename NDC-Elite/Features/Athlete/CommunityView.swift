@@ -31,6 +31,7 @@ struct CommunityView: View {
                     .padding(.bottom, NDCSpacing.stackLG)
                 }
                 .scrollIndicators(.hidden)
+                .refreshable { await retosStore.load(athleteId: profile.id) }
             }
             .padding(.top, NDCSpacing.stackSM)
             .background(NDCColor.background)
@@ -74,6 +75,10 @@ private struct RetosContent: View {
     let profile: Profile
     var store: AthleteChallengesStore
     let data: CommunityData
+    /// "Ver más" por sección: colapsadas muestran solo los primeros retos.
+    @State private var showAllComunidad = false
+    @State private var showAllIndividuales = false
+    private static let collapsedLimit = 2
 
     var body: some View {
         VStack(alignment: .leading, spacing: NDCSpacing.stackLG) {
@@ -88,30 +93,10 @@ private struct RetosContent: View {
                     VStack(alignment: .leading, spacing: NDCSpacing.stackLG) {
                         let comunidad = retos.challenges.filter { $0.challengeType == .comunidad }
                         let individuales = retos.challenges.filter { $0.challengeType == .individual }
-                        if !comunidad.isEmpty {
-                            sectionTitle("Retos de Comunidad")
-                            ForEach(comunidad) { ch in
-                                CommunityChallengeCard(
-                                    challenge: ch,
-                                    participantCount: retos.counts[ch.id] ?? 0,
-                                    isJoined: retos.joined.contains(ch.id),
-                                    isBusy: store.busyIds.contains(ch.id),
-                                    onToggle: { Task { await store.toggleJoin(ch, athleteId: profile.id) } }
-                                )
-                            }
-                        }
-                        if !individuales.isEmpty {
-                            sectionTitle("Retos Individuales")
-                            ForEach(individuales) { ch in
-                                CommunityChallengeCard(
-                                    challenge: ch,
-                                    participantCount: retos.counts[ch.id] ?? 0,
-                                    isJoined: retos.joined.contains(ch.id),
-                                    isBusy: store.busyIds.contains(ch.id),
-                                    onToggle: { Task { await store.toggleJoin(ch, athleteId: profile.id) } }
-                                )
-                            }
-                        }
+                        challengeSection("Retos de Comunidad", challenges: comunidad,
+                                         retos: retos, showAll: $showAllComunidad)
+                        challengeSection("Retos Individuales", challenges: individuales,
+                                         retos: retos, showAll: $showAllIndividuales)
                     }
                 }
             } skeleton: {
@@ -146,8 +131,40 @@ private struct RetosContent: View {
         .task { await store.load(athleteId: profile.id) }
     }
 
-    private func sectionTitle(_ title: String) -> some View {
-        Text(title).font(NDCFont.headlineSM).foregroundStyle(NDCColor.primary)
+    /// Sección de retos con "Ver más": colapsada muestra `collapsedLimit`
+    /// tarjetas; el botón alterna a la lista completa (Ver menos).
+    @ViewBuilder
+    private func challengeSection(_ title: String, challenges: [Challenge],
+                                  retos: AthleteChallengesStore.Data,
+                                  showAll: Binding<Bool>) -> some View {
+        if !challenges.isEmpty {
+            let visible = showAll.wrappedValue ? challenges : Array(challenges.prefix(Self.collapsedLimit))
+            HStack {
+                Text(title).font(NDCFont.headlineSM).foregroundStyle(NDCColor.primary)
+                Spacer()
+                if challenges.count > Self.collapsedLimit {
+                    Button {
+                        Haptics.selection()
+                        withAnimation(.snappy) { showAll.wrappedValue.toggle() }
+                    } label: {
+                        Text(showAll.wrappedValue ? "Ver menos" : "Ver más (\(challenges.count))")
+                            .font(NDCFont.labelBold).foregroundStyle(NDCColor.primary)
+                    }
+                    .accessibilityLabel(showAll.wrappedValue
+                        ? "Ver menos retos de \(title)"
+                        : "Ver los \(challenges.count) retos de \(title)")
+                }
+            }
+            ForEach(visible) { ch in
+                CommunityChallengeCard(
+                    challenge: ch,
+                    participantCount: retos.counts[ch.id] ?? 0,
+                    isJoined: retos.joined.contains(ch.id),
+                    isBusy: store.busyIds.contains(ch.id),
+                    onToggle: { Task { await store.toggleJoin(ch, athleteId: profile.id) } }
+                )
+            }
+        }
     }
 
     private var upcomingBanner: some View {
