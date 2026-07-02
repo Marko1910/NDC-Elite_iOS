@@ -210,6 +210,8 @@ private struct ChallengeListView: View {
         .scrollIndicators(.hidden)
         .navigationTitle(title)
         .navigationBarTitleDisplayMode(.inline)
+        // Pantalla de detalle: sin tab bar para enfocar la lista completa.
+        .toolbar(.hidden, for: .tabBar)
         .refreshable { await store.load(athleteId: profile.id) }
     }
 }
