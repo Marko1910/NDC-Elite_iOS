@@ -17,14 +17,21 @@ struct LoginView: View {
                 Spacer(minLength: 60)
 
                 // Logo / marca
-                VStack(spacing: NDCSpacing.stackSM) {
-                    Text("NDC HQ")
-                        .font(NDCFont.displayLG)
-                        .foregroundStyle(NDCColor.primaryDark)
+                VStack(spacing: NDCSpacing.stackMD) {
+                    Image("NDCLogo")
+                        .resizable()
+                        .scaledToFill()
+                        // El arte trae margen alrededor del logotipo: el ligero
+                        // zoom del scaledToFill dentro del marco lo recorta.
+                        .frame(width: 220, height: 160)
+                        .clipShape(.rect(cornerRadius: NDCRadius.large))
+                        .shadow(color: NDCColor.primaryDark.opacity(0.25), radius: 12, y: 6)
+                        .accessibilityLabel("NDC — Tu mejor versión, todos los días")
                     Text("Bienvenido de vuelta")
                         .font(NDCFont.headlineSM)
                         .foregroundStyle(NDCColor.onSurfaceVariant)
                 }
+                .frame(maxWidth: .infinity)
                 .padding(.bottom, NDCSpacing.stackLG)
 
                 // Formulario

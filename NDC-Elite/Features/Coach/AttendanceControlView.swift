@@ -1,4 +1,5 @@
 import SwiftUI
+import Combine
 
 /// Control de Asistencia (coach) — diseño Stitch "Control de Asistencia".
 /// Opera sobre las clases programadas de HOY (`class_sessions`, ver
@@ -10,6 +11,8 @@ struct AttendanceControlView: View {
     @Environment(\.dismiss) private var dismiss
     @State private var store = AttendanceControlStore()
     @State private var showQR = false
+    /// Cada minuto revisa si empezó otra clase para cambiarse sola.
+    private let clock = Timer.publish(every: 60, on: .main, in: .common).autoconnect()
 
     var body: some View {
         NavigationStack {
@@ -81,6 +84,9 @@ struct AttendanceControlView: View {
             }
             .task { await store.load() }
             .refreshable { await store.load() }
+            .onReceive(clock) { _ in
+                Task { await store.autoAdvanceIfNeeded() }
+            }
         }
         .tint(NDCColor.primary)
     }
@@ -252,6 +258,9 @@ final class AttendanceControlStore {
     private(set) var state: LoadState<Data> = .loading
     private(set) var savingIds: Set<UUID> = []
     var errorMessage: String?
+    /// El coach eligió una clase a mano: el cambio automático por hora se
+    /// pausa hasta que la pantalla se vuelva a abrir.
+    private var manualSelection = false
 
     private let repo = CoachRepository()
 
@@ -279,12 +288,25 @@ final class AttendanceControlStore {
     }
 
     func select(_ session: ClassSession) async {
+        manualSelection = true
         await load(selecting: session.id)
+    }
+
+    /// Cambio automático de clase según la hora: si empezó una clase más
+    /// reciente que la seleccionada (y el coach no eligió una a mano),
+    /// se pasa a ella sola. Lo dispara un timer de la vista cada minuto.
+    func autoAdvanceIfNeeded() async {
+        guard !manualSelection,
+              case .loaded(let data) = state,
+              let current = Self.currentSession(among: data.sessions),
+              current.id != data.selected?.id else { return }
+        await load(selecting: current.id)
     }
 
     /// Crea (o reusa) la clase de la hora en punto actual y la selecciona.
     func createNow() async {
         errorMessage = nil
+        manualSelection = true
         do {
             let hour = Calendar.current.component(.hour, from: Date())
             let session = try await repo.findOrCreateSession(

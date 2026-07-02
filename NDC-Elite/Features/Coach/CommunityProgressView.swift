@@ -16,7 +16,7 @@ struct CommunityProgressView: View {
         NavigationStack {
             ScrollView {
                 VStack(alignment: .leading, spacing: NDCSpacing.stackLG) {
-                    CoachChallengesSection(profile: profile)
+                    communityButton
                     Text("Resumen Semanal").font(NDCFont.headlineSM).foregroundStyle(NDCColor.primary)
                     summaryRow
                     adherenceCard
@@ -45,6 +45,30 @@ struct CommunityProgressView: View {
             .refreshable { await adherenceStore.load() }
         }
         .tint(NDCColor.primary)
+    }
+
+    /// Acceso a la gestión de retos: pantalla propia para no mezclarla con
+    /// las métricas de progreso.
+    private var communityButton: some View {
+        NavigationLink {
+            ChallengeManagementView(profile: profile)
+        } label: {
+            HStack(spacing: NDCSpacing.gutter) {
+                Image(systemName: "flag.checkered")
+                    .font(.system(size: 24)).foregroundStyle(NDCColor.accent)
+                    .frame(width: 48, height: 48)
+                    .background(.white.opacity(0.12), in: .rect(cornerRadius: NDCRadius.standard))
+                VStack(alignment: .leading, spacing: 2) {
+                    Text("Comunidad").font(NDCFont.headlineSM).foregroundStyle(.white)
+                    Text("Crea retos, mira quiénes se unieron").font(NDCFont.labelSM).foregroundStyle(NDCColor.primaryFixed)
+                }
+                Spacer()
+                Image(systemName: "chevron.right").foregroundStyle(.white.opacity(0.7))
+            }
+            .padding(NDCSpacing.stackLG)
+            .background(NDCColor.primary, in: .rect(cornerRadius: NDCRadius.large))
+        }
+        .accessibilityLabel("Comunidad: crear y gestionar retos")
     }
 
     private var summaryRow: some View {

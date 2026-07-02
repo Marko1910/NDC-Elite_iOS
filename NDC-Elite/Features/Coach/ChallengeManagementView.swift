@@ -1,46 +1,70 @@
 import SwiftUI
 
-/// Retos de la Comunidad (coach) — sección embebida en Progreso Comunitario.
-/// El coach crea retos (comunidad/individual), ve cuántos y quiénes se han
-/// unido (nombre + foto), y puede eliminarlos. El atleta se une desde su tab
-/// Comunidad. (`challenges` + `challenge_participants`, RLS is_coach()).
-struct CoachChallengesSection: View {
+/// Comunidad (coach) — pantalla dedicada de retos. Se llega desde el botón
+/// "Comunidad" en Progreso. El coach crea retos (comunidad/individual), ve
+/// **quiénes se han unido** (nombre + foto + fecha), cambia la fecha límite
+/// de cada reto o lo elimina. El atleta se une desde su tab Comunidad.
+/// (`challenges` + `challenge_participants`, RLS is_coach()).
+struct ChallengeManagementView: View {
     let profile: Profile
     @State private var store = CoachChallengesStore()
     @State private var showEditor = false
+    @State private var editingDeadline: Challenge?
     @State private var challengePendingDelete: Challenge?
 
     var body: some View {
-        VStack(alignment: .leading, spacing: NDCSpacing.stackMD) {
-            HStack {
-                Text("Retos de la Comunidad").font(NDCFont.headlineSM).foregroundStyle(NDCColor.primary)
-                Spacer()
+        ScrollView {
+            VStack(alignment: .leading, spacing: NDCSpacing.stackMD) {
+                LoadStateView(state: store.state, retry: { Task { await store.load() } }) { items in
+                    if items.isEmpty {
+                        ContentUnavailableView(
+                            "Sin retos activos",
+                            systemImage: "flag.checkered",
+                            description: Text("Crea el primer reto con el botón +. Los atletas podrán unirse desde su tab Comunidad.")
+                        )
+                        .padding(.top, NDCSpacing.stackLG)
+                    } else {
+                        ForEach(items) { item in
+                            ChallengeCoachCard(
+                                item: item,
+                                onEditDeadline: { editingDeadline = item.challenge },
+                                onDelete: { challengePendingDelete = item.challenge }
+                            )
+                        }
+                    }
+                } skeleton: {
+                    VStack(spacing: NDCSpacing.stackMD) {
+                        SkeletonCard(lines: 3, height: 140)
+                        SkeletonCard(lines: 3, height: 140)
+                    }
+                }
+            }
+            .padding(.horizontal, NDCSpacing.marginMain)
+            .padding(.top, NDCSpacing.stackSM)
+            .padding(.bottom, NDCSpacing.stackLG)
+        }
+        .background(NDCColor.background)
+        .scrollIndicators(.hidden)
+        .navigationTitle("Comunidad")
+        .navigationBarTitleDisplayMode(.large)
+        .toolbar {
+            ToolbarItem(placement: .topBarTrailing) {
                 Button {
                     Haptics.impact(.light)
                     showEditor = true
                 } label: {
-                    Label("Crear Reto", systemImage: "plus.circle.fill")
-                        .font(NDCFont.labelBold).foregroundStyle(NDCColor.primary)
+                    Image(systemName: "plus")
                 }
-            }
-
-            LoadStateView(state: store.state, retry: { Task { await store.load() } }) { items in
-                if items.isEmpty {
-                    Text("Aún no hay retos activos. Crea el primero con “Crear Reto”.")
-                        .font(NDCFont.labelSM).foregroundStyle(NDCColor.outline)
-                } else {
-                    ForEach(items) { item in
-                        ChallengeCoachCard(item: item) {
-                            challengePendingDelete = item.challenge
-                        }
-                    }
-                }
-            } skeleton: {
-                SkeletonCard(lines: 3, height: 120)
+                .accessibilityLabel("Crear reto")
             }
         }
         .sheet(isPresented: $showEditor, onDismiss: { Task { await store.load() } }) {
             ChallengeEditorSheet(profile: profile)
+        }
+        .sheet(item: $editingDeadline) { challenge in
+            DeadlineEditorSheet(challenge: challenge) { newDate in
+                Task { await store.updateDeadline(challenge, endsOn: newDate) }
+            }
         }
         .confirmationDialog(
             "¿Eliminar el reto \(challengePendingDelete?.title ?? "")?",
@@ -55,8 +79,11 @@ struct CoachChallengesSection: View {
                 challengePendingDelete = nil
             }
             Button("Cancelar", role: .cancel) { challengePendingDelete = nil }
+        } message: {
+            Text("También se quitará a los atletas inscritos.")
         }
         .task { await store.load() }
+        .refreshable { await store.load() }
     }
 }
 
@@ -64,8 +91,10 @@ struct CoachChallengesSection: View {
 
 private struct ChallengeCoachCard: View {
     let item: CoachChallengesStore.Item
+    let onEditDeadline: () -> Void
     let onDelete: () -> Void
-    @State private var showParticipants = false
+    /// Los inscritos se muestran siempre: es lo primero que el coach quiere ver.
+    @State private var showParticipants = true
 
     var body: some View {
         VStack(alignment: .leading, spacing: NDCSpacing.stackSM) {
@@ -78,14 +107,26 @@ private struct ChallengeCoachCard: View {
                 .accessibilityLabel("Eliminar reto \(item.challenge.title)")
             }
             Text(item.challenge.title).font(NDCFont.headlineSM).foregroundStyle(NDCColor.onSurface)
-            HStack {
-                Text("Meta: \(Int(item.challenge.goalValue)) \(item.challenge.unit)")
-                    .font(NDCFont.labelSM).foregroundStyle(NDCColor.outline)
-                if let endsOn = item.challenge.endsOn {
-                    Text("· hasta el \(endsOn.formatted(.dateTime.day().month()))")
-                        .font(NDCFont.labelSM).foregroundStyle(NDCColor.outline)
+            Text("Meta: \(Int(item.challenge.goalValue)) \(item.challenge.unit)")
+                .font(NDCFont.labelSM).foregroundStyle(NDCColor.outline)
+
+            // Fecha límite editable
+            Button {
+                Haptics.impact(.light)
+                onEditDeadline()
+            } label: {
+                HStack(spacing: 6) {
+                    Image(systemName: "calendar.badge.clock")
+                    Text(item.challenge.endsOn.map { "Hasta el \($0.formatted(.dateTime.day().month(.wide)))" } ?? "Sin fecha límite")
+                    Image(systemName: "pencil").font(.system(size: 11))
                 }
+                .font(NDCFont.labelBold).foregroundStyle(NDCColor.primary)
+                .padding(.horizontal, 12).padding(.vertical, 6)
+                .background(NDCColor.primary.opacity(0.1), in: .capsule)
             }
+            .accessibilityLabel("Cambiar fecha límite de \(item.challenge.title)")
+
+            Divider()
 
             Button {
                 Haptics.selection()
@@ -94,6 +135,7 @@ private struct ChallengeCoachCard: View {
                 HStack(spacing: 6) {
                     Image(systemName: "person.3.fill")
                     Text("\(item.participants.count) atletas unidos")
+                    Spacer()
                     Image(systemName: showParticipants ? "chevron.up" : "chevron.down")
                         .font(.system(size: 11))
                 }
@@ -110,9 +152,10 @@ private struct ChallengeCoachCard: View {
                             NDCAvatarView(urlString: p.avatarURL, size: 30)
                             Text(p.fullName).font(NDCFont.bodyMD).foregroundStyle(NDCColor.onSurface)
                             Spacer()
-                            Text(p.joinedAt, format: .dateTime.day().month())
+                            Text("desde el \(p.joinedAt.formatted(.dateTime.day().month()))")
                                 .font(NDCFont.labelSM).foregroundStyle(NDCColor.outline)
                         }
+                        .accessibilityElement(children: .combine)
                     }
                 }
             }
@@ -120,6 +163,58 @@ private struct ChallengeCoachCard: View {
         .padding(NDCSpacing.stackLG)
         .frame(maxWidth: .infinity, alignment: .leading)
         .background(NDCColor.surface, in: .rect(cornerRadius: NDCRadius.large))
+    }
+}
+
+// MARK: - Editor de fecha límite
+
+private struct DeadlineEditorSheet: View {
+    let challenge: Challenge
+    let onSave: (Date?) -> Void
+    @Environment(\.dismiss) private var dismiss
+    @State private var hasDeadline: Bool
+    @State private var date: Date
+
+    init(challenge: Challenge, onSave: @escaping (Date?) -> Void) {
+        self.challenge = challenge
+        self.onSave = onSave
+        _hasDeadline = State(initialValue: challenge.endsOn != nil)
+        _date = State(initialValue: challenge.endsOn ?? Calendar.current.date(byAdding: .day, value: 30, to: Date()) ?? Date())
+    }
+
+    var body: some View {
+        NavigationStack {
+            VStack(alignment: .leading, spacing: NDCSpacing.stackLG) {
+                Toggle(isOn: $hasDeadline.animation(.snappy)) {
+                    Text("Fecha límite").font(NDCFont.bodyMD).foregroundStyle(NDCColor.onSurface)
+                }
+                .tint(NDCColor.primary)
+                if hasDeadline {
+                    DatePicker("Termina el", selection: $date, in: Date()..., displayedComponents: .date)
+                        .datePickerStyle(.graphical)
+                        .tint(NDCColor.primary)
+                }
+                Spacer()
+            }
+            .padding(NDCSpacing.marginMain)
+            .background(NDCColor.background)
+            .navigationTitle(challenge.title)
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .topBarLeading) {
+                    Button("Cancelar") { dismiss() }.foregroundStyle(NDCColor.primary)
+                }
+                ToolbarItem(placement: .topBarTrailing) {
+                    Button("Guardar") {
+                        onSave(hasDeadline ? date : nil)
+                        dismiss()
+                    }
+                    .font(NDCFont.labelBold).foregroundStyle(NDCColor.primary)
+                }
+            }
+        }
+        .presentationDetents([.medium, .large])
+        .presentationDragIndicator(.visible)
     }
 }
 
@@ -292,6 +387,16 @@ final class CoachChallengesStore {
         }
     }
 
+    func updateDeadline(_ challenge: Challenge, endsOn: Date?) async {
+        do {
+            try await repo.updateEndsOn(challengeId: challenge.id, endsOn: endsOn)
+            Haptics.notify(.success)
+            await load()
+        } catch {
+            Haptics.notify(.error)
+        }
+    }
+
     func delete(_ challenge: Challenge) async {
         do {
             try await repo.delete(challengeId: challenge.id)
@@ -304,7 +409,5 @@ final class CoachChallengesStore {
 }
 
 #Preview {
-    ScrollView {
-        CoachChallengesSection(profile: .preview).padding()
-    }
+    NavigationStack { ChallengeManagementView(profile: .preview) }
 }

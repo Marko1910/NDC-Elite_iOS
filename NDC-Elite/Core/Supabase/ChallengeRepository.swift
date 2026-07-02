@@ -89,6 +89,19 @@ struct ChallengeRepository {
             .execute()
     }
 
+    /// Cambia (o quita, con nil) la fecha límite de un reto.
+    func updateEndsOn(challengeId: UUID, endsOn: Date?) async throws {
+        struct Row: Encodable {
+            let endsOn: String?
+            enum CodingKeys: String, CodingKey { case endsOn = "ends_on" }
+        }
+        try await client
+            .from("challenges")
+            .update(Row(endsOn: endsOn.map(WodRepository.isoDate)))
+            .eq("id", value: challengeId)
+            .execute()
+    }
+
     func delete(challengeId: UUID) async throws {
         try await client
             .from("challenges")
