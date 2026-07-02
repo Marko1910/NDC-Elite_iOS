@@ -75,10 +75,6 @@ private struct RetosContent: View {
     let profile: Profile
     var store: AthleteChallengesStore
     let data: CommunityData
-    /// "Ver más" por sección: colapsadas muestran solo los primeros retos.
-    @State private var showAllComunidad = false
-    @State private var showAllIndividuales = false
-    private static let collapsedLimit = 2
 
     var body: some View {
         VStack(alignment: .leading, spacing: NDCSpacing.stackLG) {
@@ -91,12 +87,8 @@ private struct RetosContent: View {
                     )
                 } else {
                     VStack(alignment: .leading, spacing: NDCSpacing.stackLG) {
-                        let comunidad = retos.challenges.filter { $0.challengeType == .comunidad }
-                        let individuales = retos.challenges.filter { $0.challengeType == .individual }
-                        challengeSection("Retos de Comunidad", challenges: comunidad,
-                                         retos: retos, showAll: $showAllComunidad)
-                        challengeSection("Retos Individuales", challenges: individuales,
-                                         retos: retos, showAll: $showAllIndividuales)
+                        challengeSection("Retos de Comunidad", type: .comunidad, retos: retos)
+                        challengeSection("Retos Individuales", type: .individual, retos: retos)
                     }
                 }
             } skeleton: {
@@ -131,39 +123,36 @@ private struct RetosContent: View {
         .task { await store.load(athleteId: profile.id) }
     }
 
-    /// Sección de retos con "Ver más": colapsada muestra `collapsedLimit`
-    /// tarjetas; el botón alterna a la lista completa (Ver menos).
+    /// Sección de retos: muestra solo el **último** reto de la categoría;
+    /// "Ver más" navega a la pantalla con todas las tarjetas del tipo.
     @ViewBuilder
-    private func challengeSection(_ title: String, challenges: [Challenge],
-                                  retos: AthleteChallengesStore.Data,
-                                  showAll: Binding<Bool>) -> some View {
-        if !challenges.isEmpty {
-            let visible = showAll.wrappedValue ? challenges : Array(challenges.prefix(Self.collapsedLimit))
+    private func challengeSection(_ title: String, type: ChallengeType,
+                                  retos: AthleteChallengesStore.Data) -> some View {
+        let challenges = retos.challenges.filter { $0.challengeType == type }
+        if let latest = challenges.first {
             HStack {
                 Text(title).font(NDCFont.headlineSM).foregroundStyle(NDCColor.primary)
                 Spacer()
-                if challenges.count > Self.collapsedLimit {
-                    Button {
-                        Haptics.selection()
-                        withAnimation(.snappy) { showAll.wrappedValue.toggle() }
+                if challenges.count > 1 {
+                    NavigationLink {
+                        ChallengeListView(title: title, type: type, profile: profile, store: store)
                     } label: {
-                        Text(showAll.wrappedValue ? "Ver menos" : "Ver más (\(challenges.count))")
-                            .font(NDCFont.labelBold).foregroundStyle(NDCColor.primary)
+                        HStack(spacing: 2) {
+                            Text("Ver más (\(challenges.count))")
+                            Image(systemName: "chevron.right").font(.system(size: 11))
+                        }
+                        .font(NDCFont.labelBold).foregroundStyle(NDCColor.primary)
                     }
-                    .accessibilityLabel(showAll.wrappedValue
-                        ? "Ver menos retos de \(title)"
-                        : "Ver los \(challenges.count) retos de \(title)")
+                    .accessibilityLabel("Ver los \(challenges.count) retos de \(title)")
                 }
             }
-            ForEach(visible) { ch in
-                CommunityChallengeCard(
-                    challenge: ch,
-                    participantCount: retos.counts[ch.id] ?? 0,
-                    isJoined: retos.joined.contains(ch.id),
-                    isBusy: store.busyIds.contains(ch.id),
-                    onToggle: { Task { await store.toggleJoin(ch, athleteId: profile.id) } }
-                )
-            }
+            CommunityChallengeCard(
+                challenge: latest,
+                participantCount: retos.counts[latest.id] ?? 0,
+                isJoined: retos.joined.contains(latest.id),
+                isBusy: store.busyIds.contains(latest.id),
+                onToggle: { Task { await store.toggleJoin(latest, athleteId: profile.id) } }
+            )
         }
     }
 
@@ -181,6 +170,48 @@ private struct RetosContent: View {
         .clipShape(.rect(cornerRadius: NDCRadius.large))
     }
 
+}
+
+// MARK: - Todos los retos de una categoría ("Ver más")
+
+/// Pantalla con todas las tarjetas de un tipo de reto (comunidad/individual).
+/// Comparte el store con Comunidad: unirse/abandonar aquí se refleja allá.
+private struct ChallengeListView: View {
+    let title: String
+    let type: ChallengeType
+    let profile: Profile
+    var store: AthleteChallengesStore
+
+    var body: some View {
+        ScrollView {
+            LoadStateView(state: store.state, retry: { Task { await store.load(athleteId: profile.id) } }) { retos in
+                let challenges = retos.challenges.filter { $0.challengeType == type }
+                VStack(alignment: .leading, spacing: NDCSpacing.stackLG) {
+                    ForEach(challenges) { ch in
+                        CommunityChallengeCard(
+                            challenge: ch,
+                            participantCount: retos.counts[ch.id] ?? 0,
+                            isJoined: retos.joined.contains(ch.id),
+                            isBusy: store.busyIds.contains(ch.id),
+                            onToggle: { Task { await store.toggleJoin(ch, athleteId: profile.id) } }
+                        )
+                    }
+                }
+                .padding(NDCSpacing.marginMain)
+            } skeleton: {
+                VStack(spacing: NDCSpacing.stackMD) {
+                    SkeletonCard(lines: 3, height: 150)
+                    SkeletonCard(lines: 3, height: 150)
+                }
+                .padding(NDCSpacing.marginMain)
+            }
+        }
+        .background(NDCColor.background)
+        .scrollIndicators(.hidden)
+        .navigationTitle(title)
+        .navigationBarTitleDisplayMode(.inline)
+        .refreshable { await store.load(athleteId: profile.id) }
+    }
 }
 
 // MARK: - Tarjeta de reto real (comunidad o individual)
