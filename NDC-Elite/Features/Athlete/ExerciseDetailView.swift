@@ -69,7 +69,7 @@ struct ExerciseDetailView: View {
     @ViewBuilder
     private var videoPlayer: some View {
         if let id = YouTube.videoID(from: exercise.youtubeURL) {
-            YouTubePlayerView(videoID: id)
+            YouTubeThumbnailPlayer(videoID: id)
                 .aspectRatio(16 / 9, contentMode: .fit)
                 .clipShape(.rect(cornerRadius: NDCRadius.large))
                 .shadow(color: NDCColor.primaryDark.opacity(0.1), radius: 8, y: 3)

@@ -148,7 +148,7 @@ struct ExerciseEditorView: View {
         VStack(alignment: .leading, spacing: NDCSpacing.stackSM) {
             Text("PREVISUALIZACIÓN").font(NDCFont.labelBold).foregroundStyle(NDCColor.outline)
             if let videoID {
-                YouTubePlayerView(videoID: videoID)
+                YouTubeThumbnailPlayer(videoID: videoID)
                     .aspectRatio(16 / 9, contentMode: .fit)
                     .clipShape(.rect(cornerRadius: NDCRadius.large))
             } else {

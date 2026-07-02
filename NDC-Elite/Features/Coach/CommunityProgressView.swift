@@ -16,6 +16,7 @@ struct CommunityProgressView: View {
         NavigationStack {
             ScrollView {
                 VStack(alignment: .leading, spacing: NDCSpacing.stackLG) {
+                    CoachChallengesSection(profile: profile)
                     Text("Resumen Semanal").font(NDCFont.headlineSM).foregroundStyle(NDCColor.primary)
                     summaryRow
                     adherenceCard

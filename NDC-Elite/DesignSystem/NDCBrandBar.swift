@@ -16,7 +16,7 @@ extension View {
     ) -> some View {
         toolbar {
             ToolbarItem(placement: .topBarLeading) {
-                NDCBrandLabel(avatarURL: profile.avatarURL)
+                NDCBrandLabel()
             }
             ToolbarItem(placement: .topBarTrailing) {
                 NDCBellButton(unreadCount: unreadCount, action: onBell)
@@ -25,21 +25,14 @@ extension View {
     }
 }
 
-/// Avatar circular + nombre de marca.
+/// Nombre de marca (sin avatar: el usuario ya se ve en Perfil, era redundante).
 struct NDCBrandLabel: View {
-    let avatarURL: String?
-
     var body: some View {
-        HStack(spacing: NDCSpacing.stackSM) {
-            NDCAvatarView(urlString: avatarURL, size: 32)
-                .accessibilityHidden(true)
-            Text("NDC HQ")
-                .font(NDCFont.headlineMD)
-                .foregroundStyle(NDCColor.primary)
-        }
-        .accessibilityElement(children: .combine)
-        .accessibilityLabel("NDC HQ")
-        .accessibilityAddTraits(.isHeader)
+        Text("NDC HQ")
+            .font(NDCFont.headlineMD)
+            .foregroundStyle(NDCColor.primary)
+            .accessibilityLabel("NDC HQ")
+            .accessibilityAddTraits(.isHeader)
     }
 }
 

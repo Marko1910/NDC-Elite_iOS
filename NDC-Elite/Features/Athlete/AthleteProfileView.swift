@@ -44,7 +44,7 @@ struct AthleteProfileView: View {
             }
             .toolbar {
                 ToolbarItem(placement: .topBarLeading) {
-                    NDCBrandLabel(avatarURL: profile.avatarURL)
+                    NDCBrandLabel()
                 }
                 // Escáner QR de asistencia (en lugar de la campana).
                 ToolbarItem(placement: .topBarTrailing) {

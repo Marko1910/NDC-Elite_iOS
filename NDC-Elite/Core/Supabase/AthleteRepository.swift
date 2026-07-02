@@ -99,6 +99,28 @@ struct AthleteRepository {
         return rows.first
     }
 
+    /// Notificaciones del usuario, la más reciente primero (bandeja de la campana).
+    func notifications(userId: UUID) async throws -> [AppNotification] {
+        try await client
+            .from("notifications")
+            .select()
+            .eq("user_id", value: userId)
+            .order("created_at", ascending: false)
+            .limit(50)
+            .execute()
+            .value
+    }
+
+    /// Marca todas las notificaciones del usuario como leídas (al abrir la bandeja).
+    func markNotificationsRead(userId: UUID) async throws {
+        try await client
+            .from("notifications")
+            .update(["is_read": true])
+            .eq("user_id", value: userId)
+            .eq("is_read", value: false)
+            .execute()
+    }
+
     /// Notificaciones sin leer del atleta (para el badge de la campana).
     func unreadNotifications(userId: UUID) async throws -> Int {
         let rows: [AppNotification] = try await client

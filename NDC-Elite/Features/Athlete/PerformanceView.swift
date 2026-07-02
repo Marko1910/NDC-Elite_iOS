@@ -72,21 +72,24 @@ struct PerformanceView: View {
         .tint(NDCColor.primary)
     }
 
-    // MARK: - Header del atleta (avatar + nombre · biblioteca)
+    // MARK: - Header (distintivo de nivel · biblioteca)
 
+    /// Sin avatar ni nombre (es la pantalla del propio atleta, se sobreentiende):
+    /// solo su nivel como distintivo, y el acceso a la Biblioteca.
     private var athleteHeader: some View {
-        HStack(spacing: NDCSpacing.stackSM) {
-            NDCAvatarView(urlString: profile.avatarURL, size: 40)
-                .accessibilityHidden(true)
-            VStack(alignment: .leading, spacing: 0) {
-                Text(profile.fullName)
-                    .font(NDCFont.headlineSM)
-                    .foregroundStyle(NDCColor.primary)
-                Text("Nivel \(profile.level.displayName)")
+        HStack {
+            HStack(spacing: 6) {
+                Text("NIVEL")
                     .font(NDCFont.labelSM)
-                    .foregroundStyle(NDCColor.onSurfaceVariant)
+                    .foregroundStyle(.white.opacity(0.8))
+                    .tracking(1)
+                Text(profile.level.displayName.uppercased())
+                    .font(NDCFont.labelBold)
+                    .foregroundStyle(.white)
             }
-            .accessibilityElement(children: .combine)
+            .padding(.horizontal, 14).padding(.vertical, 8)
+            .background(NDCColor.primary, in: .capsule)
+            .accessibilityLabel("Nivel \(profile.level.displayName)")
 
             Spacer()
 

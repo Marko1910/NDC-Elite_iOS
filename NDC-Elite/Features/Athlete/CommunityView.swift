@@ -11,6 +11,7 @@ struct CommunityView: View {
     let profile: Profile
     private let data = CommunityData.sample
     @State private var segment: Segment = .retos
+    @State private var retosStore = AthleteChallengesStore()
 
     enum Segment: String, CaseIterable { case retos = "Retos", ranking = "Ranking" }
 
@@ -21,7 +22,7 @@ struct CommunityView: View {
                 ScrollView {
                     Group {
                         if segment == .retos {
-                            RetosContent(data: data)
+                            RetosContent(profile: profile, store: retosStore, data: data)
                         } else {
                             RankingContent(data: data)
                         }
@@ -33,8 +34,8 @@ struct CommunityView: View {
             }
             .padding(.top, NDCSpacing.stackSM)
             .background(NDCColor.background)
-            .ndcBrandToolbar(profile: profile, unreadCount: data.unreadCount) {
-                // TODO: → AthleteNotificationsView
+            .toolbar {
+                ToolbarItem(placement: .topBarLeading) { NDCBrandLabel() }
             }
         }
         .tint(NDCColor.primary)
@@ -70,19 +71,57 @@ struct CommunityView: View {
     }
 }
 
-// MARK: - Segmento Retos
+// MARK: - Segmento Retos (retos reales de Supabase)
 
 private struct RetosContent: View {
+    let profile: Profile
+    var store: AthleteChallengesStore
     let data: CommunityData
 
     var body: some View {
         VStack(alignment: .leading, spacing: NDCSpacing.stackLG) {
-            sectionTitle("Retos de Comunidad", trailing: "Ver más")
-            communityChallengeCard
-
-            sectionTitle("Retos Individuales", trailing: "Mis retos")
-            ForEach(data.individualChallenges) { ch in
-                IndividualChallengeCard(challenge: ch)
+            LoadStateView(state: store.state, retry: { Task { await store.load(athleteId: profile.id) } }) { retos in
+                if retos.challenges.isEmpty {
+                    ContentUnavailableView(
+                        "Sin retos activos",
+                        systemImage: "flag.checkered",
+                        description: Text("Tu coach aún no publica retos. ¡Pronto habrá novedades!")
+                    )
+                } else {
+                    VStack(alignment: .leading, spacing: NDCSpacing.stackLG) {
+                        let comunidad = retos.challenges.filter { $0.challengeType == .comunidad }
+                        let individuales = retos.challenges.filter { $0.challengeType == .individual }
+                        if !comunidad.isEmpty {
+                            sectionTitle("Retos de Comunidad")
+                            ForEach(comunidad) { ch in
+                                CommunityChallengeCard(
+                                    challenge: ch,
+                                    participantCount: retos.counts[ch.id] ?? 0,
+                                    isJoined: retos.joined.contains(ch.id),
+                                    isBusy: store.busyIds.contains(ch.id),
+                                    onToggle: { Task { await store.toggleJoin(ch, athleteId: profile.id) } }
+                                )
+                            }
+                        }
+                        if !individuales.isEmpty {
+                            sectionTitle("Retos Individuales")
+                            ForEach(individuales) { ch in
+                                CommunityChallengeCard(
+                                    challenge: ch,
+                                    participantCount: retos.counts[ch.id] ?? 0,
+                                    isJoined: retos.joined.contains(ch.id),
+                                    isBusy: store.busyIds.contains(ch.id),
+                                    onToggle: { Task { await store.toggleJoin(ch, athleteId: profile.id) } }
+                                )
+                            }
+                        }
+                    }
+                }
+            } skeleton: {
+                VStack(spacing: NDCSpacing.stackMD) {
+                    SkeletonCard(lines: 3, height: 150)
+                    SkeletonCard(lines: 3, height: 150)
+                }
             }
 
             Text("Mis Logros")
@@ -107,30 +146,11 @@ private struct RetosContent: View {
 
             upcomingBanner
         }
+        .task { await store.load(athleteId: profile.id) }
     }
 
-    private var communityChallengeCard: some View {
-        VStack(alignment: .leading, spacing: NDCSpacing.stackMD) {
-            Label("META GLOBAL", systemImage: "star.fill")
-                .font(NDCFont.labelBold)
-                .foregroundStyle(NDCColor.accent)
-            Text(data.communityChallenge.title)
-                .font(NDCFont.headlineSM).foregroundStyle(.white)
-            HStack(alignment: .bottom) {
-                Text(data.communityChallenge.current)
-                    .font(NDCFont.displayLG).foregroundStyle(NDCColor.accent)
-                Spacer()
-                Text("Meta: \(data.communityChallenge.goal)")
-                    .font(NDCFont.labelSM).foregroundStyle(NDCColor.primaryFixed)
-            }
-            ProgressTrack(value: data.communityChallenge.progress, tint: NDCColor.accent,
-                          track: NDCColor.primaryDark.opacity(0.4))
-            Text(data.communityChallenge.remaining)
-                .font(NDCFont.bodyMD).foregroundStyle(NDCColor.primaryFixed)
-        }
-        .padding(NDCSpacing.stackLG)
-        .frame(maxWidth: .infinity, alignment: .leading)
-        .background(NDCColor.primary, in: .rect(cornerRadius: NDCRadius.large))
+    private func sectionTitle(_ title: String) -> some View {
+        Text(title).font(NDCFont.headlineSM).foregroundStyle(NDCColor.primary)
     }
 
     private var upcomingBanner: some View {
@@ -147,63 +167,117 @@ private struct RetosContent: View {
         .clipShape(.rect(cornerRadius: NDCRadius.large))
     }
 
-    private func sectionTitle(_ title: String, trailing: String) -> some View {
-        HStack {
-            Text(title).font(NDCFont.headlineSM).foregroundStyle(NDCColor.primary)
-            Spacer()
-            Text(trailing).font(NDCFont.labelSM).foregroundStyle(NDCColor.outline)
-        }
-    }
 }
 
-private struct IndividualChallengeCard: View {
-    let challenge: CommunityData.IndividualChallenge
+// MARK: - Tarjeta de reto real (comunidad o individual)
+
+private struct CommunityChallengeCard: View {
+    let challenge: Challenge
+    let participantCount: Int
+    let isJoined: Bool
+    let isBusy: Bool
+    let onToggle: () -> Void
+
+    private var goalLabel: String {
+        "\(Int(challenge.currentValue)) / \(Int(challenge.goalValue)) \(challenge.unit)"
+    }
 
     var body: some View {
-        VStack(alignment: .leading, spacing: NDCSpacing.gutter) {
-            HStack(alignment: .top) {
-                VStack(alignment: .leading, spacing: 2) {
-                    Label(challenge.kind, systemImage: challenge.kindIcon)
-                        .font(NDCFont.labelBold).foregroundStyle(NDCColor.primary)
-                    Text(challenge.title).font(NDCFont.headlineSM).foregroundStyle(NDCColor.onSurface)
+        VStack(alignment: .leading, spacing: NDCSpacing.stackMD) {
+            Label(challenge.challengeType == .comunidad ? "META GLOBAL" : "RETO INDIVIDUAL",
+                  systemImage: challenge.challengeType == .comunidad ? "star.fill" : "flag.fill")
+                .font(NDCFont.labelBold)
+                .foregroundStyle(NDCColor.accent)
+            Text(challenge.title)
+                .font(NDCFont.headlineSM).foregroundStyle(.white)
+            if let description = challenge.description, !description.isEmpty {
+                Text(description).font(NDCFont.bodyMD).foregroundStyle(NDCColor.primaryFixed)
+            }
+            HStack(alignment: .bottom) {
+                Text("\(Int(challenge.currentValue))")
+                    .font(NDCFont.displayLG).foregroundStyle(NDCColor.accent)
+                Spacer()
+                Text("Meta: \(Int(challenge.goalValue)) \(challenge.unit)")
+                    .font(NDCFont.labelSM).foregroundStyle(NDCColor.primaryFixed)
+            }
+            ProgressTrack(value: challenge.progress, tint: NDCColor.accent,
+                          track: NDCColor.primaryDark.opacity(0.4))
+            HStack {
+                Label("\(participantCount) unidos", systemImage: "person.3.fill")
+                    .font(NDCFont.labelSM).foregroundStyle(NDCColor.primaryFixed)
+                if let endsOn = challenge.endsOn {
+                    Text("· hasta el \(endsOn.formatted(.dateTime.day().month()))")
+                        .font(NDCFont.labelSM).foregroundStyle(NDCColor.primaryFixed)
                 }
                 Spacer()
-                Text(challenge.badge)
-                    .font(NDCFont.labelBold).foregroundStyle(NDCColor.secondary)
-                    .padding(.horizontal, 10).padding(.vertical, 4)
-                    .background(NDCColor.accent.opacity(0.2), in: .capsule)
-            }
-            HStack(spacing: NDCSpacing.gutter) {
-                if let progress = challenge.ringProgress {
-                    Text("\(Int(progress * 100))%")
-                        .font(NDCFont.headlineSM).foregroundStyle(NDCColor.primary)
-                        .frame(width: 64, height: 64)
-                        .overlay(Circle().stroke(NDCColor.accent, lineWidth: 4))
-                } else {
-                    Image(systemName: challenge.icon)
-                        .font(.system(size: 28)).foregroundStyle(NDCColor.primary)
-                        .frame(width: 64, height: 64)
-                        .background(NDCColor.surface, in: .circle)
-                }
-                VStack(alignment: .leading, spacing: 4) {
-                    Text(challenge.description).font(NDCFont.bodyMD).foregroundStyle(NDCColor.onSurfaceVariant)
-                    Text(challenge.footer).font(NDCFont.labelSM).foregroundStyle(NDCColor.outline)
-                }
             }
             Button {
                 Haptics.impact()
-                // TODO: → ChallengeDetailView (unirse / continuar)
+                onToggle()
             } label: {
-                Text(challenge.cta)
-                    .font(NDCFont.bodyLG.weight(.bold)).foregroundStyle(NDCColor.primary)
+                Text(isBusy ? "…" : (isJoined ? "Inscrito ✓ · Abandonar" : "Unirse al Reto"))
+                    .font(NDCFont.bodyLG.weight(.bold))
+                    .foregroundStyle(isJoined ? .white : NDCColor.primary)
                     .frame(maxWidth: .infinity, minHeight: 48)
-                    .background(NDCColor.accent, in: .rect(cornerRadius: NDCRadius.large))
+                    .background(isJoined ? NDCColor.primaryDark : NDCColor.accent,
+                                in: .rect(cornerRadius: NDCRadius.large))
             }
+            .disabled(isBusy)
         }
         .padding(NDCSpacing.stackLG)
-        .background(NDCColor.background, in: .rect(cornerRadius: NDCRadius.large))
-        .overlay(RoundedRectangle(cornerRadius: NDCRadius.large)
-            .stroke(NDCColor.outline.opacity(0.2), lineWidth: 1))
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .background(NDCColor.primary, in: .rect(cornerRadius: NDCRadius.large))
+        .accessibilityElement(children: .combine)
+    }
+}
+
+// MARK: - Store de retos del atleta
+
+@MainActor @Observable
+final class AthleteChallengesStore {
+    struct Data {
+        var challenges: [Challenge] = []
+        /// Inscritos por reto (para "N unidos").
+        var counts: [UUID: Int] = [:]
+        /// Retos en los que este atleta ya está inscrito.
+        var joined: Set<UUID> = []
+    }
+
+    private(set) var state: LoadState<Data> = .loading
+    private(set) var busyIds: Set<UUID> = []
+    private let repo = ChallengeRepository()
+
+    func load(athleteId: UUID) async {
+        if state.value == nil { state = .loading }
+        do {
+            let challenges = try await repo.activeChallenges()
+            let participants = try await repo.participants(challengeIds: challenges.map(\.id))
+            var data = Data(challenges: challenges)
+            for p in participants {
+                data.counts[p.challengeId, default: 0] += 1
+                if p.athleteId == athleteId { data.joined.insert(p.challengeId) }
+            }
+            state = .loaded(data)
+        } catch {
+            state = .failed("No se pudieron cargar los retos.")
+        }
+    }
+
+    func toggleJoin(_ challenge: Challenge, athleteId: UUID) async {
+        guard case .loaded(let data) = state, !busyIds.contains(challenge.id) else { return }
+        busyIds.insert(challenge.id)
+        defer { busyIds.remove(challenge.id) }
+        do {
+            if data.joined.contains(challenge.id) {
+                try await repo.leave(challengeId: challenge.id, athleteId: athleteId)
+            } else {
+                try await repo.join(challengeId: challenge.id, athleteId: athleteId)
+                Haptics.notify(.success)
+            }
+            await load(athleteId: athleteId)
+        } catch {
+            Haptics.notify(.error)
+        }
     }
 }
 

@@ -10,6 +10,8 @@ struct WodManagementView: View {
     @State private var selectedDay = Calendar.current.component(.weekday, from: Date()) == 1 ? 6 : Calendar.current.component(.weekday, from: Date()) - 2
     @State private var showWodEditor = false
     @State private var showRunningEditor = false
+    @State private var showCreateMenu = false
+    @State private var showWeeklySummary = false
     @State private var editingWod: Wod?
     @State private var wodPendingDelete: Wod?
 
@@ -28,6 +30,11 @@ struct WodManagementView: View {
 
     private func wodsForSelectedDay(_ all: [Wod]) -> [Wod] {
         all.filter { Calendar.current.isDate($0.scheduledDate, inSameDayAs: selectedDate) }
+    }
+
+    private var loadedWods: [Wod] {
+        if case .loaded(let wods) = store.state { return wods }
+        return []
     }
 
     var body: some View {
@@ -68,6 +75,7 @@ struct WodManagementView: View {
             .scrollIndicators(.hidden)
             .navigationTitle("Gestión de WODs")
             .navigationBarTitleDisplayMode(.large)
+            .overlay { createMenuOverlay }
             .overlay(alignment: .bottomTrailing) { createFAB }
             .toolbar {
                 ToolbarItem(placement: .topBarTrailing) {
@@ -83,6 +91,10 @@ struct WodManagementView: View {
                 WodEditorView(profile: profile, existingWod: editingWod)
             }
             .sheet(isPresented: $showRunningEditor) { RunningEditorView(profile: profile) }
+            .sheet(isPresented: $showWeeklySummary) {
+                WeeklySummarySheet(weekDays: weekDays, wods: loadedWods)
+                    .presentationDetents([.medium, .large])
+            }
             .confirmationDialog(
                 "¿Eliminar \(wodPendingDelete?.title ?? "este WOD")?",
                 isPresented: Binding(get: { wodPendingDelete != nil }, set: { if !$0 { wodPendingDelete = nil } }),
@@ -136,20 +148,27 @@ struct WodManagementView: View {
     }
 
     private func weeklySummary(count: Int) -> some View {
-        HStack {
-            VStack(alignment: .leading, spacing: 2) {
-                Text("RESUMEN SEMANAL").font(NDCFont.labelSM).foregroundStyle(.white.opacity(0.8)).tracking(1)
-                Text("\(count) WODs").font(NDCFont.headlineMD).foregroundStyle(.white)
-                Text("Programados para esta semana").font(NDCFont.labelSM).foregroundStyle(NDCColor.primaryFixed)
+        Button {
+            Haptics.impact(.light)
+            showWeeklySummary = true
+        } label: {
+            HStack {
+                VStack(alignment: .leading, spacing: 2) {
+                    Text("RESUMEN SEMANAL").font(NDCFont.labelSM).foregroundStyle(.white.opacity(0.8)).tracking(1)
+                    Text("\(count) WODs").font(NDCFont.headlineMD).foregroundStyle(.white)
+                    Text("Programados para esta semana").font(NDCFont.labelSM).foregroundStyle(NDCColor.primaryFixed)
+                }
+                Spacer()
+                Image(systemName: "calendar")
+                    .font(.system(size: 28)).foregroundStyle(NDCColor.accent)
+                    .frame(width: 52, height: 52)
+                    .background(.white.opacity(0.12), in: .rect(cornerRadius: NDCRadius.standard))
             }
-            Spacer()
-            Image(systemName: "calendar")
-                .font(.system(size: 28)).foregroundStyle(NDCColor.accent)
-                .frame(width: 52, height: 52)
-                .background(.white.opacity(0.12), in: .rect(cornerRadius: NDCRadius.standard))
+            .padding(NDCSpacing.stackLG)
+            .background(NDCColor.primary, in: .rect(cornerRadius: NDCRadius.large))
         }
-        .padding(NDCSpacing.stackLG)
-        .background(NDCColor.primary, in: .rect(cornerRadius: NDCRadius.large))
+        .buttonStyle(.plain)
+        .accessibilityLabel("Ver resumen semanal de WODs")
     }
 
     private func dayHeader(count: Int) -> some View {
@@ -161,18 +180,58 @@ struct WodManagementView: View {
         }
     }
 
+    /// Fondo oscurecido + opciones del FAB. Se muestra al presionar el "+" para
+    /// enfocar la atención en el menú de creación; tocar fuera lo cierra.
+    @ViewBuilder
+    private var createMenuOverlay: some View {
+        if showCreateMenu {
+            ZStack(alignment: .bottomTrailing) {
+                Color.black.opacity(0.45)
+                    .ignoresSafeArea()
+                    .onTapGesture { withAnimation(.snappy) { showCreateMenu = false } }
+
+                VStack(alignment: .trailing, spacing: NDCSpacing.stackMD) {
+                    createMenuOption("Nuevo WOD", icon: "plus.square.on.square") {
+                        editingWod = nil
+                        showWodEditor = true
+                    }
+                    createMenuOption("Nueva Sesión de Running", icon: "figure.run") {
+                        showRunningEditor = true
+                    }
+                }
+                .padding(.trailing, NDCSpacing.marginMain)
+                .padding(.bottom, NDCSpacing.stackLG + 56 + NDCSpacing.stackMD)
+                .transition(.opacity.combined(with: .move(edge: .bottom)))
+            }
+            .transition(.opacity)
+        }
+    }
+
+    private func createMenuOption(_ title: String, icon: String, action: @escaping () -> Void) -> some View {
+        Button {
+            Haptics.impact()
+            withAnimation(.snappy) { showCreateMenu = false }
+            action()
+        } label: {
+            Label(title, systemImage: icon)
+                .font(NDCFont.labelBold)
+                .foregroundStyle(NDCColor.primary)
+                .padding(.horizontal, NDCSpacing.stackLG)
+                .padding(.vertical, 14)
+                .background(.white, in: .capsule)
+                .shadow(color: .black.opacity(0.25), radius: 8, y: 4)
+        }
+    }
+
     private var createFAB: some View {
-        Menu {
-            Button { Haptics.impact(); editingWod = nil; showWodEditor = true } label: {
-                Label("Nuevo WOD", systemImage: "plus.square.on.square")
-            }
-            Button { Haptics.impact(); showRunningEditor = true } label: {
-                Label("Nueva Sesión de Running", systemImage: "figure.run")
-            }
+        Button {
+            Haptics.impact()
+            withAnimation(.snappy) { showCreateMenu.toggle() }
         } label: {
             Image(systemName: "plus")
                 .font(.system(size: 22, weight: .semibold))
                 .foregroundStyle(NDCColor.primary)
+                .rotationEffect(.degrees(showCreateMenu ? 45 : 0))
                 .frame(width: 56, height: 56)
                 .background(NDCColor.accent, in: .circle)
                 .shadow(color: .black.opacity(0.2), radius: 8, y: 4)
@@ -180,6 +239,7 @@ struct WodManagementView: View {
         .padding(.trailing, NDCSpacing.marginMain)
         .padding(.bottom, NDCSpacing.stackLG)
         .accessibilityLabel("Crear WOD o sesión")
+        .accessibilityAddTraits(showCreateMenu ? .isSelected : [])
     }
 }
 
@@ -204,6 +264,66 @@ final class WodManagementStore {
         if case .loaded(var list) = state {
             list.removeAll { $0.id == wod.id }
             state = .loaded(list)
+        }
+    }
+}
+
+// MARK: - Hoja de resumen semanal
+
+/// Resumen de la semana: cada día con sus WODs programados (título, tipo y
+/// estado). Se abre desde la tarjeta "Resumen Semanal".
+private struct WeeklySummarySheet: View {
+    let weekDays: [Date]
+    let wods: [Wod]
+    @Environment(\.dismiss) private var dismiss
+
+    private static let dayFmt: DateFormatter = {
+        let f = DateFormatter(); f.locale = Locale(identifier: "es_ES"); f.dateFormat = "EEEE d"; return f
+    }()
+
+    private func wods(on day: Date) -> [Wod] {
+        wods.filter { Calendar.current.isDate($0.scheduledDate, inSameDayAs: day) }
+    }
+
+    var body: some View {
+        NavigationStack {
+            ScrollView {
+                VStack(alignment: .leading, spacing: NDCSpacing.stackLG) {
+                    ForEach(weekDays, id: \.self) { day in
+                        let dayWods = wods(on: day)
+                        VStack(alignment: .leading, spacing: NDCSpacing.stackSM) {
+                            Text(Self.dayFmt.string(from: day).capitalized)
+                                .font(NDCFont.labelBold).foregroundStyle(NDCColor.primary)
+                            if dayWods.isEmpty {
+                                Text("Descanso — sin WODs")
+                                    .font(NDCFont.labelSM).foregroundStyle(NDCColor.outline)
+                            } else {
+                                ForEach(dayWods) { wod in
+                                    HStack {
+                                        Text(wod.title).font(NDCFont.bodyMD).foregroundStyle(NDCColor.onSurface)
+                                        Spacer()
+                                        NDCChip(text: wod.wodType.displayName)
+                                        Text(wod.status.displayName.uppercased())
+                                            .font(NDCFont.labelSM)
+                                            .foregroundStyle(wod.status == .publicado ? .green : NDCColor.outline)
+                                    }
+                                    .padding(NDCSpacing.gutter)
+                                    .background(NDCColor.surface, in: .rect(cornerRadius: NDCRadius.standard))
+                                }
+                            }
+                        }
+                    }
+                }
+                .padding(NDCSpacing.marginMain)
+            }
+            .background(NDCColor.background)
+            .navigationTitle("Resumen Semanal")
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .topBarTrailing) {
+                    Button("Cerrar") { dismiss() }.foregroundStyle(NDCColor.primary)
+                }
+            }
         }
     }
 }

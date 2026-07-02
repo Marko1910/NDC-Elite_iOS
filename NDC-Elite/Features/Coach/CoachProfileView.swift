@@ -14,6 +14,10 @@ struct CoachProfileView: View {
     @State private var isUploadingPhoto = false
     @State private var isEditingName = false
     @State private var editedName = ""
+    @State private var isEditingPhone = false
+    @State private var editedPhone = ""
+    @State private var isEditingMemberSince = false
+    @State private var editedMemberSince = Date()
     @State private var errorMessage: String?
     private let repo = ProfileRepository()
 
@@ -40,6 +44,16 @@ struct CoachProfileView: View {
                 TextField("Nombre completo", text: $editedName)
                 Button("Cancelar", role: .cancel) {}
                 Button("Guardar") { Task { await saveName() } }
+            }
+            .alert("Editar teléfono", isPresented: $isEditingPhone) {
+                TextField("Ej: +51 987 654 321", text: $editedPhone)
+                    .keyboardType(.phonePad)
+                Button("Cancelar", role: .cancel) {}
+                Button("Guardar") { Task { await savePhone() } }
+            }
+            .sheet(isPresented: $isEditingMemberSince) {
+                memberSinceEditor
+                    .presentationDetents([.medium])
             }
             .onChange(of: selectedPhoto) { _, newValue in
                 guard let newValue else { return }
@@ -105,15 +119,30 @@ struct CoachProfileView: View {
             Text("Cuenta")
                 .font(NDCFont.headlineSM)
                 .foregroundStyle(NDCColor.onSurface)
-            infoRow(icon: "phone.fill", title: "Teléfono", value: profile.phone ?? "Sin registrar")
-            infoRow(icon: "calendar", title: "Miembro desde", value: memberSinceText)
+            Button {
+                editedPhone = profile.phone ?? ""
+                isEditingPhone = true
+            } label: {
+                infoRow(icon: "phone.fill", title: "Teléfono", value: profile.phone ?? "Sin registrar", editable: true)
+            }
+            .buttonStyle(.plain)
+            .accessibilityLabel("Editar teléfono, actual: \(profile.phone ?? "sin registrar")")
+
+            Button {
+                editedMemberSince = profile.memberSince
+                isEditingMemberSince = true
+            } label: {
+                infoRow(icon: "calendar", title: "Miembro desde", value: memberSinceText, editable: true)
+            }
+            .buttonStyle(.plain)
+            .accessibilityLabel("Editar fecha de miembro desde, actual: \(memberSinceText)")
         }
         .padding(NDCSpacing.stackLG)
         .frame(maxWidth: .infinity, alignment: .leading)
         .background(NDCColor.surface, in: .rect(cornerRadius: NDCRadius.large))
     }
 
-    private func infoRow(icon: String, title: String, value: String) -> some View {
+    private func infoRow(icon: String, title: String, value: String, editable: Bool = false) -> some View {
         HStack(spacing: NDCSpacing.gutter) {
             Image(systemName: icon)
                 .foregroundStyle(NDCColor.primary)
@@ -125,12 +154,47 @@ struct CoachProfileView: View {
             Text(value)
                 .font(NDCFont.bodyMD.weight(.semibold))
                 .foregroundStyle(NDCColor.onSurface)
+            if editable {
+                Image(systemName: "pencil")
+                    .font(.system(size: 13))
+                    .foregroundStyle(NDCColor.outline)
+            }
         }
         .accessibilityElement(children: .combine)
     }
 
     private var memberSinceText: String {
         profile.memberSince.formatted(.dateTime.month(.wide).year())
+    }
+
+    /// Editor de "Miembro desde": DatePicker en hoja (los alerts no admiten pickers).
+    private var memberSinceEditor: some View {
+        NavigationStack {
+            VStack {
+                DatePicker(
+                    "Miembro desde",
+                    selection: $editedMemberSince,
+                    in: ...Date(),
+                    displayedComponents: .date
+                )
+                .datePickerStyle(.graphical)
+                .tint(NDCColor.primary)
+                Spacer()
+            }
+            .padding(NDCSpacing.marginMain)
+            .background(NDCColor.background)
+            .navigationTitle("Miembro desde")
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .topBarLeading) {
+                    Button("Cancelar") { isEditingMemberSince = false }.foregroundStyle(NDCColor.primary)
+                }
+                ToolbarItem(placement: .topBarTrailing) {
+                    Button("Guardar") { Task { await saveMemberSince() } }
+                        .font(NDCFont.labelBold).foregroundStyle(NDCColor.primary)
+                }
+            }
+        }
     }
 
     // MARK: - Cerrar sesión
@@ -155,6 +219,32 @@ struct CoachProfileView: View {
             session.updateLocalProfile(updated)
         } catch {
             errorMessage = "No se pudo actualizar el nombre. Intenta de nuevo."
+        }
+    }
+
+    private func savePhone() async {
+        let trimmed = editedPhone.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !trimmed.isEmpty, trimmed != profile.phone else { return }
+        do {
+            try await repo.updatePhone(userId: profile.id, phone: trimmed)
+            var updated = profile
+            updated.phone = trimmed
+            session.updateLocalProfile(updated)
+        } catch {
+            errorMessage = "No se pudo actualizar el teléfono. Intenta de nuevo."
+        }
+    }
+
+    private func saveMemberSince() async {
+        do {
+            try await repo.updateMemberSince(userId: profile.id, date: editedMemberSince)
+            var updated = profile
+            updated.memberSince = editedMemberSince
+            session.updateLocalProfile(updated)
+            isEditingMemberSince = false
+        } catch {
+            isEditingMemberSince = false
+            errorMessage = "No se pudo actualizar la fecha. Intenta de nuevo."
         }
     }
 

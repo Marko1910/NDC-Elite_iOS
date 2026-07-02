@@ -29,7 +29,11 @@ struct ExerciseLibraryView: View {
                         emptyState
                     } else {
                         ForEach(visible) { ex in
-                            NavigationLink(value: ex) {
+                            // Destino directo (no por value): registrado siempre,
+                            // aunque la Biblioteca esté anidada en otro destination.
+                            NavigationLink {
+                                ExerciseDetailView(exercise: ex)
+                            } label: {
                                 ExerciseRow(exercise: ex)
                             }
                             .buttonStyle(.plain)
@@ -52,9 +56,6 @@ struct ExerciseLibraryView: View {
         .navigationTitle("Biblioteca Técnica")
         .navigationBarTitleDisplayMode(.large)
         .searchable(text: $query, prompt: "Buscar técnica (ej. Snatch, Clean...)")
-        .navigationDestination(for: LibraryExercise.self) { ex in
-            ExerciseDetailView(exercise: ex)
-        }
         .task { await store.load() }
         .refreshable { await store.load() }
     }

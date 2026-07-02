@@ -7,6 +7,7 @@ struct LoginView: View {
 
     @State private var email = ""
     @State private var password = ""
+    @State private var showPassword = false
     @State private var isLoading = false
     @State private var showRegister = false
 
@@ -35,9 +36,26 @@ struct LoginView: View {
                         .autocorrectionDisabled()
                         .ndcInputStyle()
 
-                    SecureField("Contraseña", text: $password)
+                    HStack(spacing: NDCSpacing.stackSM) {
+                        Group {
+                            if showPassword {
+                                TextField("Contraseña", text: $password)
+                                    .textInputAutocapitalization(.never)
+                                    .autocorrectionDisabled()
+                            } else {
+                                SecureField("Contraseña", text: $password)
+                            }
+                        }
                         .textContentType(.password)
-                        .ndcInputStyle()
+
+                        Button {
+                            showPassword.toggle()
+                        } label: {
+                            Image(systemName: showPassword ? "eye.slash.fill" : "eye.fill")
+                                .foregroundStyle(NDCColor.onSurfaceVariant)
+                        }
+                    }
+                    .ndcInputStyle()
 
                     if let error = session.errorMessage {
                         Text(error)

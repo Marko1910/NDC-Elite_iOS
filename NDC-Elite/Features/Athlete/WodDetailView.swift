@@ -67,9 +67,9 @@ struct WodDetailView: View {
             }
             .toolbar {
                 ToolbarItem(placement: .topBarLeading) {
-                    NDCBrandLabel(avatarURL: profile.avatarURL)
+                    NDCBrandLabel()
                 }
-                ToolbarItemGroup(placement: .topBarTrailing) {
+                ToolbarItem(placement: .topBarTrailing) {
                     Button {
                         Haptics.impact(.light)
                         showHistory = true
@@ -78,10 +78,6 @@ struct WodDetailView: View {
                             .foregroundStyle(NDCColor.primary)
                     }
                     .accessibilityLabel("Historial de WODs")
-
-                    NDCBellButton(unreadCount: 0) {
-                        // TODO: → AthleteNotificationsView
-                    }
                 }
             }
             .task { await store.load() }

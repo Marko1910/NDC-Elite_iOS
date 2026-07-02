@@ -6,7 +6,6 @@ import SwiftUI
 /// cada marca, o valida todo lo listado. Se llega desde el Dashboard
 /// ("Validaciones Pendientes") o desde Alertas. (ver FLOWS.md → ValidationView)
 struct ValidationView: View {
-    @Environment(\.dismiss) private var dismiss
     @State private var store = ValidationStore()
     @State private var query = ""
     @State private var correcting: ValidationStore.Item?
@@ -16,8 +15,9 @@ struct ValidationView: View {
         query.isEmpty ? items : items.filter { $0.athleteName.localizedCaseInsensitiveContains(query) }
     }
 
+    // Nota: esta vista se PUSHEA en el NavigationStack del Dashboard, por lo
+    // que no crea stack propio ni botón de regresar (lo provee el sistema).
     var body: some View {
-        NavigationStack {
             ScrollView {
                 VStack(spacing: NDCSpacing.stackMD) {
                     if let errorMessage = store.errorMessage {
@@ -58,9 +58,6 @@ struct ValidationView: View {
             .navigationBarTitleDisplayMode(.inline)
             .searchable(text: $query, prompt: "Buscar atleta...")
             .toolbar {
-                ToolbarItem(placement: .topBarLeading) {
-                    Button { dismiss() } label: { Image(systemName: "chevron.left") }
-                }
                 ToolbarItem(placement: .topBarTrailing) {
                     Text("\(store.state.value?.count ?? 0) PENDIENTES")
                         .font(NDCFont.labelBold).foregroundStyle(NDCColor.onAccent)
@@ -88,8 +85,7 @@ struct ValidationView: View {
             }
             .task { await store.load() }
             .refreshable { await store.load() }
-        }
-        .tint(NDCColor.primary)
+            .tint(NDCColor.primary)
     }
 
     private var validateAllButton: some View {
@@ -560,5 +556,5 @@ private struct CorrectResultSheet: View {
 }
 
 #Preview {
-    ValidationView()
+    NavigationStack { ValidationView() }
 }

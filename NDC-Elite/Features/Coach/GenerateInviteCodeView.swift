@@ -51,8 +51,11 @@ struct GenerateInviteCodeView: View {
                 }
             }
             .task {
-                if currentCode.isEmpty { currentCode = Self.newCode() }
+                if currentCode.isEmpty { currentCode = Self.newCode(for: role) }
                 await loadActive()
+            }
+            .onChange(of: role) { _, newRole in
+                currentCode = Self.newCode(for: newRole)
             }
         }
         .tint(NDCColor.primary)
@@ -73,7 +76,7 @@ struct GenerateInviteCodeView: View {
                 .font(NDCFont.labelBold).foregroundStyle(NDCColor.outline).tracking(1)
             Text(currentCode).font(.system(size: 38, weight: .heavy, design: .rounded)).foregroundStyle(NDCColor.primaryDark)
             Button {
-                Haptics.impact(); currentCode = Self.newCode()
+                Haptics.impact(); currentCode = Self.newCode(for: role)
             } label: {
                 Label("Generar nuevo código", systemImage: "arrow.clockwise")
                     .font(NDCFont.labelBold).foregroundStyle(NDCColor.primary)
@@ -167,8 +170,8 @@ struct GenerateInviteCodeView: View {
                 .insert(["code": currentCode, "created_by": uid.uuidString, "role": role.rawValue]).execute()
             Haptics.notify(.success)
             await loadActive()
-            await MainActor.run { shareSheet(text: shareMessage) }
-            currentCode = Self.newCode()
+            await MainActor.run { shareViaWhatsApp(text: shareMessage) }
+            currentCode = Self.newCode(for: role)
         } catch {
             Haptics.notify(.error)
         }
@@ -188,6 +191,19 @@ struct GenerateInviteCodeView: View {
             : "¡Bienvenido a NDC HQ! 💪 Regístrate en la app con este código de invitación: \(currentCode)"
     }
 
+    /// Abre WhatsApp con el mensaje listo para enviar. Si WhatsApp no está
+    /// instalado, cae al share sheet del sistema.
+    private func shareViaWhatsApp(text: String) {
+        let encoded = text.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? text
+        guard let url = URL(string: "https://wa.me/?text=\(encoded)") else {
+            shareSheet(text: text)
+            return
+        }
+        UIApplication.shared.open(url, options: [.universalLinksOnly: true]) { opened in
+            if !opened { shareSheet(text: text) }
+        }
+    }
+
     private func shareSheet(text: String) {
         guard let scene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
               let root = scene.windows.first?.rootViewController else { return }
@@ -195,10 +211,12 @@ struct GenerateInviteCodeView: View {
         root.present(av, animated: true)
     }
 
-    static func newCode() -> String {
+    /// El prefijo distingue el tipo de código en la DB a simple vista:
+    /// `NDC-A-XXXX` = atleta, `NDC-C-XXXX` = coach.
+    static func newCode(for role: UserRole) -> String {
         let chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789"
         let suffix = String((0..<4).map { _ in chars.randomElement()! })
-        return "NDC-\(suffix)"
+        return role == .coach ? "NDC-C-\(suffix)" : "NDC-A-\(suffix)"
     }
 }
 

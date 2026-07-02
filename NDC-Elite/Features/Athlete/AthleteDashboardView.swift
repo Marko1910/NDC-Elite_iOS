@@ -12,6 +12,7 @@ struct AthleteDashboardView: View {
     /// Lleva al tab WOD (lo inyecta AthleteTabView).
     var openWod: () -> Void = {}
     @State private var store = AthleteDashboardStore()
+    @State private var showNotifications = false
 
     var body: some View {
         NavigationStack {
@@ -52,7 +53,13 @@ struct AthleteDashboardView: View {
                 bookClassFAB
             }
             .ndcBrandToolbar(profile: profile, unreadCount: store.state.value?.unreadCount ?? 0) {
-                // TODO: → AthleteNotificationsView
+                showNotifications = true
+            }
+            .sheet(isPresented: $showNotifications, onDismiss: {
+                // Refresca el badge: la bandeja marcó todo como leído.
+                Task { await store.load(profile: profile) }
+            }) {
+                AthleteNotificationsView(profile: profile)
             }
             .task { await store.load(profile: profile) }
             .refreshable { await store.load(profile: profile) }

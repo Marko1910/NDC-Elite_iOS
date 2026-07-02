@@ -22,6 +22,8 @@ struct WodEditorView: View {
     @State private var isSaving = false
     @State private var errorMessage: String?
     @State private var pickerTargetBlockID: EditableBlock.ID?
+    @State private var isNamingNewBlock = false
+    @State private var newBlockName = ""
 
     init(profile: Profile, existingWod: Wod? = nil) {
         self.profile = profile
@@ -32,8 +34,11 @@ struct WodEditorView: View {
     struct EditableBlock: Identifiable {
         let id = UUID()
         let type: BlockType
-        let title: String
+        var title: String
         let icon: String
+        /// Los bloques personalizados (creados por el coach con su propio
+        /// nombre) se pueden eliminar; los tres fijos no.
+        var isCustom = false
         var exercises: [EditableExercise] = []
 
         static var emptyDefaults: [EditableBlock] {
@@ -90,8 +95,13 @@ struct WodEditorView: View {
 
                     Text("Estructura del Bloque").font(NDCFont.headlineSM).foregroundStyle(NDCColor.primary)
                     ForEach($blocks) { $block in
-                        BlockEditor(block: $block, onAddExercise: { pickerTargetBlockID = block.id })
+                        BlockEditor(
+                            block: $block,
+                            onAddExercise: { pickerTargetBlockID = block.id },
+                            onDelete: block.isCustom ? { blocks.removeAll { $0.id == block.id } } : nil
+                        )
                     }
+                    addBlockButton
 
                     if let errorMessage {
                         Text(errorMessage).font(NDCFont.labelBold).foregroundStyle(NDCColor.error)
@@ -128,6 +138,20 @@ struct WodEditorView: View {
                 .background(.ultraThinMaterial)
             }
         }
+        .alert("Nuevo bloque", isPresented: $isNamingNewBlock) {
+            TextField("Ej: Fuerza, Metcon, Core…", text: $newBlockName)
+            Button("Cancelar", role: .cancel) { newBlockName = "" }
+            Button("Crear") {
+                let trimmed = newBlockName.trimmingCharacters(in: .whitespacesAndNewlines)
+                if !trimmed.isEmpty {
+                    blocks.append(EditableBlock(type: .accesorio, title: trimmed,
+                                                icon: "square.stack.3d.up.fill", isCustom: true))
+                }
+                newBlockName = ""
+            }
+        } message: {
+            Text("Dale un nombre a la nueva caja de ejercicios.")
+        }
         .sheet(item: $pickerTargetBlockID) { blockID in
             ExercisePickerSheet { exercise in
                 if let index = blocks.firstIndex(where: { $0.id == blockID }) {
@@ -147,6 +171,21 @@ struct WodEditorView: View {
         }
     }
 
+    private var addBlockButton: some View {
+        Button {
+            Haptics.impact(.light)
+            isNamingNewBlock = true
+        } label: {
+            Label("Añadir Bloque", systemImage: "plus.rectangle.on.rectangle")
+                .font(NDCFont.labelBold).foregroundStyle(NDCColor.primary)
+                .frame(maxWidth: .infinity, minHeight: 48)
+                .overlay(
+                    RoundedRectangle(cornerRadius: NDCRadius.large)
+                        .stroke(NDCColor.primary.opacity(0.5), style: StrokeStyle(lineWidth: 1, dash: [6]))
+                )
+        }
+    }
+
     // MARK: - Carga (editar WOD existente)
 
     private func loadExistingIfNeeded() async {
@@ -160,19 +199,34 @@ struct WodEditorView: View {
             let fetchedBlocks = try await repo.fetchBlocks(wodId: existingWod.id)
             let exerciseRows = try await repo.fetchBlockExercises(blockIds: fetchedBlocks.map(\.id))
             let library = ExerciseLibraryStore.shared.state.value ?? []
-            var loaded: [EditableBlock] = []
-            for defaultBlock in EditableBlock.emptyDefaults {
-                guard let match = fetchedBlocks.first(where: { $0.blockType == defaultBlock.type }) else {
-                    loaded.append(defaultBlock)
-                    continue
-                }
-                let exercises = exerciseRows
-                    .filter { $0.blockId == match.id }
+
+            func exercises(of block: WodBlock) -> [EditableExercise] {
+                exerciseRows
+                    .filter { $0.blockId == block.id }
                     .compactMap { row -> EditableExercise? in
                         guard let exId = row.exerciseId, let exercise = library.first(where: { $0.id == exId }) else { return nil }
                         return EditableExercise(exercise: exercise, prescription: row.prescription)
                     }
-                loaded.append(EditableBlock(type: defaultBlock.type, title: defaultBlock.title, icon: defaultBlock.icon, exercises: exercises))
+            }
+
+            var loaded: [EditableBlock] = []
+            var consumed = Set<UUID>()
+            for defaultBlock in EditableBlock.emptyDefaults {
+                guard let match = fetchedBlocks.first(where: { $0.blockType == defaultBlock.type && !consumed.contains($0.id) }) else {
+                    loaded.append(defaultBlock)
+                    continue
+                }
+                consumed.insert(match.id)
+                loaded.append(EditableBlock(type: defaultBlock.type, title: defaultBlock.title,
+                                            icon: defaultBlock.icon, exercises: exercises(of: match)))
+            }
+            // Bloques personalizados del coach (los que no son de los tres fijos).
+            for extra in fetchedBlocks where !consumed.contains(extra.id) {
+                loaded.append(EditableBlock(type: extra.blockType,
+                                            title: extra.title ?? extra.blockType.displayName,
+                                            icon: "square.stack.3d.up.fill",
+                                            isCustom: true,
+                                            exercises: exercises(of: extra)))
             }
             blocks = loaded
         } catch {
@@ -223,11 +277,22 @@ extension UUID: @retroactive Identifiable {
 private struct BlockEditor: View {
     @Binding var block: WodEditorView.EditableBlock
     let onAddExercise: () -> Void
+    /// Solo los bloques personalizados traen acción de eliminar.
+    var onDelete: (() -> Void)?
 
     var body: some View {
         VStack(alignment: .leading, spacing: NDCSpacing.stackMD) {
-            Label(block.title, systemImage: block.icon)
-                .font(NDCFont.labelBold).foregroundStyle(NDCColor.primary)
+            HStack {
+                Label(block.title, systemImage: block.icon)
+                    .font(NDCFont.labelBold).foregroundStyle(NDCColor.primary)
+                Spacer()
+                if let onDelete {
+                    Button(role: .destructive, action: onDelete) {
+                        Image(systemName: "trash").foregroundStyle(NDCColor.error)
+                    }
+                    .accessibilityLabel("Eliminar bloque \(block.title)")
+                }
+            }
 
             if block.exercises.isEmpty {
                 Text("Sin ejercicios todavía.")
@@ -259,18 +324,33 @@ private struct BlockEditor: View {
 private struct ExerciseEntryRow: View {
     @Binding var item: WodEditorView.EditableExercise
     let onRemove: () -> Void
+    /// El video de técnica va colapsado: solo el nombre + ojo desplegable
+    /// (el mismo ojo que verá el atleta para revisar la técnica).
+    @State private var showTechnique = false
+
+    private var videoID: String? { YouTube.videoID(from: item.exercise.youtubeURL) }
 
     var body: some View {
         VStack(alignment: .leading, spacing: NDCSpacing.stackSM) {
             HStack {
                 Text(item.exercise.name).font(NDCFont.bodyMD.weight(.bold)).foregroundStyle(NDCColor.onSurface)
                 Spacer()
+                if videoID != nil {
+                    Button {
+                        Haptics.selection()
+                        withAnimation(.snappy) { showTechnique.toggle() }
+                    } label: {
+                        Image(systemName: showTechnique ? "eye.fill" : "eye")
+                            .foregroundStyle(NDCColor.primary)
+                    }
+                    .accessibilityLabel(showTechnique ? "Ocultar técnica de \(item.exercise.name)" : "Ver técnica de \(item.exercise.name)")
+                }
                 Button(role: .destructive, action: onRemove) {
                     Image(systemName: "trash").foregroundStyle(NDCColor.error)
                 }
             }
-            if let videoID = YouTube.videoID(from: item.exercise.youtubeURL) {
-                YouTubePlayerView(videoID: videoID)
+            if showTechnique, let videoID {
+                YouTubeThumbnailPlayer(videoID: videoID)
                     .aspectRatio(16 / 9, contentMode: .fit)
                     .clipShape(.rect(cornerRadius: NDCRadius.standard))
                     .frame(maxHeight: 160)

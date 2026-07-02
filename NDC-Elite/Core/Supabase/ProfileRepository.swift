@@ -14,6 +14,25 @@ struct ProfileRepository {
             .execute()
     }
 
+    func updatePhone(userId: UUID, phone: String) async throws {
+        try await client
+            .from("profiles")
+            .update(["phone": phone])
+            .eq("id", value: userId)
+            .execute()
+    }
+
+    func updateMemberSince(userId: UUID, date: Date) async throws {
+        let fmt = DateFormatter()
+        fmt.locale = Locale(identifier: "en_US_POSIX")
+        fmt.dateFormat = "yyyy-MM-dd"
+        try await client
+            .from("profiles")
+            .update(["member_since": fmt.string(from: date)])
+            .eq("id", value: userId)
+            .execute()
+    }
+
     /// Sube la foto al bucket público `avatars` (ruta `{userId}/avatar.jpg`,
     /// se sobrescribe con `upsert`), guarda la URL pública en `profiles.avatar_url`
     /// y la devuelve.
