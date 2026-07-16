@@ -337,7 +337,7 @@ final class WodDetailStore {
             // La biblioteca da nombre y video a cada ejercicio del WOD.
             await ExerciseLibraryStore.shared.load()
             let library = ExerciseLibraryStore.shared.state.value ?? []
-            let namesById = Dictionary(uniqueKeysWithValues: library.map { ($0.id, $0.name) })
+            let namesById = Dictionary(uniqueKeysWithValues: library.map { ($0.id, $0.subtitle) })
 
             guard let wod = try await repo.nextWod() else {
                 state = .loaded(nil)

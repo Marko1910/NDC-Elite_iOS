@@ -420,7 +420,7 @@ struct CoachRepository {
 
     static let calendar: Calendar = {
         var cal = Calendar(identifier: .gregorian)
-        cal.timeZone = TimeZone(identifier: "UTC") ?? .current
+        cal.timeZone = TimeZone.current
         return cal
     }()
 

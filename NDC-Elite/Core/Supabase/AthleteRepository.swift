@@ -333,11 +333,14 @@ struct AthleteRepository {
 
     // MARK: - Helpers
 
+    /// Formatea una Date como "yyyy-MM-dd" usando la zona horaria local.
+    /// Antes usaba UTC, lo que causaba que después de ~7PM (UTC-5) el WOD
+    /// del día desapareciera porque ya era "mañana" en UTC.
     private static func isoDate(_ date: Date) -> String {
         let f = DateFormatter()
         f.locale = Locale(identifier: "en_US_POSIX")
         f.dateFormat = "yyyy-MM-dd"
-        f.timeZone = TimeZone(identifier: "UTC")
+        f.timeZone = TimeZone.current
         return f.string(from: date)
     }
 }

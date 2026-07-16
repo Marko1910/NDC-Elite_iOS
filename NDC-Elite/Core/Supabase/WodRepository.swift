@@ -110,11 +110,14 @@ struct WodRepository {
             .execute()
     }
 
+    /// Formatea una Date como "yyyy-MM-dd" usando la zona horaria local.
+    /// Antes usaba UTC, lo que causaba que después de ~7PM (UTC-5) las fechas
+    /// se desfasaran al día siguiente.
     static func isoDate(_ date: Date) -> String {
         let f = DateFormatter()
         f.locale = Locale(identifier: "en_US_POSIX")
         f.dateFormat = "yyyy-MM-dd"
-        f.timeZone = TimeZone(identifier: "UTC")
+        f.timeZone = TimeZone.current
         return f.string(from: date)
     }
 }

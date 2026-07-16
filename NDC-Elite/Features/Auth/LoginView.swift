@@ -74,7 +74,7 @@ struct LoginView: View {
                     Button {
                         Task {
                             isLoading = true
-                            await session.signIn(email: email, password: password)
+                            await session.signIn(email: email.trimmingCharacters(in: .whitespacesAndNewlines).lowercased(), password: password)
                             isLoading = false
                         }
                     } label: {

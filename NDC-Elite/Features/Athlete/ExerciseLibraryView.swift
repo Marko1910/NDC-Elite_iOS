@@ -118,10 +118,10 @@ private struct ExerciseRow: View {
             .clipShape(.rect(cornerRadius: NDCRadius.standard))
 
             VStack(alignment: .leading, spacing: 2) {
-                Text(exercise.name)
+                Text(exercise.subtitle)
                     .font(NDCFont.bodyLG.weight(.semibold))
                     .foregroundStyle(NDCColor.onSurface)
-                Text(exercise.subtitle)
+                Text(exercise.name)
                     .font(NDCFont.labelSM)
                     .foregroundStyle(NDCColor.outline)
                 NDCChip(text: exercise.category.displayName)

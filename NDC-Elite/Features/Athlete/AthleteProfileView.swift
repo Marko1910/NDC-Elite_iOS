@@ -3,17 +3,12 @@ import Charts
 
 /// Tab 5 · Perfil del atleta — diseño Stitch "Perfil de Atleta - Con Registro de
 /// Lesiones". ID card · bento (asistencia/peso/racha) · meta principal ·
-/// historial de marcas con **sparklines reales (Swift Charts)** · notas médicas ·
+/// historial de marcas con sparklines reales (Swift Charts) · notas médicas ·
 /// registro de lesiones (+ Registrar Nueva Lesión). (ver FLOWS.md → AthleteProfileView)
-///
-/// TODO(datos): usa `ProfileData.sample` salvo lo que viene de `profile`.
-/// Conectar a Supabase: attendance (resumen), personal_records (historial),
-/// athlete_goals (meta), coach_notes (notas), injuries (lista).
 struct AthleteProfileView: View {
     let profile: Profile
     @Environment(SessionStore.self) private var session
-    private let data = ProfileData.sample
-    @State private var prStore = AthletePrHistoryStore()
+    @State private var store = AthleteProfileStore()
 
     @State private var showLogInjury = false
     @State private var showScanner = false
@@ -43,7 +38,6 @@ struct AthleteProfileView: View {
                 AttendanceScannerView()
             }
             .toolbar {
-                // Escáner QR de asistencia (en lugar de la campana).
                 ToolbarItem(placement: .topBarTrailing) {
                     Button {
                         Haptics.impact(.light)
@@ -55,8 +49,8 @@ struct AthleteProfileView: View {
                     .accessibilityLabel("Escanear QR de asistencia")
                 }
             }
-            .task { await prStore.load(athleteId: profile.id) }
-            .refreshable { await prStore.load(athleteId: profile.id) }
+            .task { await store.load(athleteId: profile.id) }
+            .refreshable { await store.load(athleteId: profile.id) }
         }
         .tint(NDCColor.primary)
     }
@@ -101,25 +95,24 @@ struct AthleteProfileView: View {
 
     private var bentoRow: some View {
         VStack(spacing: NDCSpacing.gutter) {
-            // Asistencia (ancho completo)
             VStack(alignment: .leading, spacing: NDCSpacing.stackSM) {
                 Text("ASISTENCIA MENSUAL")
                     .font(NDCFont.labelSM)
                     .foregroundStyle(NDCColor.outline)
                 HStack(alignment: .firstTextBaseline, spacing: 4) {
-                    Text("\(data.attended)")
+                    Text("\(store.attended)")
                         .font(NDCFont.statsXL)
                         .foregroundStyle(NDCColor.primary)
-                    Text("/ \(data.monthlyTotal)")
+                    Text("/ \(store.monthlyTotal)")
                         .font(NDCFont.bodyLG)
                         .foregroundStyle(NDCColor.outline)
                 }
-                ProgressBar(value: Double(data.attended) / Double(data.monthlyTotal))
+                ProgressBar(value: store.monthlyTotal > 0 ? Double(store.attended) / Double(store.monthlyTotal) : 0)
                 HStack {
                     Text("Objetivo: \(profile.monthlyAttendanceGoal)")
                     Spacer()
-                    if data.attended > profile.monthlyAttendanceGoal {
-                        Text("+\(data.attended - profile.monthlyAttendanceGoal) sobre meta")
+                    if store.attended > profile.monthlyAttendanceGoal {
+                        Text("+\(store.attended - profile.monthlyAttendanceGoal) sobre meta")
                             .foregroundStyle(NDCColor.primary)
                     }
                 }
@@ -132,7 +125,7 @@ struct AthleteProfileView: View {
 
             HStack(spacing: NDCSpacing.gutter) {
                 miniMetric(title: "PESO", value: "\(formatted(profile.weightKg ?? 0))",
-                           unit: "kg", icon: "arrow.down", note: data.weightDelta)
+                           unit: "kg", icon: "arrow.down", note: store.weightDelta)
                 miniMetric(title: "RACHA", value: "\(profile.streakDays)",
                            unit: "días", icon: "flame.fill", note: "Personal Best")
             }
@@ -164,14 +157,14 @@ struct AthleteProfileView: View {
                     .font(NDCFont.headlineSM)
                     .foregroundStyle(NDCColor.onSurface)
                 Spacer()
-                Text("\(Int(data.goalProgress * 100))% Completado")
+                Text("\(Int(store.goalProgress * 100))% Completado")
                     .font(NDCFont.labelBold)
                     .foregroundStyle(NDCColor.primary)
             }
-            Text(data.goalTitle)
+            Text(store.goalTitle)
                 .font(NDCFont.bodyMD)
                 .foregroundStyle(NDCColor.onSurfaceVariant)
-            ProgressBar(value: data.goalProgress, height: 10)
+            ProgressBar(value: store.goalProgress, height: 10)
         }
         .padding(NDCSpacing.stackLG)
         .frame(maxWidth: .infinity, alignment: .leading)
@@ -211,29 +204,51 @@ struct AthleteProfileView: View {
         }
     }
 
-    // MARK: - Notas médicas
+    private var prStore: AthletePrHistoryStore { store.prHistory }
+
+    // MARK: - Notas médicas (coach_notes compartidas + lesiones)
 
     private var medicalNotes: some View {
         VStack(alignment: .leading, spacing: NDCSpacing.stackMD) {
             Label("Notas Médicas y Limitaciones", systemImage: "cross.case.fill")
                 .font(NDCFont.headlineSM)
                 .foregroundStyle(NDCColor.onSurface)
-            ForEach(data.medicalNotes) { note in
-                HStack(alignment: .top, spacing: NDCSpacing.stackSM) {
-                    Image(systemName: note.isWarning ? "exclamationmark.triangle.fill" : "info.circle.fill")
-                        .foregroundStyle(note.isWarning ? NDCColor.error : NDCColor.primary)
-                    Text(note.text)
-                        .font(NDCFont.bodyMD)
-                        .foregroundStyle(NDCColor.onSurfaceVariant)
-                        .fixedSize(horizontal: false, vertical: true)
-                    Spacer(minLength: 0)
+            if store.sharedNotes.isEmpty && store.injuries.isEmpty {
+                Text("No hay notas médicas ni lesiones registradas.")
+                    .font(NDCFont.bodyMD)
+                    .foregroundStyle(NDCColor.outline)
+            } else {
+                ForEach(store.sharedNotes) { note in
+                    HStack(alignment: .top, spacing: NDCSpacing.stackSM) {
+                        Image(systemName: note.category == .lesion ? "exclamationmark.triangle.fill" : "info.circle.fill")
+                            .foregroundStyle(note.category == .lesion ? NDCColor.error : NDCColor.primary)
+                        VStack(alignment: .leading, spacing: 2) {
+                            Text(note.content)
+                                .font(NDCFont.bodyMD)
+                                .foregroundStyle(NDCColor.onSurfaceVariant)
+                                .fixedSize(horizontal: false, vertical: true)
+                            Text(noteCategoryLabel(note.category))
+                                .font(NDCFont.labelSM)
+                                .foregroundStyle(NDCColor.outline)
+                        }
+                        Spacer(minLength: 0)
+                    }
+                    .accessibilityElement(children: .combine)
                 }
-                .accessibilityElement(children: .combine)
             }
         }
         .padding(NDCSpacing.stackLG)
         .frame(maxWidth: .infinity, alignment: .leading)
         .background(NDCColor.surface, in: .rect(cornerRadius: NDCRadius.large))
+    }
+
+    private func noteCategoryLabel(_ cat: NoteCategory) -> String {
+        switch cat {
+        case .general: return "General"
+        case .performance: return "Rendimiento"
+        case .lesion: return "Lesión"
+        case .nutricion: return "Nutrición"
+        }
     }
 
     // MARK: - Lesiones
@@ -243,27 +258,33 @@ struct AthleteProfileView: View {
             Label("Registro de Lesiones y Preocupaciones", systemImage: "bandage.fill")
                 .font(NDCFont.headlineSM)
                 .foregroundStyle(NDCColor.onSurface)
-            ForEach(data.injuries) { injury in
-                HStack {
-                    VStack(alignment: .leading, spacing: 2) {
-                        Text(injury.name)
-                            .font(NDCFont.bodyMD)
-                            .foregroundStyle(NDCColor.onSurface)
-                        Text(injury.status.uppercased())
-                            .font(NDCFont.labelSM)
-                            .foregroundStyle(NDCColor.outline)
+            if store.injuries.isEmpty {
+                Text("Sin lesiones registradas. ¡Sigue así! 💪")
+                    .font(NDCFont.bodyMD)
+                    .foregroundStyle(NDCColor.outline)
+            } else {
+                ForEach(store.injuries) { injury in
+                    HStack {
+                        VStack(alignment: .leading, spacing: 2) {
+                            Text(bodyZoneLabel(injury.bodyZone))
+                                .font(NDCFont.bodyMD)
+                                .foregroundStyle(NDCColor.onSurface)
+                            Text(injury.status.rawValue)
+                                .font(NDCFont.labelSM)
+                                .foregroundStyle(NDCColor.outline)
+                        }
+                        Spacer()
+                        Text(injury.severity.rawValue.capitalized)
+                            .font(NDCFont.labelBold)
+                            .foregroundStyle(injury.severity == .moderada || injury.severity == .severa ? NDCColor.error : NDCColor.onAccent)
+                            .padding(.horizontal, 8).padding(.vertical, 3)
+                            .background((injury.severity == .moderada || injury.severity == .severa ? NDCColor.error : NDCColor.accent).opacity(0.18),
+                                        in: .capsule)
                     }
-                    Spacer()
-                    Text(injury.severity.uppercased())
-                        .font(NDCFont.labelBold)
-                        .foregroundStyle(injury.isModerate ? NDCColor.error : NDCColor.onAccent)
-                        .padding(.horizontal, 8).padding(.vertical, 3)
-                        .background((injury.isModerate ? NDCColor.error : NDCColor.accent).opacity(0.18),
-                                    in: .capsule)
+                    .padding(NDCSpacing.gutter)
+                    .background(NDCColor.background, in: .rect(cornerRadius: NDCRadius.standard))
+                    .accessibilityElement(children: .combine)
                 }
-                .padding(NDCSpacing.gutter)
-                .background(NDCColor.background, in: .rect(cornerRadius: NDCRadius.standard))
-                .accessibilityElement(children: .combine)
             }
             Button {
                 Haptics.impact()
@@ -279,6 +300,10 @@ struct AthleteProfileView: View {
         .padding(NDCSpacing.stackLG)
         .frame(maxWidth: .infinity, alignment: .leading)
         .background(NDCColor.surface, in: .rect(cornerRadius: NDCRadius.large))
+    }
+
+    private func bodyZoneLabel(_ zone: BodyZone) -> String {
+        zone.displayName
     }
 
     // MARK: - Cerrar sesión
@@ -318,7 +343,7 @@ private struct ProgressBar: View {
 // MARK: - Tarjeta de PR con sparkline real (Swift Charts)
 
 private struct PRSparklineCard: View {
-    let pr: ProfileData.PRMark
+    let pr: PrMark
 
     var body: some View {
         HStack(spacing: NDCSpacing.gutter) {
@@ -332,7 +357,6 @@ private struct PRSparklineCard: View {
                 }
                 Text(pr.ago).font(NDCFont.labelSM).foregroundStyle(NDCColor.outline)
             }
-            // Gráfica real, alimentada por el historial del PR
             Chart {
                 ForEach(Array(pr.history.enumerated()), id: \.offset) { index, v in
                     LineMark(x: .value("i", index), y: .value("kg", v))
@@ -369,11 +393,54 @@ private extension View {
     }
 }
 
+// MARK: - Alias para reutilizar el mismo tipo
+
+typealias PrMark = ProfileData.PRMark
+
+// MARK: - Store unificado del perfil (carga desde Supabase)
+
+@MainActor @Observable
+final class AthleteProfileStore {
+    fileprivate(set) var prHistory = AthletePrHistoryStore()
+
+    fileprivate(set) var attended = 0
+    fileprivate(set) var monthlyTotal = 24
+    fileprivate(set) var weightDelta = "-"
+    fileprivate(set) var goalTitle = "Sin meta definida"
+    fileprivate(set) var goalProgress: Double = 0
+    fileprivate(set) var sharedNotes: [CoachNote] = []
+    fileprivate(set) var injuries: [Injury] = []
+
+    private let repo = AthleteRepository()
+
+    func load(athleteId: UUID) async {
+        async let attendedTask = repo.monthlyAttendance(athleteId: athleteId)
+        async let goalTask = repo.primaryGoal(athleteId: athleteId)
+        async let notesTask = repo.sharedNotes(athleteId: athleteId)
+        async let injuriesTask = repo.injuries(athleteId: athleteId)
+
+        let (attendedVal, goal, notes, injuriesVal) = await (try? attendedTask) ?? 0,
+                                                              (try? goalTask) as AthleteGoal?? ?? nil,
+                                                              (try? notesTask) ?? [],
+                                                              (try? injuriesTask) ?? []
+
+        attended = attendedVal
+        if let g = goal {
+            goalTitle = g.title
+            goalProgress = g.progress
+        }
+        sharedNotes = notes
+        injuries = injuriesVal
+
+        await prHistory.load(athleteId: athleteId)
+    }
+}
+
 // MARK: - Store (historial de PR real, agrupado por ejercicio)
 
 @MainActor @Observable
 final class AthletePrHistoryStore {
-    fileprivate var state: LoadState<[ProfileData.PRMark]> = .loading
+    fileprivate var state: LoadState<[PrMark]> = .loading
     private let repo = AthleteRepository()
 
     func load(athleteId: UUID) async {
@@ -387,10 +454,10 @@ final class AthletePrHistoryStore {
             let namesById = Dictionary(uniqueKeysWithValues: exercises.map { ($0.id, $0.nameEs ?? $0.name) })
 
             let grouped = Dictionary(grouping: records, by: \.exerciseId)
-            let entries: [(Date, ProfileData.PRMark)] = grouped.compactMap { exerciseId, recs in
+            let entries: [(Date, PrMark)] = grouped.compactMap { exerciseId, recs in
                 let sorted = recs.sorted { $0.recordDate < $1.recordDate }
                 guard let latest = sorted.last else { return nil }
-                let mark = ProfileData.PRMark(
+                let mark = PrMark(
                     exercise: namesById[exerciseId] ?? "Ejercicio",
                     value: latest.value,
                     ago: Self.relative(latest.recordDate),
@@ -413,9 +480,35 @@ final class AthletePrHistoryStore {
     }
 }
 
-// MARK: - Datos de muestra (a reemplazar por fetch de Supabase)
+// MARK: - Extensiones de AthleteRepository para perfil
 
-private struct ProfileData {
+extension AthleteRepository {
+    /// Notas del coach visibles para el atleta (compartidas o de lesión).
+    func sharedNotes(athleteId: UUID) async throws -> [CoachNote] {
+        try await client
+            .from("coach_notes")
+            .select()
+            .eq("athlete_id", value: athleteId)
+            .order("note_date", ascending: false)
+            .execute()
+            .value
+    }
+
+    /// Lesiones del atleta, más recientes primero.
+    func injuries(athleteId: UUID) async throws -> [Injury] {
+        try await client
+            .from("injuries")
+            .select()
+            .eq("athlete_id", value: athleteId)
+            .order("incident_date", ascending: false)
+            .execute()
+            .value
+    }
+}
+
+// MARK: - Datos de muestra (mantenido para previews)
+
+struct ProfileData {
     struct PRMark: Identifiable {
         let id = UUID()
         let exercise: String
@@ -423,43 +516,12 @@ private struct ProfileData {
         let ago: String
         let history: [Double]
     }
-    struct MedicalNote: Identifiable {
-        let id = UUID()
-        let isWarning: Bool
-        let text: String
-    }
-    struct InjuryItem: Identifiable {
-        let id = UUID()
-        let name: String
-        let status: String
-        let severity: String
-        let isModerate: Bool
-    }
 
-    let attended: Int
-    let monthlyTotal: Int
-    let weightDelta: String
-    let goalTitle: String
-    let goalProgress: Double
-    let medicalNotes: [MedicalNote]
-    let injuries: [InjuryItem]
-    let unreadCount: Int
-
-    static let sample = ProfileData(
-        attended: 22,
-        monthlyTotal: 24,
-        weightDelta: "-0.8kg",
-        goalTitle: "Ganar masa muscular y mejorar estabilidad en Clean & Jerk.",
-        goalProgress: 0.85,
-        medicalNotes: [
-            MedicalNote(isWarning: true, text: "Molestia leve en tendón rotuliano derecho. Evitar saltos de cajón de alta intensidad."),
-            MedicalNote(isWarning: false, text: "Enfoque en movilidad de hombros previo a trabajos Overhead.")
-        ],
-        injuries: [
-            InjuryItem(name: "Sobrecarga en lumbar", status: "Reportado hace 2 días", severity: "Moderada", isModerate: true),
-            InjuryItem(name: "Molestia en hombro izquierdo", status: "En seguimiento", severity: "Leve", isModerate: false)
-        ],
-        unreadCount: 2
+    static let samplePr = PrMark(
+        exercise: "SENTADILLA",
+        value: 85,
+        ago: "hace 3 días",
+        history: [70, 72, 75, 78, 80, 85]
     )
 }
 

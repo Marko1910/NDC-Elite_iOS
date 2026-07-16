@@ -38,10 +38,15 @@ final class SessionStore {
     func signIn(email: String, password: String) async {
         errorMessage = nil
         do {
-            try await client.auth.signIn(email: email, password: password)
+            try await client.auth.signIn(email: email.trimmingCharacters(in: .whitespacesAndNewlines).lowercased(), password: password)
             // authStateChanges se encarga de cargar el perfil
         } catch {
-            errorMessage = "Credenciales incorrectas. Verifica tu correo y contraseña."
+            let msg = error.localizedDescription.lowercased()
+            if msg.contains("confirm") {
+                errorMessage = "Tu correo aún no ha sido confirmado. Revisa tu bandeja de entrada."
+            } else {
+                errorMessage = "Credenciales incorrectas. Verifica tu correo y contraseña."
+            }
         }
     }
 
@@ -51,6 +56,7 @@ final class SessionStore {
                   password: String, inviteCode: String) async -> Bool {
         errorMessage = nil
         let code = inviteCode.trimmingCharacters(in: .whitespaces).uppercased()
+        let emailNorm = email.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
         do {
             // 1) ¿Código válido y disponible? (RPC pública)
             let valid: Bool = try await client.rpc("invitation_code_valid", params: ["p_code": code])
@@ -61,21 +67,29 @@ final class SessionStore {
             }
             // 2) Crear cuenta
             try await client.auth.signUp(
-                email: email, password: password,
+                email: emailNorm, password: password,
                 data: ["full_name": .string(name)])
             // 3) Guardar teléfono y canjear el código (ya autenticado)
             if let uid = client.auth.currentSession?.user.id {
                 try? await client.from("profiles")
                     .update(["phone": phone]).eq("id", value: uid).execute()
+                // redeem_role_code marca el código usado y, si es de tipo 'coach',
+                // sube el rol del perfil recién creado (ver migración 14).
+                let redeemed: Bool = try await client.rpc("redeem_role_code", params: ["p_code": code])
+                    .execute().value
+                if !redeemed { /* el código se tomó entre validar y canjear; cuenta creada igual */ }
+            } else {
+                // No hay sesión: probablemente el proyecto requiere confirmación de correo.
+                errorMessage = "La cuenta se creó, pero debes confirmar tu correo antes de iniciar sesión. Revisa tu bandeja de entrada."
             }
-            // redeem_role_code marca el código usado y, si es de tipo 'coach',
-            // sube el rol del perfil recién creado (ver migración 14).
-            let redeemed: Bool = try await client.rpc("redeem_role_code", params: ["p_code": code])
-                .execute().value
-            if !redeemed { /* el código se tomó entre validar y canjear; cuenta creada igual */ }
             return true
         } catch {
-            errorMessage = "No se pudo crear la cuenta. Verifica el correo (¿ya registrado?) e inténtalo de nuevo."
+            let msg = error.localizedDescription.lowercased()
+            errorMessage = when {
+                msg.contains("confirm") -> "Tu correo aún no ha sido confirmado. Revisa tu bandeja de entrada y confirma tu cuenta."
+                msg.contains("already") || msg.contains("registered") -> "Este correo ya está registrado. Inicia sesión o usa otro correo."
+                else -> "No se pudo crear la cuenta. Verifica el correo (¿ya registrado?) e inténtalo de nuevo."
+            }
             return false
         }
     }
@@ -86,17 +100,25 @@ final class SessionStore {
     /// pero como atleta).
     func registerFoundingCoach(name: String, email: String, phone: String, password: String) async -> Bool {
         errorMessage = nil
+        let emailNorm = email.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
         do {
             try await client.auth.signUp(
-                email: email, password: password,
+                email: emailNorm, password: password,
                 data: ["full_name": .string(name), "requested_role": .string("coach")])
             if let uid = client.auth.currentSession?.user.id {
                 try? await client.from("profiles")
                     .update(["phone": phone]).eq("id", value: uid).execute()
+            } else {
+                errorMessage = "La cuenta se creó, pero debes confirmar tu correo antes de iniciar sesión. Revisa tu bandeja de entrada."
             }
             return true
         } catch {
-            errorMessage = "No se pudo crear la cuenta. Verifica el correo (¿ya registrado?) e inténtalo de nuevo."
+            let msg = error.localizedDescription.lowercased()
+            errorMessage = when {
+                msg.contains("confirm") -> "Tu correo aún no ha sido confirmado. Revisa tu bandeja de entrada y confirma tu cuenta."
+                msg.contains("already") || msg.contains("registered") -> "Este correo ya está registrado. Inicia sesión o usa otro correo."
+                else -> "No se pudo crear la cuenta. Verifica el correo (¿ya registrado?) e inténtalo de nuevo."
+            }
             return false
         }
     }

@@ -63,7 +63,7 @@ struct ExerciseDetailView: View {
         }
         .background(NDCColor.background)
         .scrollIndicators(.hidden)
-        .navigationTitle(exercise.name)
+        .navigationTitle(exercise.subtitle)
         .navigationBarTitleDisplayMode(.inline)
         .sheet(isPresented: $showLogPr) { LogPrSheet() }
     }
@@ -100,10 +100,10 @@ struct ExerciseDetailView: View {
 
     private var heading: some View {
         VStack(alignment: .leading, spacing: NDCSpacing.stackSM) {
-            Text(exercise.name)
+            Text(exercise.subtitle)
                 .font(NDCFont.headlineMD)
                 .foregroundStyle(NDCColor.primary)
-            Text(exercise.subtitle.uppercased())
+            Text(exercise.name.uppercased())
                 .font(NDCFont.labelSM)
                 .foregroundStyle(NDCColor.outline)
                 .tracking(1)
